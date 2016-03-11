@@ -1,0 +1,95 @@
+
+## Use: nmake -f makefile.msc install
+
+# Nothing much configurable below
+
+TOPDIR = .
+srcdir = $(TOPDIR)\..
+!INCLUDE $(TOPDIR)\..\NT\rules.msc
+all: build-all
+check: check-recursive check-msc
+install: install-recursive install-msc
+INCLUDES = -I$(srcdir)
+buildtools-1-all: "buildtools-1-dir" "buildtools-1-Makefile"
+	$(CD) "buildtools" && $(MAKE) /nologo $(MAKEDEBUG) "prefix=$(prefix)" "bits=$(bits)" all 
+buildtools-1-dir: 
+	if not exist "buildtools" $(MKDIR) "buildtools"
+buildtools-1-Makefile: "$(srcdir)\buildtools\Makefile.msc"
+	$(INSTALL) "$(srcdir)\buildtools\Makefile.msc" "buildtools\Makefile"
+buildtools-1-check:
+	$(CD) "buildtools" && $(MAKE) /nologo $(MAKEDEBUG) "prefix=$(prefix)" "bits=$(bits)" check
+buildtools-1-install:
+	$(CD) "buildtools" && $(MAKE) /nologo $(MAKEDEBUG) "prefix=$(prefix)" "bits=$(bits)" install
+common-2-all: "common-2-dir" "common-2-Makefile"
+	$(CD) "common" && $(MAKE) /nologo $(MAKEDEBUG) "prefix=$(prefix)" "bits=$(bits)" all 
+common-2-dir: 
+	if not exist "common" $(MKDIR) "common"
+common-2-Makefile: "$(srcdir)\common\Makefile.msc"
+	$(INSTALL) "$(srcdir)\common\Makefile.msc" "common\Makefile"
+common-2-check:
+	$(CD) "common" && $(MAKE) /nologo $(MAKEDEBUG) "prefix=$(prefix)" "bits=$(bits)" check
+common-2-install:
+	$(CD) "common" && $(MAKE) /nologo $(MAKEDEBUG) "prefix=$(prefix)" "bits=$(bits)" install
+clients-3-all: "clients-3-dir" "clients-3-Makefile"
+	$(CD) "clients" && $(MAKE) /nologo $(MAKEDEBUG) "prefix=$(prefix)" "bits=$(bits)" all 
+clients-3-dir: 
+	if not exist "clients" $(MKDIR) "clients"
+clients-3-Makefile: "$(srcdir)\clients\Makefile.msc"
+	$(INSTALL) "$(srcdir)\clients\Makefile.msc" "clients\Makefile"
+clients-3-check:
+	$(CD) "clients" && $(MAKE) /nologo $(MAKEDEBUG) "prefix=$(prefix)" "bits=$(bits)" check
+clients-3-install:
+	$(CD) "clients" && $(MAKE) /nologo $(MAKEDEBUG) "prefix=$(prefix)" "bits=$(bits)" install
+gdk-4-all: "gdk-4-dir" "gdk-4-Makefile"
+	$(CD) "gdk" && $(MAKE) /nologo $(MAKEDEBUG) "prefix=$(prefix)" "bits=$(bits)" all 
+gdk-4-dir: 
+	if not exist "gdk" $(MKDIR) "gdk"
+gdk-4-Makefile: "$(srcdir)\gdk\Makefile.msc"
+	$(INSTALL) "$(srcdir)\gdk\Makefile.msc" "gdk\Makefile"
+gdk-4-check:
+	$(CD) "gdk" && $(MAKE) /nologo $(MAKEDEBUG) "prefix=$(prefix)" "bits=$(bits)" check
+gdk-4-install:
+	$(CD) "gdk" && $(MAKE) /nologo $(MAKEDEBUG) "prefix=$(prefix)" "bits=$(bits)" install
+monetdb5-5-all: "monetdb5-5-dir" "monetdb5-5-Makefile"
+	$(CD) "monetdb5" && $(MAKE) /nologo $(MAKEDEBUG) "prefix=$(prefix)" "bits=$(bits)" all 
+monetdb5-5-dir: 
+	if not exist "monetdb5" $(MKDIR) "monetdb5"
+monetdb5-5-Makefile: "$(srcdir)\monetdb5\Makefile.msc"
+	$(INSTALL) "$(srcdir)\monetdb5\Makefile.msc" "monetdb5\Makefile"
+monetdb5-5-check:
+	$(CD) "monetdb5" && $(MAKE) /nologo $(MAKEDEBUG) "prefix=$(prefix)" "bits=$(bits)" check
+monetdb5-5-install:
+	$(CD) "monetdb5" && $(MAKE) /nologo $(MAKEDEBUG) "prefix=$(prefix)" "bits=$(bits)" install
+sql-6-all: "sql-6-dir" "sql-6-Makefile"
+	$(CD) "sql" && $(MAKE) /nologo $(MAKEDEBUG) "prefix=$(prefix)" "bits=$(bits)" all 
+sql-6-dir: 
+	if not exist "sql" $(MKDIR) "sql"
+sql-6-Makefile: "$(srcdir)\sql\Makefile.msc"
+	$(INSTALL) "$(srcdir)\sql\Makefile.msc" "sql\Makefile"
+sql-6-check:
+	$(CD) "sql" && $(MAKE) /nologo $(MAKEDEBUG) "prefix=$(prefix)" "bits=$(bits)" check
+sql-6-install:
+	$(CD) "sql" && $(MAKE) /nologo $(MAKEDEBUG) "prefix=$(prefix)" "bits=$(bits)" install
+tools-7-all: "tools-7-dir" "tools-7-Makefile"
+	$(CD) "tools" && $(MAKE) /nologo $(MAKEDEBUG) "prefix=$(prefix)" "bits=$(bits)" all 
+tools-7-dir: 
+	if not exist "tools" $(MKDIR) "tools"
+tools-7-Makefile: "$(srcdir)\tools\Makefile.msc"
+	$(INSTALL) "$(srcdir)\tools\Makefile.msc" "tools\Makefile"
+tools-7-check:
+	$(CD) "tools" && $(MAKE) /nologo $(MAKEDEBUG) "prefix=$(prefix)" "bits=$(bits)" check
+tools-7-install:
+	$(CD) "tools" && $(MAKE) /nologo $(MAKEDEBUG) "prefix=$(prefix)" "bits=$(bits)" install
+all-recursive: "buildtools-1-all" "common-2-all" "clients-3-all" "gdk-4-all" "monetdb5-5-all" "sql-6-all" "tools-7-all" 
+check-recursive: "buildtools-1-check" "common-2-check" "clients-3-check" "gdk-4-check" "monetdb5-5-check" "sql-6-check" "tools-7-check" 
+install-recursive: "buildtools-1-install" "common-2-install" "clients-3-install" "gdk-4-install" "monetdb5-5-install" "sql-6-install" "tools-7-install" 
+build-all: $(BUILT_SOURCES) all-recursive all-msc
+all-msc: "monetdb_config.h"
+check-msc: all-msc "monetdb_config.h"
+install-msc: install-exec install-data
+install-exec:  "install_monetdb_config.h" 
+install_monetdb_config.h: "monetdb_config.h" "$(includedir)\monetdb"
+	$(INSTALL) "monetdb_config.h" "$(includedir)\monetdb\monetdb_config.h"
+"$(includedir)\monetdb":
+	if not exist "$(includedir)\monetdb" $(MKDIR) "$(includedir)\monetdb"
+install-data:
