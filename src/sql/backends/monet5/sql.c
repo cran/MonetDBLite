@@ -3372,7 +3372,7 @@ mvc_import_table_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 {
 	backend *be;
 	BAT **b = NULL;
-	unsigned char *tsep = NULL, *rsep = NULL, *ssep = NULL, *ns = NULL;
+	unsigned char *tsep = NULL, *rsep = NULL, *ssep = NULL, *ns = NULL, *fn = NULL;
 	ssize_t len = 0;
 	sql_table *t = *(sql_table **) getArgReference(stk, pci, pci->retc + 0);
 	unsigned char **T = (unsigned char **) getArgReference_str(stk, pci, pci->retc + 1);
@@ -3429,7 +3429,21 @@ mvc_import_table_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	if (!fname) {
 		msg = mvc_import_table(cntxt, &b, be->mvc, be->mvc->scanner.rs, t, (char *) tsep, (char *) rsep, (char *) ssep, (char *) ns, *sz, *offset, *locked, *besteffort);
 	} else {
-		ss = open_rastream(*fname);
+		len = strlen(*fname);
+		if ((fn = GDKmalloc(len + 1)) == NULL) {
+			GDKfree(ns);
+			GDKfree(tsep);
+			GDKfree(rsep);
+			GDKfree(ssep);
+			throw(MAL, "sql.copy_from", MAL_MALLOC_FAIL);
+		}
+#if defined(HAVE_EMBEDDED) && defined(WIN32)
+		// fix single backslash file separator on windows
+		strcpy(fn, *fname);
+#else
+		GDKstrFromStr(fn, (unsigned char*)*fname, len);
+#endif
+		ss = open_rastream((const char *) fn);
 		if (!ss || mnstr_errnr(ss)) {
 			int errnr = mnstr_errnr(ss);
 			if (ss)
@@ -3438,9 +3452,11 @@ mvc_import_table_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 			GDKfree(rsep);
 			GDKfree(ssep);
 			GDKfree(ns);
-			msg = createException(IO, "sql.copy_from", "could not open file '%s': %s", *fname, strerror(errnr));
+			msg = createException(IO, "sql.copy_from", "could not open file '%s': %s", fn, strerror(errnr));
+			GDKfree(fn);
 			return msg;
 		}
+		GDKfree(fn);
 #if SIZEOF_VOID_P == 4
 		s = bstream_create(ss, 0x20000);
 #else
@@ -3464,7 +3480,7 @@ mvc_import_table_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	if (fname && s == NULL)
 		throw(IO, "bstreams.create", "Failed to create block stream");
 	if (b == NULL)
-		throw(SQL, "importTable", "Failed to import table %s", be->mvc->errstr? be->mvc->errstr:"");
+		throw(SQL, "importTable", "Failed to import table %s", be->mvc->errstr);
 	bat2return(stk, pci, b);
 	GDKfree(b);
 	return msg;
@@ -3507,12 +3523,23 @@ mvc_bin_import_table_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pc
 
 	for (i = pci->retc + 2, n = t->columns.set->h; i < pci->argc && n; i++, n = n->next) {
 		sql_column *col = n->data;
+		const char *fname = *getArgReference_str(stk, pci, i);
+		size_t flen = strlen(fname);
+		char *fn;
 
 		if (ATOMvarsized(col->type.type->localtype) && col->type.type->localtype != TYPE_str)
 			throw(SQL, "sql", "Failed to attach file %s", *getArgReference_str(stk, pci, i));
-		f = fopen(*getArgReference_str(stk, pci, i), "r");
-		if (f == NULL)
-			throw(SQL, "sql", "Failed to open file %s", *getArgReference_str(stk, pci, i));
+		fn = GDKmalloc(flen + 1);
+		GDKstrFromStr((unsigned char *) fn, (const unsigned char *) fname, flen);
+		if (fn == NULL)
+			throw(SQL, "sql", MAL_MALLOC_FAIL);
+		f = fopen(fn, "r");
+		if (f == NULL) {
+			msg = createException(SQL, "sql", "Failed to open file %s", fn);
+			GDKfree(fn);
+			return msg;
+		}
+		GDKfree(fn);
 		fclose(f);
 	}
 

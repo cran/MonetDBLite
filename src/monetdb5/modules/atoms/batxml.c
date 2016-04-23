@@ -28,7 +28,7 @@
 #include <gdk.h>
 #include "ctype.h"
 #include <string.h>
-#if defined(HAVE_LIBXML) && !defined(HAVE_EMBEDDED)
+#ifdef HAVE_LIBXML
 #include <libxml/parser.h>
 #endif
 #include "mal_interpreter.h"
@@ -62,7 +62,7 @@ batxml_export str BATXMLgroup(xml *ret, const bat *bid);
 batxml_export str AGGRsubxmlcand(bat *retval, const bat *bid, const bat *gid, const bat *eid, const bat *sid, const bit *skip_nils);
 batxml_export str AGGRsubxml(bat *retval, const bat *bid, const bat *gid, const bat *eid, const bit *skip_nils);
 
-#if defined(HAVE_LIBXML) && !defined(HAVE_EMBEDDED)
+#ifdef HAVE_LIBXML
 
 #define prepareResult(X,Y,tpe,Z,free)							\
 	do {														\
@@ -1207,10 +1207,9 @@ BATxmlaggr(BAT **bnp, BAT *b, BAT *g, BAT *e, BAT *s, int skip_nils)
 	}
 	assert(b->ttype == TYPE_xml);
 	if (BATcount(b) == 0 || ngrp == 0) {
-		bn = BATconstant(TYPE_xml, ATOMnilptr(TYPE_xml), ngrp, TRANSIENT);
+		bn = BATconstant(ngrp == 0 ? 0 : min, TYPE_xml, ATOMnilptr(TYPE_xml), ngrp, TRANSIENT);
 		if (bn == NULL)
 			return MAL_MALLOC_FAIL;
-		BATseqbase(bn, ngrp == 0 ? 0 : min);
 		*bnp = bn;
 		return NULL;
 	}

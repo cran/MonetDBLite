@@ -1080,7 +1080,7 @@ copyBat (bat i, int type, oid seq)
 	if (!i)
 		return i;
 	tb = temp_descriptor(i);
-	b = BATconst(tb, type, ATOMnilptr(type), PERSISTENT);
+	b = BATconstant(tb->hseqbase, type, ATOMnilptr(type), BATcount(tb), PERSISTENT);
 	bat_destroy(tb);
 	if (isVIEW(b)) {
 		tb = COLcopy(b, b->ttype, TRUE, PERSISTENT);
@@ -1115,6 +1115,7 @@ create_col(sql_trans *tr, sql_column *c)
 		bat->name = sql_message("%s_%s_%s", c->t->s->base.name, c->t->base.name, c->base.name);
 
 	if (c->base.flag == TR_OLD && !isTempTable(c->t)){
+		c->base.wtime = 0;
 		return load_bat(bat, type);
 	} else if (bat && bat->ibid && !isTempTable(c->t)) {
 		return new_persistent_bat(tr, c->data, c->t->sz);
@@ -1185,6 +1186,7 @@ create_idx(sql_trans *tr, sql_idx *ni)
 		bat->name = sql_message("%s_%s@%s", ni->t->s->base.name, ni->t->base.name, ni->base.name);
 
 	if (ni->base.flag == TR_OLD && !isTempTable(ni->t)){
+		ni->base.wtime = 0;
 		return load_bat(bat, type);
 	} else if (bat && bat->ibid && !isTempTable(ni->t)) {
 		return new_persistent_bat( tr, ni->data, ni->t->sz);
@@ -1258,8 +1260,10 @@ create_del(sql_trans *tr, sql_table *t)
 	if (t->base.flag == TR_OLD && !isTempTable(t)) {
 		log_bid bid = logger_find_bat(bat_logger, bat->dname);
 
-		if (bid)
+		if (bid) {
+			t->base.wtime = 0;
 			return load_dbat(bat, bid);
+		}
 		ok = LOG_ERR;
 	} else if (bat->dbid && !isTempTable(t)) {
 		return ok;
@@ -1735,16 +1739,18 @@ gtr_update_table(sql_trans *tr, sql_table *t, int *tchanges)
 	int ok = LOG_OK;
 	node *n;
 
+	if (t->base.wtime <= t->base.allocated)
+		return ok;
 	gtr_update_dbat(t->data, tchanges);
 	for (n = t->columns.set->h; ok == LOG_OK && n; n = n->next) {
 		int changes = 0;
 		sql_column *c = n->data;
 
-		if (!c->base.wtime) 
+		if (!c->base.wtime || c->base.wtime <= c->base.allocated) 
 			continue;
 		ok = gtr_update_delta(tr, c->data, &changes);
 		if (changes)
-			c->base.wtime = tr->wstime;
+			c->base.allocated = c->base.wtime = tr->wstime;
 		(*tchanges) |= changes;
 	}
 	if (ok == LOG_OK && t->idxs.set) {
@@ -1753,17 +1759,17 @@ gtr_update_table(sql_trans *tr, sql_table *t, int *tchanges)
 			sql_idx *ci = n->data;
 
 			/* some indices have no bats */
-			if (!ci->base.wtime)
+			if (!ci->base.wtime || ci->base.wtime <= ci->base.allocated) 
 				continue;
 
 			ok = gtr_update_delta(tr, ci->data, &changes);
 			if (changes)
-				ci->base.wtime = tr->wstime;
+				ci->base.allocated = ci->base.wtime = tr->wstime;
 			(*tchanges) |= changes;
 		}
 	}
 	if (*tchanges)
-		t->base.wtime = tr->wstime;
+		t->base.allocated = t->base.wtime = tr->wstime;
 	return ok;
 }
 
@@ -1779,6 +1785,11 @@ _gtr_update( sql_trans *tr, gtr_update_table_fptr gtr_update_table_f)
 		int schanges = 0;
 		sql_schema *s = sn->data;
 		
+		if (s->base.wtime <= s->base.allocated && 
+			gtr_update_table_f == gtr_update_table)
+			continue;
+		if (!s->base.wtime)
+			continue;
 		if (!isTempSchema(s) && s->tables.set) {
 			node *n;
 			for (n = s->tables.set->h; n && ok == LOG_OK; n = n->next) {
@@ -1790,12 +1801,12 @@ _gtr_update( sql_trans *tr, gtr_update_table_fptr gtr_update_table_f)
 				schanges |= changes;
 			}
 		}
-		if (schanges){
-			s->base.wtime = tr->wstime;
+		if (schanges && gtr_update_table_f == gtr_update_table){
+			s->base.allocated = s->base.wtime = tr->wstime;
 			tchanges ++;
 		}
 	}
-	if (tchanges)
+	if (tchanges && gtr_update_table_f == gtr_update_table)
 		tr->wtime = tr->wstime;
 	return LOG_OK;
 }
@@ -1895,15 +1906,13 @@ tr_update_delta( sql_trans *tr, sql_delta *obat, sql_delta *cbat, int unique)
 		return ok;
 	}
 	ins = temp_descriptor(cbat->ibid);
-	if (0 && unique)
-		BATkey(BATmirror(cur), TRUE);
 	/* any inserts */
 	if (BUNlast(ins) > BUNfirst(ins) || cleared) {
 		if ((!obat->ibase && BATcount(ins) > SNAPSHOT_MINSIZE)){
 			/* swap cur and ins */
 			BAT *newcur = ins;
 
-			if (0 && unique)
+			if (unique)
 				BATkey(BATmirror(newcur), TRUE);
 			temp_destroy(cbat->bid);
 			temp_destroy(obat->bid);
@@ -1982,8 +1991,6 @@ tr_merge_delta( sql_trans *tr, sql_delta *obat, int unique)
 	if (obat->bid)
 		cur = temp_descriptor(obat->bid);
 	ins = temp_descriptor(obat->ibid);
-	if (0 && unique)
-		BATkey(BATmirror(cur), TRUE);
 	/* any inserts */
 	if (BUNlast(ins) > BUNfirst(ins) || cleared) {
 		if ((!obat->ibase && BATcount(ins) > SNAPSHOT_MINSIZE)){
@@ -1991,7 +1998,7 @@ tr_merge_delta( sql_trans *tr, sql_delta *obat, int unique)
 			BAT *newcur = ins;
 			bat id = obat->bid;
 
-			if (0 && unique)
+			if (unique)
 				BATkey(BATmirror(newcur), TRUE);
 			obat->bid = obat->ibid;
 			obat->ibid = id;

@@ -23,7 +23,7 @@ res_table.obj: "$(srcdir)\res_table.c" "$(srcdir)\res_table.h" "$(srcdir)\..\..\
 	$(CC) $(CFLAGS) $(res_table_CFLAGS) $(GENDLL) -D_CRT_SECURE_NO_WARNINGS -DLIBBATSTORE -Fo"res_table.obj" -c "$(srcdir)\res_table.c"
 bat_table.obj: "$(srcdir)\bat_table.c" "$(srcdir)\bat_table.h" "$(srcdir)\..\..\include\sql_catalog.h" "$(srcdir)\..\..\..\gdk\gdk_logger.h" "$(srcdir)\..\sql_storage.h" "$(srcdir)\bat_storage.h" "$(srcdir)\bat_logger.h" "$(srcdir)\bat_utils.h"
 	$(CC) $(CFLAGS) $(bat_table_CFLAGS) $(GENDLL) -D_CRT_SECURE_NO_WARNINGS -DLIBBATSTORE -Fo"bat_table.obj" -c "$(srcdir)\bat_table.c"
-bat_utils.obj: "$(srcdir)\bat_utils.c" "$(srcdir)\bat_utils.h" "$(srcdir)\..\..\include\sql_catalog.h" "$(srcdir)\..\..\..\gdk\gdk_logger.h" "$(srcdir)\..\sql_storage.h"
+bat_utils.obj: "$(srcdir)\bat_utils.c" "$(srcdir)\bat_utils.h" "$(srcdir)\..\..\include\sql_catalog.h" "$(srcdir)\..\..\..\gdk\gdk_logger.h" "$(srcdir)\..\sql_storage.h" "$(srcdir)\..\..\..\monetdb5\mal\..\..\gdk\gdk.h" "$(srcdir)\..\..\..\monetdb5\mal\mal.h"
 	$(CC) $(CFLAGS) $(bat_utils_CFLAGS) $(GENDLL) -D_CRT_SECURE_NO_WARNINGS -DLIBBATSTORE -Fo"bat_utils.obj" -c "$(srcdir)\bat_utils.c"
 all-msc: "libbatstore.lib"
 check-msc: all-msc

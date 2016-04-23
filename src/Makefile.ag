@@ -5,4 +5,3 @@ DIR = includedir/monetdb
 HEADERS = h
 SOURCES = monetdb_config.h
 }
-

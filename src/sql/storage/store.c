@@ -1085,7 +1085,7 @@ insert_functions(sql_trans *tr, sql_table *sysfunc, sql_table *sysarg)
 		char arg_nme[] = "arg_0";
 
 		if (f->s)
-			 table_funcs.table_insert(tr, sysfunc, &f->base.id, f->base.name, f->imp, f->mod, &lang, &f->type, &se,&f->varres, &f->vararg, &f->s->base.id);
+			table_funcs.table_insert(tr, sysfunc, &f->base.id, f->base.name, f->imp, f->mod, &lang, &f->type, &se, &f->varres, &f->vararg, &f->s->base.id);
 		else
 			table_funcs.table_insert(tr, sysfunc, &f->base.id, f->base.name, f->imp, f->mod, &lang, &f->type, &se, &f->varres, &f->vararg, &zero);
 
@@ -1710,7 +1710,11 @@ store_manager(void)
 		}
 
 		MT_lock_set(&bs_lock);
-        	if (GDKexiting() || (!need_flush && logger_funcs.changes() < 1000000 && shared_transactions_drift < shared_drift_threshold)) {
+        	if (GDKexiting()) {
+            		MT_lock_unset(&bs_lock);
+            		return;
+        	}
+        	if ((!need_flush && logger_funcs.changes() < 1000000 && shared_transactions_drift < shared_drift_threshold)) {
             		MT_lock_unset(&bs_lock);
             		continue;
         	}
@@ -1718,7 +1722,7 @@ store_manager(void)
         	while (store_nr_active) { /* find a moment to flush */
             		MT_lock_unset(&bs_lock);
 			if (GDKexiting())
-				continue;
+				return;
             		MT_sleep_ms(timeout);
             		MT_lock_set(&bs_lock);
         	}
