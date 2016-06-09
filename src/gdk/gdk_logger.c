@@ -1092,9 +1092,11 @@ logger_readlogs(logger *lg, FILE *fp, char *filename)
 			if (lid < lg->id) {
 				lg->id = lid;
 			}
-			/* if this is a shared logger, write the id in
-			 * the shared file */
-			logger_update_catalog_file(lg, lg->local_dir, LOGFILE_SHARED, lg->local_dbfarm_role);
+			if (lg->shared) {
+				/* if this is a shared logger, write the id in
+				 * the shared file */
+				logger_update_catalog_file(lg, lg->local_dir, LOGFILE_SHARED, lg->local_dbfarm_role);
+			}
 		}
 	}
 	return res;
@@ -1848,6 +1850,7 @@ logger_new(int debug, const char *fn, const char *logdir, int version, preversio
 
 	lg->debug = debug;
 	lg->shared = shared;
+	lg->local_dbfarm_role = 0; /* only used if lg->shared */
 
 	lg->changes = 0;
 	lg->version = version;
@@ -2806,6 +2809,7 @@ logger_add_bat(logger *lg, BAT *b, const char *name)
 	bid = b->batCacheid;
 	if (lg->debug & 1)
 		fprintf(stderr, "#create %s\n", name);
+	assert(log_find(lg->catalog_bid, lg->dcatalog, bid) == BUN_NONE);
 	lg->changes += BATcount(b) + 1;
 	BUNappend(lg->catalog_bid, &bid, FALSE);
 	BUNappend(lg->catalog_nme, name, FALSE);

@@ -15,12 +15,16 @@ uninstall-local-monetdb_config.h:
 	$(RM) $(DESTDIR)$(includedir)/monetdb/monetdb_config.h
 
 AM_CPPFLAGS = -I$(srcdir)
-SUBDIRS =  buildtools common clients gdk monetdb5 sql tools
+if HAVE_EMBEDDED_R
+HAVE_EMBEDDED_R_6_SUBDIR = mapisplit
+else
+HAVE_EMBEDDED_R_6_SUBDIR = 
+endif
+SUBDIRS =  common gdk mal sql embedded $(HAVE_EMBEDDED_R_6_SUBDIR)
 BUILT_SOURCES =
 MOSTLYCLEANFILES =
-EXTRA_DIST = Makefile.ag Makefile.msc configure configure.ac configure.ag libversions monetdb_config.h rpm.mk.in
+EXTRA_DIST = Makefile.ag Makefile.msc configure configure.ac configure.ag libversions monetdb_config.h
 uninstall-local: uninstall-local-monetdb_config.h
 install-exec-local: install-exec-local-monetdb_config.h
 
   include $(top_srcdir)/buildtools/conf/rules.mk
-include $(top_builddir)/rpm.mk

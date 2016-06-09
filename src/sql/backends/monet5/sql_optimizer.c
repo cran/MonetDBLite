@@ -22,7 +22,7 @@
  */
 #include "monetdb_config.h"
 #include "mal_builder.h"
-#include "mal_debugger.h"
+#include "mal_runtime.h"
 #include "opt_prelude.h"
 #include "sql_mvc.h"
 #include "sql_optimizer.h"
@@ -115,8 +115,7 @@ addOptimizers(Client c, MalBlkPtr mb, char *pipe)
 	msg = addOptimizerPipe(c, mb, pipe);
 	if (msg)
 		GDKfree(msg);	/* what to do with an error? */
-	/* point queries do not require mitosis and dataflow */
-	if (be->mvc->point_query) {
+	if (be->mvc->no_mitosis) {
 		for (i = mb->stop - 1; i > 0; i--) {
 			q = getInstrPtr(mb, i);
 			if (q->token == ENDsymbol)
@@ -158,11 +157,6 @@ optimizeQuery(Client c)
 
 		if (c->listing)
 			printFunction(c->fdout, mb, 0, c->listing);
-		if (be->mvc->debug) {
-			msg = runMALDebugger(c, c->curprg);
-			if (msg != MAL_SUCCEED)
-				GDKfree(msg); /* ignore error */
-		}
 		return NULL;
 	}
 	addOptimizers(c, mb, pipe);

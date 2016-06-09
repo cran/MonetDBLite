@@ -1,7 +1,0 @@
-SUBDIRS = buildtools common clients gdk monetdb5 sql tools
-EXTRA_DIST = configure configure.ac configure.ag libversions rpm.mk.in
-headers_config = {
-DIR = includedir/monetdb
-HEADERS = h
-SOURCES = monetdb_config.h
-}

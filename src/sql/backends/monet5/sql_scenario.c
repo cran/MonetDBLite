@@ -42,10 +42,8 @@
 #include "mal_parser.h"
 #include "mal_builder.h"
 #include "mal_namespace.h"
-#include "mal_debugger.h"
 #include "mal_linker.h"
 #include "bat5.h"
-#include "msabaoth.h"
 #include <mtime.h>
 #include "optimizer.h"
 #include "opt_statistics.h"
@@ -184,31 +182,19 @@ SQLprelude(void *ret)
 #endif
 	/* only register availability of scenarios AFTER we are inited! */
 	s->name = "sql";
-	tmp = msab_marchScenario(s->name);
-	if (tmp != MAL_SUCCEED)
-		return (tmp);
 	ms->name = "msql";
-	tmp = msab_marchScenario(ms->name);
-	return tmp;
+	return MAL_SUCCEED;
 }
 
 str
 SQLepilogue(void *ret)
 {
-	char *s = "sql", *m = "msql";
-	str res;
-
 	(void) ret;
 	if (SQLinitialized) {
 		mvc_exit();
 		SQLinitialized = FALSE;
 	}
-	/* this function is never called, but for the style of it, we clean
-	 * up our own mess */
-	res = msab_retreatScenario(m);
-	if (!res)
-		return msab_retreatScenario(s);
-	return res;
+	return MAL_SUCCEED;
 }
 
 MT_Id sqllogthread, minmaxthread;
@@ -388,7 +374,6 @@ SQLautocommit(Client c, mvc *m)
 {
 	if (m->session->auto_commit && m->session->active) {
 		if (mvc_status(m) < 0) {
-			RECYCLEdrop(0);
 			mvc_rollback(m, 0, NULL);
 		} else if (mvc_commit(m, 0, NULL) < 0) {
 			return handle_error(m, c->fdout, 0);
@@ -613,7 +598,6 @@ SQLexitClient(Client c)
 				(void) handle_error(m, c->fdout, 0);
 		}
 		if (m->session->active) {
-			RECYCLEdrop(0);
 			mvc_rollback(m, 0, NULL);
 		}
 
@@ -1000,12 +984,12 @@ SQLsetTrace(backend *be, Client cntxt, bit onoff)
 		/* add the ticks column */
 
 		q = newStmt(mb, profilerRef, "getTrace");
-		q = pushStr(mb, q, putName("usec",4));
+		q = pushStr(mb, q, putName("usec"));
 		resultset= pushArgument(mb,resultset, getArg(q,0));
 
 		/* add the stmt column */
 		q = newStmt(mb, profilerRef, "getTrace");
-		q = pushStr(mb, q, putName("stmt",4));
+		q = pushStr(mb, q, putName("stmt"));
 		resultset= pushArgument(mb,resultset, getArg(q,0));
 
 		pushInstruction(mb,resultset);
@@ -1121,7 +1105,6 @@ SQLparser(Client c)
 					mnstr_printf(out, "!COMMIT: commit failed while " "enabling auto_commit\n");
 					msg = createException(SQL, "SQLparser", "Xauto_commit (commit) failed");
 				} else if (!commit && mvc_rollback(m, 0, NULL) < 0) {
-					RECYCLEdrop(0);
 					mnstr_printf(out, "!COMMIT: rollback failed while " "disabling auto_commit\n");
 					msg = createException(SQL, "SQLparser", "Xauto_commit (rollback) failed");
 				}
@@ -1266,7 +1249,7 @@ recompilequery:
 			m->sym = NULL;
 
 			/* register name in the namespace */
-			be->q->name = putName(be->q->name, strlen(be->q->name));
+			be->q->name = putName(be->q->name);
 			if (m->emode == m_normal && m->emod == mod_none)
 				m->emode = m_inplace;
 		}

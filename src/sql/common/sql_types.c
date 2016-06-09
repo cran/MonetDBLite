@@ -367,6 +367,8 @@ is_subtype(sql_subtype *sub, sql_subtype *super)
 	if (super->digits == 0 && super->type->eclass == EC_STRING && 
 	    (sub->type->eclass == EC_STRING || sub->type->eclass == EC_CHAR))
 		return 1;
+	if (super->digits != sub->digits && sub->type->eclass == EC_CHAR)
+		return 0;
 	/* subtypes are only equal iff
 	   they map onto the same systemtype */
 	return (type_cmp(sub->type, super->type) == 0);
@@ -1691,7 +1693,7 @@ sqltypeinit( sql_allocator *sa)
 		sql_create_func(sa, "concat", "calc", "+", *t, *t, *t, DIGITS_ADD);
 		sql_create_func(sa, "ascii", "str", "ascii", *t, NULL, INT, SCALE_NONE);
 		sql_create_func(sa, "code", "str", "unicode", INT, NULL, *t, SCALE_NONE);
-		sql_create_func(sa, "length", "str", "stringlength", *t, NULL, INT, SCALE_NONE);
+		sql_create_func(sa, "length", "str", "length", *t, NULL, INT, SCALE_NONE);
 		sql_create_func(sa, "right", "str", "stringright", *t, INT, *t, SCALE_NONE);
 		sql_create_func(sa, "left", "str", "stringleft", *t, INT, *t, SCALE_NONE);
 		sql_create_func(sa, "upper", "str", "toUpper", *t, NULL, *t, SCALE_NONE);
@@ -1738,9 +1740,9 @@ sqltypeinit( sql_allocator *sa)
 				sres, FALSE, F_FUNC, SCALE_FIX);
 	}
 	sres = create_arg(sa, NULL, sql_create_subtype(sa, TABLE, 0, 0), ARG_OUT); 
-	/* copyfrom fname (arg 9) */
+	/* copyfrom fname (arg 10) */
 	f=sql_create_func_(sa, "copyfrom", "sql", "copy_from",
-	 	list_append( list_append( list_append( list_append( list_append(list_append (list_append (list_append(list_append(sa_list(sa), 
+	 	list_append( list_append( list_append( list_append( list_append(list_append (list_append (list_append(list_append(list_append(sa_list(sa),
 			create_arg(sa, NULL, sql_create_subtype(sa, STR, 0, 0), ARG_IN)), 
 			create_arg(sa, NULL, sql_create_subtype(sa, STR, 0, 0), ARG_IN)), 
 			create_arg(sa, NULL, sql_create_subtype(sa, STR, 0, 0), ARG_IN)), 
@@ -1749,7 +1751,8 @@ sqltypeinit( sql_allocator *sa)
 			create_arg(sa, NULL, sql_create_subtype(sa, STR, 0, 0), ARG_IN)), 
 			create_arg(sa, NULL, sql_create_subtype(sa, LNG, 0, 0), ARG_IN)), 
 			create_arg(sa, NULL, sql_create_subtype(sa, LNG, 0, 0), ARG_IN)), 
-			create_arg(sa, NULL, sql_create_subtype(sa, INT, 0, 0), ARG_IN)), sres, FALSE, F_UNION, SCALE_FIX);
+			create_arg(sa, NULL, sql_create_subtype(sa, INT, 0, 0), ARG_IN)),
+			create_arg(sa, NULL, sql_create_subtype(sa, STR, 0, 0), ARG_IN)), sres, FALSE, F_UNION, SCALE_FIX);
 	f->varres = 1;
 
 	/* bincopyfrom */

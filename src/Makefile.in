@@ -104,7 +104,7 @@ am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = monetdb_config.h
-CONFIG_CLEAN_FILES = rpm.mk
+CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -164,15 +164,18 @@ am__define_uniq_tagged_files = \
 ETAGS = etags
 CTAGS = ctags
 CSCOPE = cscope
-DIST_SUBDIRS = $(SUBDIRS)
+DIST_SUBDIRS = common gdk mal sql embedded mapisplit
 am__DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/monetdb_config.h.in \
-	$(srcdir)/rpm.mk.in $(top_srcdir)/buildtools/conf/compile \
+	$(top_srcdir)/buildtools/conf/compile \
 	$(top_srcdir)/buildtools/conf/config.guess \
 	$(top_srcdir)/buildtools/conf/config.rpath \
 	$(top_srcdir)/buildtools/conf/config.sub \
 	$(top_srcdir)/buildtools/conf/install-sh \
 	$(top_srcdir)/buildtools/conf/ltmain.sh \
-	$(top_srcdir)/buildtools/conf/missing COPYING README
+	$(top_srcdir)/buildtools/conf/missing buildtools/conf/compile \
+	buildtools/conf/config.guess buildtools/conf/config.rpath \
+	buildtools/conf/config.sub buildtools/conf/install-sh \
+	buildtools/conf/ltmain.sh buildtools/conf/missing
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -515,10 +518,12 @@ zlib_LIBS = @zlib_LIBS@
 AUTOMAKE_OPTIONS = no-dependencies 1.4 foreign
 ACLOCAL_AMFLAGS = -I buildtools/conf
 AM_CPPFLAGS = -I$(srcdir)
-SUBDIRS = buildtools common clients gdk monetdb5 sql tools
+@HAVE_EMBEDDED_R_FALSE@HAVE_EMBEDDED_R_6_SUBDIR = 
+@HAVE_EMBEDDED_R_TRUE@HAVE_EMBEDDED_R_6_SUBDIR = mapisplit
+SUBDIRS = common gdk mal sql embedded $(HAVE_EMBEDDED_R_6_SUBDIR)
 BUILT_SOURCES = 
 MOSTLYCLEANFILES = 
-EXTRA_DIST = Makefile.ag Makefile.msc configure configure.ac configure.ag libversions monetdb_config.h rpm.mk.in
+EXTRA_DIST = Makefile.ag Makefile.msc configure configure.ac configure.ag libversions monetdb_config.h
 all: $(BUILT_SOURCES) monetdb_config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
@@ -571,8 +576,6 @@ $(srcdir)/monetdb_config.h.in:  $(am__configure_deps)
 
 distclean-hdr:
 	-rm -f monetdb_config.h stamp-h1
-rpm.mk: $(top_builddir)/config.status $(srcdir)/rpm.mk.in
-	cd $(top_builddir) && $(SHELL) ./config.status $@
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -1018,7 +1021,6 @@ uninstall-local: uninstall-local-monetdb_config.h
 install-exec-local: install-exec-local-monetdb_config.h
 
   include $(top_srcdir)/buildtools/conf/rules.mk
-include $(top_builddir)/rpm.mk
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

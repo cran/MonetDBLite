@@ -5,42 +5,10 @@
 
 AUTOMAKE_OPTIONS = no-dependencies 1.4 foreign
 
-install-exec-local-dump-restore.html: dump-restore.html
-	-mkdir -p $(DESTDIR)$(datadir)/doc/MonetDB-SQL
-	-$(RM) $(DESTDIR)$(datadir)/doc/MonetDB-SQL/dump-restore.html
-	$(INSTALL_DATA) $< $(DESTDIR)$(datadir)/doc/MonetDB-SQL/dump-restore.html
-
-uninstall-local-dump-restore.html: 
-	$(RM) $(DESTDIR)$(datadir)/doc/MonetDB-SQL/dump-restore.html
-
-install-exec-local-dump-restore.txt: dump-restore.txt
-	-mkdir -p $(DESTDIR)$(datadir)/doc/MonetDB-SQL
-	-$(RM) $(DESTDIR)$(datadir)/doc/MonetDB-SQL/dump-restore.txt
-	$(INSTALL_DATA) $< $(DESTDIR)$(datadir)/doc/MonetDB-SQL/dump-restore.txt
-
-uninstall-local-dump-restore.txt: 
-	$(RM) $(DESTDIR)$(datadir)/doc/MonetDB-SQL/dump-restore.txt
-
-if NATIVE_WIN32
-NATIVE_WIN32_7_SUBDIR = NT
-else
-NATIVE_WIN32_7_SUBDIR = 
-endif
-SUBDIRS =  include common storage server backends scripts $(NATIVE_WIN32_7_SUBDIR)
-dist-hook:
-	mkdir -p $(distdir)/test
-	cp -pR $(srcdir)/test/* $(distdir)/test
-	mkdir -p $(distdir)/benchmarks
-	cp -pR $(srcdir)/benchmarks/* $(distdir)/benchmarks
-	mkdir -p $(distdir)/odbc/samples/Tests
-	cp -pR $(srcdir)/odbc/samples/Tests/* $(distdir)/odbc/samples/Tests
-	mkdir -p $(distdir)/jdbc/tests
-	cp -pR $(srcdir)/jdbc/tests/* $(distdir)/jdbc/tests
 AM_CPPFLAGS = -I$(srcdir)
+SUBDIRS =  include common storage server backends scripts
 BUILT_SOURCES =
 MOSTLYCLEANFILES =
-EXTRA_DIST = Makefile.ag Makefile.msc dump-restore.html dump-restore.txt
-uninstall-local: uninstall-local-dump-restore.html uninstall-local-dump-restore.txt
-install-exec-local: install-exec-local-dump-restore.html install-exec-local-dump-restore.txt
+EXTRA_DIST = Makefile.ag Makefile.msc
 
   include $(top_srcdir)/buildtools/conf/rules.mk

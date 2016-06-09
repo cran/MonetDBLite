@@ -61,16 +61,16 @@ exp_is_point_select(sql_exp *e)
 }
 
 static int
-rel_is_point_query(sql_rel *rel)
+rel_no_mitosis(sql_rel *rel)
 {
 	int is_point = 0;
 
-	if (!rel)
+	if (!rel || is_basetable(rel->op))
 		return 1;
 	if (is_project(rel->op))
-		return rel_is_point_query(rel->l);
+		return rel_no_mitosis(rel->l);
 	if (is_modify(rel->op) && rel->card <= CARD_AGGR)
-		return rel_is_point_query(rel->r);
+		return rel_no_mitosis(rel->r);
 	if (is_select(rel->op) && rel_is_table(rel->l) && rel->exps) {
 		is_point = 0;
 		/* just one point expression makes this a point query */
@@ -120,8 +120,8 @@ sql_symbol2relation(mvc *c, symbol *sym)
 		r = rel_optimizer(c, r);
 		r = rel_distribute(c, r);
 		r = rel_partition(c, r);
-		if (rel_is_point_query(r) || rel_need_distinct_query(r))
-			c->point_query = 1;
+		if (rel_no_mitosis(r) || rel_need_distinct_query(r))
+			c->no_mitosis = 1;
 	}
 	return r;
 }
@@ -175,7 +175,7 @@ sqlcleanup(mvc *c, int err)
 	if (err <0)
 		c->session->status = err;
 	c->label = 0;
-	c->point_query = 0;
+	c->no_mitosis = 0;
 	scanner_query_processed(&(c->scanner));
 	return err;
 }
@@ -280,7 +280,6 @@ SQLtransaction(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	case DDL_ROLLBACK:
 		if (sql->session->auto_commit == 1)
 			throw(SQL, "sql.trans", "2DM30!ROLLBACK: not allowed in auto commit mode");
-		RECYCLEdrop(cntxt);
 		ret = mvc_rollback(sql, chain, name);
 		if (ret < 0 && name) {
 			snprintf(buf, BUFSIZ, "3B000!ROLLBACK TO SAVEPOINT: (%s) failed", name);
@@ -291,7 +290,6 @@ SQLtransaction(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 		if (sql->session->auto_commit == 0)
 			throw(SQL, "sql.trans", "25001!START TRANSACTION: cannot start a transaction within a transaction");
 		if (sql->session->active) {
-			RECYCLEdrop(cntxt);
 			mvc_rollback(sql, 0, NULL);
 		}
 		sql->session->auto_commit = 0;
@@ -341,7 +339,6 @@ SQLabort(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 		return msg;
 
 	if (sql->session->active) {
-		RECYCLEdrop(cntxt);
 		mvc_rollback(sql, 0, NULL);
 	}
 	return msg;
@@ -375,7 +372,6 @@ SQLtransaction2(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	if (sql->session->auto_commit == 0)
 		throw(SQL, "sql.trans", "25001!START TRANSACTION: cannot start a transaction within a transaction");
 	if (sql->session->active) {
-		RECYCLEdrop(cntxt);
 		mvc_rollback(sql, 0, NULL);
 	}
 	sql->session->auto_commit = 0;
@@ -3384,9 +3380,14 @@ mvc_import_table_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	lng *offset = getArgReference_lng(stk, pci, pci->retc + 7);
 	int *locked = getArgReference_int(stk, pci, pci->retc + 8);
 	int *besteffort = getArgReference_int(stk, pci, pci->retc + 9);
+	char *fixed_widths = NULL;
 	str msg = MAL_SUCCEED;
 	bstream *s = NULL;
 	stream *ss;
+
+	if (pci->argc - pci->retc > 10) {
+		fixed_widths = *getArgReference_str(stk, pci, pci->retc + 10);
+	}
 
 	(void) mb;		/* NOT USED */
 	if ((msg = checkSQLContext(cntxt)) != NULL)
@@ -3457,6 +3458,41 @@ mvc_import_table_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 			return msg;
 		}
 		GDKfree(fn);
+		if (fixed_widths && strcmp(fixed_widths, str_nil) != 0) {
+			size_t ncol = 0, current_width_entry = 0, i;
+			size_t *widths;
+			char* val_start = fixed_widths;
+			size_t width_len = strlen(fixed_widths);
+			for (i = 0; i < width_len; i++) {
+				if (fixed_widths[i] == '|') {
+					ncol++;
+				}
+			}
+			widths = malloc(sizeof(size_t) * ncol);
+			if (!widths) {
+				mnstr_destroy(ss);
+				GDKfree(tsep);
+				GDKfree(rsep);
+				GDKfree(ssep);
+				GDKfree(ns);
+				throw(MAL, "sql.copy_from", MAL_MALLOC_FAIL);
+			}
+			for (i = 0; i < width_len; i++) {
+				if (fixed_widths[i] == STREAM_FWF_FIELD_SEP) {
+					fixed_widths[i] = '\0';
+					widths[current_width_entry++] = (size_t) atoll(val_start);
+					val_start = fixed_widths + i + 1;
+				}
+			}
+			/* overwrite other delimiters to the ones the FWF stream uses */
+			sprintf((char*) tsep, "%c", STREAM_FWF_FIELD_SEP);
+			sprintf((char*) rsep, "%c", STREAM_FWF_RECORD_SEP);
+			if (!ssep)
+				ssep = GDKmalloc(2);
+			ssep[0] = 0;
+
+			ss = stream_fwf_create(ss, ncol, widths, STREAM_FWF_FILLER);
+		}
 #if SIZEOF_VOID_P == 4
 		s = bstream_create(ss, 0x20000);
 #else

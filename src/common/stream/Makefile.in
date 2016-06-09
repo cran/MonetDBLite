@@ -102,7 +102,7 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 DIST_COMMON = $(srcdir)/Makefile.am $(am__DIST_COMMON)
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/monetdb_config.h
-CONFIG_CLEAN_FILES = monetdb-stream.pc
+CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
@@ -135,7 +135,6 @@ am__installdirs = "$(DESTDIR)$(streamdir)"
 LTLIBRARIES = $(stream_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 libstream_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 dist_libstream_la_OBJECTS = libstream_la-stream.lo
@@ -208,7 +207,7 @@ am__define_uniq_tagged_files = \
   done | $(am__uniquify_input)`
 ETAGS = etags
 CTAGS = ctags
-am__DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/monetdb-stream.pc.in
+am__DIST_COMMON = $(srcdir)/Makefile.in
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
@@ -508,17 +507,16 @@ valgrind_LIBS = @valgrind_LIBS@
 zlib_CFLAGS = @zlib_CFLAGS@
 zlib_LIBS = @zlib_LIBS@
 AUTOMAKE_OPTIONS = no-dependencies 1.4 foreign
-AM_CPPFLAGS = -I$(srcdir) $(zlib_CFLAGS) $(BZ_CFLAGS) $(liblzma_CFLAGS) $(openssl_CFLAGS) $(curl_CFLAGS)
 libstream_la_CFLAGS = -DLIBSTREAM $(AM_CFLAGS)
 streamdir = $(libdir)
-libstream_la_LIBADD = $(SOCKET_LIBS) $(zlib_LIBS) $(BZ_LIBS) $(liblzma_LIBS) $(openssl_LIBS) $(curl_LIBS) $(LTLIBICONV)
+libstream_la_LIBADD = $(SOCKET_LIBS) $(zlib_LIBS) $(BZ_LIBS) $(liblzma_LIBS) $(LTLIBICONV)
 nodist_libstream_la_SOURCES = 
 dist_libstream_la_SOURCES = stream.c stream.h stream_socket.h
 libstream_la_LDFLAGS = -version-info $(STREAM_VERSION)
-@NOT_WIN32_TRUE@C_monetdb_stream_pc = monetdb-stream.pc
-BUILT_SOURCES = $(C_monetdb_stream_pc)
-MOSTLYCLEANFILES = $(C_monetdb_stream_pc)
-EXTRA_DIST = Makefile.ag Makefile.msc monetdb-stream.pc.in stream.c stream.h stream_socket.h
+AM_CPPFLAGS = -I$(srcdir) $(zlib_CFLAGS) $(BZ_CFLAGS) $(liblzma_CFLAGS)
+BUILT_SOURCES = 
+MOSTLYCLEANFILES = 
+EXTRA_DIST = Makefile.ag Makefile.msc stream.c stream.h stream_socket.h
 stream_LTLIBRARIES = libstream.la
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
@@ -554,8 +552,6 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
-monetdb-stream.pc: $(top_builddir)/config.status $(srcdir)/monetdb-stream.pc.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 
 install-streamLTLIBRARIES: $(stream_LTLIBRARIES)
 	@$(NORMAL_INSTALL)
@@ -767,7 +763,7 @@ install-dvi: install-dvi-am
 
 install-dvi-am:
 
-install-exec-am: install-exec-local
+install-exec-am:
 
 install-html: install-html-am
 
@@ -806,7 +802,7 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-local uninstall-streamLTLIBRARIES
+uninstall-am: uninstall-streamLTLIBRARIES
 
 .MAKE: all check install install-am install-strip
 
@@ -816,50 +812,21 @@ uninstall-am: uninstall-local uninstall-streamLTLIBRARIES
 	distclean-libtool distclean-tags distdir dvi dvi-am html \
 	html-am info info-am install install-am install-data \
 	install-data-am install-dvi install-dvi-am install-exec \
-	install-exec-am install-exec-local install-html \
-	install-html-am install-info install-info-am install-man \
-	install-pdf install-pdf-am install-ps install-ps-am \
-	install-streamLTLIBRARIES install-strip installcheck \
-	installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags tags-am uninstall uninstall-am uninstall-local \
+	install-exec-am install-html install-html-am install-info \
+	install-info-am install-man install-pdf install-pdf-am \
+	install-ps install-ps-am install-streamLTLIBRARIES \
+	install-strip installcheck installcheck-am installdirs \
+	maintainer-clean maintainer-clean-generic mostlyclean \
+	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
+	pdf pdf-am ps ps-am tags tags-am uninstall uninstall-am \
 	uninstall-streamLTLIBRARIES
 
 .PRECIOUS: Makefile
 
-install-exec-local-stream_socket.h: stream_socket.h
-	-mkdir -p $(DESTDIR)$(includedir)/monetdb
-	-$(RM) $(DESTDIR)$(includedir)/monetdb/stream_socket.h
-	$(INSTALL_DATA) $< $(DESTDIR)$(includedir)/monetdb/stream_socket.h
-
-uninstall-local-stream_socket.h: 
-	$(RM) $(DESTDIR)$(includedir)/monetdb/stream_socket.h
-
-install-exec-local-stream.h: stream.h
-	-mkdir -p $(DESTDIR)$(includedir)/monetdb
-	-$(RM) $(DESTDIR)$(includedir)/monetdb/stream.h
-	$(INSTALL_DATA) $< $(DESTDIR)$(includedir)/monetdb/stream.h
-
-uninstall-local-stream.h: 
-	$(RM) $(DESTDIR)$(includedir)/monetdb/stream.h
-
-monetdb-stream.pc: monetdb-stream.pc.in
-stream.o stream.lo: stream.c stream.h stream_socket.h
 $(do)install-streamLTLIBRARIES : 
 libstream_la-stream.lo: stream.c stream.h stream_socket.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstream_la_CFLAGS) $(CFLAGS) $(stream_CFLAGS) -c -o libstream_la-stream.lo `test -f 'stream.c' || echo '$(srcdir)/'`stream.c
-uninstall-local-:
-install-exec-local-:
-install-exec-local-monetdb-stream.pc: monetdb-stream.pc
-	-mkdir -p $(DESTDIR)$(libdir)/pkgconfig
-	-$(RM) $(DESTDIR)$(libdir)/pkgconfig/monetdb-stream.pc
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/pkgconfig/monetdb-stream.pc
-
-uninstall-local-monetdb-stream.pc: 
-	$(RM) $(DESTDIR)$(libdir)/pkgconfig/monetdb-stream.pc
-uninstall-local: uninstall-local-$(C_monetdb_stream_pc) uninstall-local-stream.h uninstall-local-stream_socket.h
-install-exec-local: install-exec-local-$(C_monetdb_stream_pc) install-exec-local-stream.h install-exec-local-stream_socket.h
+stream.o stream.lo: stream.c stream.h stream_socket.h
 
   include $(top_srcdir)/buildtools/conf/rules.mk
 

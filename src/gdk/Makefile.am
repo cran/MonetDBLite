@@ -5,6 +5,7 @@
 
 AUTOMAKE_OPTIONS = no-dependencies 1.4 foreign
 
+CFLAGS += $(THREAD_SAVE_FLAGS)
 libbat_la_CFLAGS=-DLIBGDK $(AM_CFLAGS)
 batdir = $(libdir)
 libbat_la_LIBADD = ../common/options/libmoptions.la ../common/stream/libstream.la ../common/utils/libmutils.la $(MATH_LIBS) $(SOCKET_LIBS) $(zlib_LIBS) $(BZ_LIBS) $(MALLOC_LIBS) $(PTHREAD_LIBS) $(DL_LIBS) $(PSAPILIB) $(KVM_LIBS)
@@ -67,10 +68,9 @@ libbat_la-gdk_unique.lo: gdk_unique.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libbat_la_CFLAGS) $(CFLAGS) $(gdk_unique_CFLAGS) -c -o libbat_la-gdk_unique.lo `test -f 'gdk_unique.c' || echo '$(srcdir)/'`gdk_unique.c
 libbat_la-gdk_firstn.lo: gdk_firstn.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h gdk_calc_private.h gdk_cand.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libbat_la_CFLAGS) $(CFLAGS) $(gdk_firstn_CFLAGS) -c -o libbat_la-gdk_firstn.lo `test -f 'gdk_firstn.c' || echo '$(srcdir)/'`gdk_firstn.c
-nodist_libbat_la_SOURCES =    
+nodist_libbat_la_SOURCES =
 dist_libbat_la_SOURCES = gdk.h gdk_cand.h gdk_atomic.h gdk_batop.c gdk_select.c gdk_search.c gdk_hash.c gdk_hash.h gdk_tm.c gdk_align.c gdk_bbp.c gdk_bbp.h gdk_heap.c gdk_utils.c gdk_utils.h gdk_atoms.c gdk_atoms.h gdk_qsort.c gdk_qsort_impl.h gdk_ssort.c gdk_ssort_impl.h gdk_storage.c gdk_bat.c gdk_delta.c gdk_cross.c gdk_system.c gdk_value.c gdk_posix.c gdk_logger.c gdk_sample.c gdk_private.h gdk_delta.h gdk_logger.h gdk_posix.h gdk_system.h gdk_system_private.h gdk_tm.h gdk_storage.h gdk_calc.c gdk_calc.h gdk_calc_compare.h gdk_calc_private.h gdk_aggr.c gdk_group.c gdk_imprints.c gdk_imprints.h gdk_join.c gdk_project.c gdk_unique.c gdk_firstn.c
 libbat_la_LDFLAGS = -version-info $(GDK_VERSION)
-monetdb-gdk.pc: monetdb-gdk.pc.in
 gdk_bat.o gdk_bat.lo: gdk_bat.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h
 gdk_qsort.o gdk_qsort.lo: gdk_qsort.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h gdk_qsort_impl.h
 gdk_delta.o gdk_delta.lo: gdk_delta.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h
@@ -86,7 +86,6 @@ gdk_bbp.o gdk_bbp.lo: gdk_bbp.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../c
 gdk_sample.o gdk_sample.lo: gdk_sample.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h
 gdk_atoms.o gdk_atoms.lo: gdk_atoms.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h
 gdk_cross.o gdk_cross.lo: gdk_cross.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h
-libbat.res: libbat.rc
 gdk_storage.o gdk_storage.lo: gdk_storage.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h gdk_storage.h ../common/utils/mutils.h
 gdk_select.o gdk_select.lo: gdk_select.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_cand.h gdk_private.h gdk_system_private.h gdk_imprints.h
 gdk_calc.o gdk_calc.lo: gdk_calc.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h gdk_calc_private.h gdk_cand.h gdk_calc_compare.h
@@ -101,106 +100,10 @@ gdk_search.o gdk_search.lo: gdk_search.c gdk.h gdk_system.h gdk_atomic.h gdk_pos
 gdk_heap.o gdk_heap.lo: gdk_heap.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h
 gdk_value.o gdk_value.lo: gdk_value.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h
 gdk_posix.o gdk_posix.lo: gdk_posix.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h ../common/utils/mutils.h
-CFLAGS += $(THREAD_SAVE_FLAGS)
-install-exec-local-gdk_utils.h: gdk_utils.h
-	-mkdir -p $(DESTDIR)$(includedir)/monetdb
-	-$(RM) $(DESTDIR)$(includedir)/monetdb/gdk_utils.h
-	$(INSTALL_DATA) $< $(DESTDIR)$(includedir)/monetdb/gdk_utils.h
-
-uninstall-local-gdk_utils.h: 
-	$(RM) $(DESTDIR)$(includedir)/monetdb/gdk_utils.h
-
-install-exec-local-gdk_delta.h: gdk_delta.h
-	-mkdir -p $(DESTDIR)$(includedir)/monetdb
-	-$(RM) $(DESTDIR)$(includedir)/monetdb/gdk_delta.h
-	$(INSTALL_DATA) $< $(DESTDIR)$(includedir)/monetdb/gdk_delta.h
-
-uninstall-local-gdk_delta.h: 
-	$(RM) $(DESTDIR)$(includedir)/monetdb/gdk_delta.h
-
-install-exec-local-gdk_atomic.h: gdk_atomic.h
-	-mkdir -p $(DESTDIR)$(includedir)/monetdb
-	-$(RM) $(DESTDIR)$(includedir)/monetdb/gdk_atomic.h
-	$(INSTALL_DATA) $< $(DESTDIR)$(includedir)/monetdb/gdk_atomic.h
-
-uninstall-local-gdk_atomic.h: 
-	$(RM) $(DESTDIR)$(includedir)/monetdb/gdk_atomic.h
-
-install-exec-local-gdk_bbp.h: gdk_bbp.h
-	-mkdir -p $(DESTDIR)$(includedir)/monetdb
-	-$(RM) $(DESTDIR)$(includedir)/monetdb/gdk_bbp.h
-	$(INSTALL_DATA) $< $(DESTDIR)$(includedir)/monetdb/gdk_bbp.h
-
-uninstall-local-gdk_bbp.h: 
-	$(RM) $(DESTDIR)$(includedir)/monetdb/gdk_bbp.h
-
-install-exec-local-gdk_hash.h: gdk_hash.h
-	-mkdir -p $(DESTDIR)$(includedir)/monetdb
-	-$(RM) $(DESTDIR)$(includedir)/monetdb/gdk_hash.h
-	$(INSTALL_DATA) $< $(DESTDIR)$(includedir)/monetdb/gdk_hash.h
-
-uninstall-local-gdk_hash.h: 
-	$(RM) $(DESTDIR)$(includedir)/monetdb/gdk_hash.h
-
-install-exec-local-gdk_atoms.h: gdk_atoms.h
-	-mkdir -p $(DESTDIR)$(includedir)/monetdb
-	-$(RM) $(DESTDIR)$(includedir)/monetdb/gdk_atoms.h
-	$(INSTALL_DATA) $< $(DESTDIR)$(includedir)/monetdb/gdk_atoms.h
-
-uninstall-local-gdk_atoms.h: 
-	$(RM) $(DESTDIR)$(includedir)/monetdb/gdk_atoms.h
-
-install-exec-local-gdk_calc.h: gdk_calc.h
-	-mkdir -p $(DESTDIR)$(includedir)/monetdb
-	-$(RM) $(DESTDIR)$(includedir)/monetdb/gdk_calc.h
-	$(INSTALL_DATA) $< $(DESTDIR)$(includedir)/monetdb/gdk_calc.h
-
-uninstall-local-gdk_calc.h: 
-	$(RM) $(DESTDIR)$(includedir)/monetdb/gdk_calc.h
-
-install-exec-local-gdk_system.h: gdk_system.h
-	-mkdir -p $(DESTDIR)$(includedir)/monetdb
-	-$(RM) $(DESTDIR)$(includedir)/monetdb/gdk_system.h
-	$(INSTALL_DATA) $< $(DESTDIR)$(includedir)/monetdb/gdk_system.h
-
-uninstall-local-gdk_system.h: 
-	$(RM) $(DESTDIR)$(includedir)/monetdb/gdk_system.h
-
-install-exec-local-gdk.h: gdk.h
-	-mkdir -p $(DESTDIR)$(includedir)/monetdb
-	-$(RM) $(DESTDIR)$(includedir)/monetdb/gdk.h
-	$(INSTALL_DATA) $< $(DESTDIR)$(includedir)/monetdb/gdk.h
-
-uninstall-local-gdk.h: 
-	$(RM) $(DESTDIR)$(includedir)/monetdb/gdk.h
-
-install-exec-local-gdk_posix.h: gdk_posix.h
-	-mkdir -p $(DESTDIR)$(includedir)/monetdb
-	-$(RM) $(DESTDIR)$(includedir)/monetdb/gdk_posix.h
-	$(INSTALL_DATA) $< $(DESTDIR)$(includedir)/monetdb/gdk_posix.h
-
-uninstall-local-gdk_posix.h: 
-	$(RM) $(DESTDIR)$(includedir)/monetdb/gdk_posix.h
-
 AM_CPPFLAGS = -I$(srcdir) -I../common/options -I$(srcdir)/../common/options -I../common/stream -I$(srcdir)/../common/stream -I../common/utils -I$(srcdir)/../common/utils $(valgrind_CFLAGS)
-if NOT_WIN32
-C_monetdb_gdk_pc = monetdb-gdk.pc
-endif
-uninstall-local-:
-install-exec-local-:
-install-exec-local-monetdb-gdk.pc: monetdb-gdk.pc
-	-mkdir -p $(DESTDIR)$(libdir)/pkgconfig
-	-$(RM) $(DESTDIR)$(libdir)/pkgconfig/monetdb-gdk.pc
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/pkgconfig/monetdb-gdk.pc
-
-uninstall-local-monetdb-gdk.pc: 
-	$(RM) $(DESTDIR)$(libdir)/pkgconfig/monetdb-gdk.pc
-
-BUILT_SOURCES = $(C_monetdb_gdk_pc)
-MOSTLYCLEANFILES = $(C_monetdb_gdk_pc)
-EXTRA_DIST = Makefile.ag Makefile.msc bat.feps bat1.feps bat2.feps gdk.h gdk_aggr.c gdk_align.c gdk_atomic.h gdk_atoms.c gdk_atoms.h gdk_bat.c gdk_batop.c gdk_bbp.c gdk_bbp.h gdk_calc.c gdk_calc.h gdk_calc_compare.h gdk_calc_private.h gdk_cand.h gdk_cross.c gdk_delta.c gdk_delta.h gdk_firstn.c gdk_group.c gdk_hash.c gdk_hash.h gdk_heap.c gdk_imprints.c gdk_imprints.h gdk_join.c gdk_logger.c gdk_logger.h gdk_posix.c gdk_posix.h gdk_private.h gdk_project.c gdk_qsort.c gdk_qsort_impl.h gdk_sample.c gdk_search.c gdk_select.c gdk_ssort.c gdk_ssort_impl.h gdk_storage.c gdk_storage.h gdk_system.c gdk_system.h gdk_system_private.h gdk_tm.c gdk_tm.h gdk_unique.c gdk_utils.c gdk_utils.h gdk_value.c libbat.rc monetdb-gdk.pc.in
+BUILT_SOURCES =
+MOSTLYCLEANFILES =
+EXTRA_DIST = Makefile.ag Makefile.msc gdk.h gdk_aggr.c gdk_align.c gdk_atomic.h gdk_atoms.c gdk_atoms.h gdk_bat.c gdk_batop.c gdk_bbp.c gdk_bbp.h gdk_calc.c gdk_calc.h gdk_calc_compare.h gdk_calc_private.h gdk_cand.h gdk_cross.c gdk_delta.c gdk_delta.h gdk_firstn.c gdk_group.c gdk_hash.c gdk_hash.h gdk_heap.c gdk_imprints.c gdk_imprints.h gdk_join.c gdk_logger.c gdk_logger.h gdk_posix.c gdk_posix.h gdk_private.h gdk_project.c gdk_qsort.c gdk_qsort_impl.h gdk_sample.c gdk_search.c gdk_select.c gdk_ssort.c gdk_ssort_impl.h gdk_storage.c gdk_storage.h gdk_system.c gdk_system.h gdk_system_private.h gdk_tm.c gdk_tm.h gdk_unique.c gdk_utils.c gdk_utils.h gdk_value.c
 bat_LTLIBRARIES = libbat.la
-uninstall-local: uninstall-local-$(C_monetdb_gdk_pc) uninstall-local-gdk.h uninstall-local-gdk_atomic.h uninstall-local-gdk_atoms.h uninstall-local-gdk_bbp.h uninstall-local-gdk_calc.h uninstall-local-gdk_delta.h uninstall-local-gdk_hash.h uninstall-local-gdk_posix.h uninstall-local-gdk_system.h uninstall-local-gdk_utils.h
-install-exec-local: install-exec-local-$(C_monetdb_gdk_pc) install-exec-local-gdk.h install-exec-local-gdk_atomic.h install-exec-local-gdk_atoms.h install-exec-local-gdk_bbp.h install-exec-local-gdk_calc.h install-exec-local-gdk_delta.h install-exec-local-gdk_hash.h install-exec-local-gdk_posix.h install-exec-local-gdk_system.h install-exec-local-gdk_utils.h
 
   include $(top_srcdir)/buildtools/conf/rules.mk

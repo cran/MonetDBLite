@@ -159,7 +159,7 @@ am__define_uniq_tagged_files = \
   done | $(am__uniquify_input)`
 ETAGS = etags
 CTAGS = ctags
-DIST_SUBDIRS = include common storage server backends scripts NT
+DIST_SUBDIRS = $(SUBDIRS)
 am__DIST_COMMON = $(srcdir)/Makefile.in TODO
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 am__relativize = \
@@ -485,13 +485,11 @@ valgrind_LIBS = @valgrind_LIBS@
 zlib_CFLAGS = @zlib_CFLAGS@
 zlib_LIBS = @zlib_LIBS@
 AUTOMAKE_OPTIONS = no-dependencies 1.4 foreign
-@NATIVE_WIN32_FALSE@NATIVE_WIN32_7_SUBDIR = 
-@NATIVE_WIN32_TRUE@NATIVE_WIN32_7_SUBDIR = NT
-SUBDIRS = include common storage server backends scripts $(NATIVE_WIN32_7_SUBDIR)
 AM_CPPFLAGS = -I$(srcdir)
+SUBDIRS = include common storage server backends scripts
 BUILT_SOURCES = 
 MOSTLYCLEANFILES = 
-EXTRA_DIST = Makefile.ag Makefile.msc dump-restore.html dump-restore.txt
+EXTRA_DIST = Makefile.ag Makefile.msc
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
@@ -686,9 +684,6 @@ distdir: $(DISTFILES)
 	      || exit 1; \
 	  fi; \
 	done
-	$(MAKE) $(AM_MAKEFLAGS) \
-	  top_distdir="$(top_distdir)" distdir="$(distdir)" \
-	  dist-hook
 check-am: all-am
 check: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) check-recursive
@@ -754,7 +749,7 @@ install-dvi: install-dvi-recursive
 
 install-dvi-am:
 
-install-exec-am: install-exec-local
+install-exec-am:
 
 install-html: install-html-recursive
 
@@ -792,54 +787,26 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-local
+uninstall-am:
 
 .MAKE: $(am__recursive_targets) all check install install-am \
 	install-strip
 
 .PHONY: $(am__recursive_targets) CTAGS GTAGS TAGS all all-am check \
 	check-am clean clean-generic clean-libtool cscopelist-am ctags \
-	ctags-am dist-hook distclean distclean-generic \
-	distclean-libtool distclean-tags distdir dvi dvi-am html \
-	html-am info info-am install install-am install-data \
-	install-data-am install-dvi install-dvi-am install-exec \
-	install-exec-am install-exec-local install-html \
+	ctags-am distclean distclean-generic distclean-libtool \
+	distclean-tags distdir dvi dvi-am html html-am info info-am \
+	install install-am install-data install-data-am install-dvi \
+	install-dvi-am install-exec install-exec-am install-html \
 	install-html-am install-info install-info-am install-man \
 	install-pdf install-pdf-am install-ps install-ps-am \
 	install-strip installcheck installcheck-am installdirs \
 	installdirs-am maintainer-clean maintainer-clean-generic \
 	mostlyclean mostlyclean-generic mostlyclean-libtool pdf pdf-am \
-	ps ps-am tags tags-am uninstall uninstall-am uninstall-local
+	ps ps-am tags tags-am uninstall uninstall-am
 
 .PRECIOUS: Makefile
 
-
-install-exec-local-dump-restore.html: dump-restore.html
-	-mkdir -p $(DESTDIR)$(datadir)/doc/MonetDB-SQL
-	-$(RM) $(DESTDIR)$(datadir)/doc/MonetDB-SQL/dump-restore.html
-	$(INSTALL_DATA) $< $(DESTDIR)$(datadir)/doc/MonetDB-SQL/dump-restore.html
-
-uninstall-local-dump-restore.html: 
-	$(RM) $(DESTDIR)$(datadir)/doc/MonetDB-SQL/dump-restore.html
-
-install-exec-local-dump-restore.txt: dump-restore.txt
-	-mkdir -p $(DESTDIR)$(datadir)/doc/MonetDB-SQL
-	-$(RM) $(DESTDIR)$(datadir)/doc/MonetDB-SQL/dump-restore.txt
-	$(INSTALL_DATA) $< $(DESTDIR)$(datadir)/doc/MonetDB-SQL/dump-restore.txt
-
-uninstall-local-dump-restore.txt: 
-	$(RM) $(DESTDIR)$(datadir)/doc/MonetDB-SQL/dump-restore.txt
-dist-hook:
-	mkdir -p $(distdir)/test
-	cp -pR $(srcdir)/test/* $(distdir)/test
-	mkdir -p $(distdir)/benchmarks
-	cp -pR $(srcdir)/benchmarks/* $(distdir)/benchmarks
-	mkdir -p $(distdir)/odbc/samples/Tests
-	cp -pR $(srcdir)/odbc/samples/Tests/* $(distdir)/odbc/samples/Tests
-	mkdir -p $(distdir)/jdbc/tests
-	cp -pR $(srcdir)/jdbc/tests/* $(distdir)/jdbc/tests
-uninstall-local: uninstall-local-dump-restore.html uninstall-local-dump-restore.txt
-install-exec-local: install-exec-local-dump-restore.html install-exec-local-dump-restore.txt
 
   include $(top_srcdir)/buildtools/conf/rules.mk
 

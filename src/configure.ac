@@ -10,7 +10,7 @@ dnl Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.60)
-AC_INIT([MonetDB], [11.23.0], [info@monetdb.org], [MonetDB], [http://www.monetdb.org/])
+AC_INIT([MonetDB], [11.23.2], [info@monetdb.org], [MonetDB], [http://www.monetdb.org/])
 AC_CONFIG_AUX_DIR([buildtools/conf])
 AC_CONFIG_MACRO_DIR([buildtools/conf])
 AC_CANONICAL_HOST
@@ -162,7 +162,7 @@ AC_ARG_ENABLE(netcdf,
 		[enable support for netcdf (default=auto)]),
 	enable_netcdf=$enableval,
 	enable_netcdf=$dft_netcdf)
-	
+
 dft_lidar=auto
 AC_ARG_ENABLE(lidar,
 	AS_HELP_STRING([--enable-lidar],
@@ -218,6 +218,17 @@ no-auto)
 	;;
 esac
 
+dft_mapi=yes
+AC_ARG_ENABLE(mapi,
+	AS_HELP_STRING([--enable-mapi],
+		[Enable MAPI (default=yes)]),
+	enable_mapi=$enableval,
+	enable_mapi=$dft_mapi)
+AM_CONDITIONAL(HAVE_MAPI, test x$enable_mapi != xno)
+if test "x$enable_mapi" != xno; then
+	AC_DEFINE(HAVE_MAPI, 1, [Enable MAPI])
+fi
+
 dft_embedded=no
 AC_ARG_ENABLE(embedded,
 	AS_HELP_STRING([--enable-embedded],
@@ -225,11 +236,9 @@ AC_ARG_ENABLE(embedded,
 	enable_embedded=$enableval,
 	enable_embedded=$dft_embedded)
 AM_CONDITIONAL(HAVE_EMBEDDED, test x$enable_embedded != xno)
-
 if test "x$enable_embedded" != xno; then
 	AC_DEFINE(HAVE_EMBEDDED, 1, [Support for MonetDB as a library])
 fi
-AM_CONDITIONAL(HAVE_EMBEDDED, test x"$enable_embedded" != xno)
 
 dft_embedded_r=no
 AC_ARG_ENABLE(embedded-r,
@@ -238,11 +247,9 @@ AC_ARG_ENABLE(embedded-r,
 	enable_embedded_r=$enableval,
 	enable_embedded_r=$dft_embedded_r)
 AM_CONDITIONAL(HAVE_EMBEDDED_R, test x$enable_embedded_r != xno)
-
 if test "x$enable_embedded_r" != xno; then
 	AC_DEFINE(HAVE_EMBEDDED_R, 1, [Support for MonetDB as a library for R])
 fi
-AM_CONDITIONAL(HAVE_EMBEDDED_R, test x"$enable_embedded_R" != xno)
 
 dft_microhttpd=no
 AC_ARG_ENABLE(microhttpd,
@@ -284,6 +291,13 @@ AC_ARG_ENABLE(developer,
 		[enable support for MonetDB development (default=yes for development sources)]),
 	enable_developer=$enableval,
 	enable_developer=$dft_developer)
+
+dft_sanitizer=no
+AC_ARG_ENABLE(sanitizer,
+	AS_HELP_STRING([--enable-sanitizer],
+		[enable support for the GCC address sanitizer (default=no)]),
+	enable_sanitizer=$enableval,
+	enable_sanitizer=$dft_sanitizer)
 
 dnl The console is a direct client hooked onto the kernel with full
 dnl administrative privileges, bypassing any security checks.  It is
@@ -507,7 +521,7 @@ case "$host_os" in
 		LINUX_DIST=`source /etc/os-release; echo ${ID}:${VERSION_ID}`
 	elif test -s /etc/fedora-release ; then
 		LINUX_DIST="`cat /etc/fedora-release | head -n1 \
-			| sed 's|^.*\(Fedora\).* release \([[0-9]][[^ \n]]*\)\( .*\)*$|\1:\2|'`" 
+			| sed 's|^.*\(Fedora\).* release \([[0-9]][[^ \n]]*\)\( .*\)*$|\1:\2|'`"
 	elif test -s /etc/centos-release ; then
 		LINUX_DIST="`cat /etc/centos-release | head -n1 \
 			| sed 's|^\(CentOS\).* release \([[0-9]][[^ \n]]*\)\( .*\)*$|\1:\2|'`"
@@ -519,7 +533,7 @@ case "$host_os" in
 			| sed 's|^.*\(Red\) \(Hat\).* Linux *\([[A-Z]]*\) release \([[0-9]][[^ \n]]*\)\( .*\)*$|\1\2:\4\3|' \
 			| sed 's|^Red Hat Enterprise Linux \([[AW]]S\) release \([[0-9]][[^ \n]]*\)\( .*\)*$|RHEL:\2\1|' \
 			| sed 's|^\(CentOS\).* release \([[0-9]][[^ \n]]*\)\( .*\)*$|\1:\2|' \
-			| sed 's|^\(Scientific\) Linux.* release \([[0-9]][[^ \n]]*\)\( .*\)*$|\1:\2|'`" 
+			| sed 's|^\(Scientific\) Linux.* release \([[0-9]][[^ \n]]*\)\( .*\)*$|\1:\2|'`"
 	elif test -s /etc/SuSE-release ; then
 		LINUX_DIST="`cat /etc/SuSE-release   | head -n1 \
 			| sed 's|^.*\(S[[Uu]]SE\) LINUX Enterprise \([[SD]]\)[[ervsktop]]* \([[0-9]][[^ \n]]*\)\( .*\)*$|\1:\3E\2|' \
@@ -528,7 +542,7 @@ case "$host_os" in
 			| sed 's|^open\(S[[Uu]]SE\) \([[0-9]][[^ \n]]*\)\( .*\)*$|\1:\2|'`"
 	elif test -s /etc/gentoo-release ; then
 		LINUX_DIST="`cat /etc/gentoo-release | head -n1 \
-			| sed 's|^.*\(Gentoo\) Base System.* [[versionrelease]]* \([[0-9]][[^ \n]]*\)\( .*\)*$|\1:\2|'`" 
+			| sed 's|^.*\(Gentoo\) Base System.* [[versionrelease]]* \([[0-9]][[^ \n]]*\)\( .*\)*$|\1:\2|'`"
 	elif test -s /etc/lsb-release ; then
 		LINUX_DIST="`grep '^DISTRIB_ID=' /etc/lsb-release | cut -d'=' -f2`:`grep '^DISTRIB_RELEASE=' /etc/lsb-release | cut -d'=' -f2`"
 	elif test -s /etc/debian_version ; then
@@ -590,7 +604,7 @@ dnl  Set compiler switches.
 dnl  The idea/goal is to be as strict as possible, i.e., enable preferably
 dnl  *all* warnings and make them errors. This should help keep the code
 dnl  as clean and portable as possible.
-dnl  It turned out, though, that this, especially turning all warnings into 
+dnl  It turned out, though, that this, especially turning all warnings into
 dnl  errors, is a bit too ambitious for configure/autoconf. Hence, we set
 dnl  all flags that enable specific warnings and those that make the
 dnl  compiler die on them (-Werror) in X_CFLAGS, which are added to the
@@ -739,11 +753,31 @@ yes-*-*)
 	dnl  # 193: zero used for undefined preprocessing identifier
 	dnl  #1357: optimization disabled due to excessive resource requirements; contact Intel Premier Support for assistance
 	dnl  #1572: floating-point equality and inequality comparisons are unreliable
-	dnl  #1599: declaration hides variable 
+	dnl  #1599: declaration hides variable
 	dnl  #2259: non-pointer conversion from "." to "." may lose significant bits
 	;;
 esac
 fi
+if test "x$enable_sanitizer" != xno; then
+case "$GCC" in
+yes)
+	# if no specific sanitizer was specified, use address sanitizer
+	if test "x$enable_sanitizer" = xyes; then
+		MCHECK_ADD_FLAG([-fsanitize=address])
+	else
+		MCHECK_ADD_FLAG([-fsanitize=$enable_sanitizer])
+		if test "x$enable_sanitizer" = xthread; then
+			X_CFLAGS="$X_CFLAGS -DNO_ATOMIC_INSTRUCTIONS"
+		fi
+	fi
+	MCHECK_ADD_FLAG([-fno-omit-frame-pointer])
+	;;
+*)
+	AC_MSG_ERROR([--enable-sanitizer only supported with GCC])
+	;;
+esac
+fi
+
 AC_SUBST(CFLAGS)
 AC_SUBST(X_CFLAGS)
 
@@ -764,7 +798,7 @@ case "$host_os" in
 solaris*)
     case "$GCC" in
       yes) ;;
-      *) 
+      *)
         THREAD_SAVE_FLAGS="$THREAD_SAVE_FLAGS -mt"
         ;;
     esac
@@ -988,7 +1022,7 @@ if test "x$enable_optimize" = xyes; then
 	JAVACFLAGS="$JAVACFLAGS -g:none -O"
 	case "$GCC-$CC_ver" in
 	yes-clang-*)
-	  CFLAGS="$CFLAGS -O3 -fomit-frame-pointer" # -finline-functions is no longer supported in llvm 3.6 
+	  CFLAGS="$CFLAGS -O3 -fomit-frame-pointer" # -finline-functions is no longer supported in llvm 3.6
 	  ;;
 	yes-*)
 	  dnl -fomit-frame-pointer crashes memprof
@@ -1000,7 +1034,7 @@ if test "x$enable_optimize" = xyes; then
 	  #   -ftree-builtin-call-dce -ftree-ccp -ftree-ch
 	  #   -ftree-copyrename -ftree-dce -ftree-dominator-opts
 	  #   -ftree-dse -ftree-forwprop -ftree-fre -ftree-phiprop
-	  #   -ftree-sra -ftree-pta -ftree-ter -funit-at-a-time 
+	  #   -ftree-sra -ftree-pta -ftree-ter -funit-at-a-time
 	  # on top of this -fomit-frame-pointer is enabled on machines
 	  # where this does not interfere with debugging.
 	  # -O2 on gcc enables optimisations which do not involve a
@@ -1021,7 +1055,7 @@ if test "x$enable_optimize" = xyes; then
 	  # of -O2:
 	  #  -finline-functions, -funswitch-loops,
 	  #  -fpredictive-commoning, -fgcse-after-reload,
-	  #  -ftree-vectorize and -fipa-cp-clone 
+	  #  -ftree-vectorize and -fipa-cp-clone
 	  CFLAGS="-O3 -fomit-frame-pointer -pipe ${CFLAGS}"
 	  # because we explicitly disable debugging, we can explicitly
 	  # enable -fomit-frame-pointer here
@@ -1062,7 +1096,7 @@ if test "x$enable_optimize" = xyes; then
 	#     x86_64-*-*-10.*) CFLAGS="$CFLAGS                                                -axWPT  ";;
 
 	      dnl  We need to use -mp instead of -mp1 as otherwise nextafter() & nextafterf() do not work correctly for 0
-	      x86_64-*-*-11.*) CFLAGS="$CFLAGS -mp  -O3 -restrict -unroll                     -axSSE4.2	";; 
+	      x86_64-*-*-11.*) CFLAGS="$CFLAGS -mp  -O3 -restrict -unroll                     -axSSE4.2	";;
 	      dnl  -mp does no longer exist with icc 15; using -mieee-fp, instead.
 	      dnl  adding -axSSE4.2 (or even -axCORE-AVX512) results in errors like
 	      dnl  "error: ODBCFetch has been targeted for automatic cpu dispatch" ...
@@ -1102,7 +1136,7 @@ if test "x$enable_optimize" = xyes; then
 			       dnl  (Mserver produces some incorrect BATpropcheck warnings);
 			       dnl  hence, we use only "-O2", here.
 			       ;;
-	      esac   
+	      esac
 	  ;;
 	esac
 	# for stack-traces with assert, we DO want a frame-pointer
@@ -1745,7 +1779,7 @@ case "$have_bz2" in
 		;;
 esac
 
-AC_MSG_CHECKING(for bzip2) 
+AC_MSG_CHECKING(for bzip2)
 if test "x$have_bz2" != xno; then
 	save_CPPFLAGS="$CPPFLAGS"
 	CPPFLAGS="$CPPFLAGS $BZ_CFLAGS"
@@ -1809,7 +1843,7 @@ PTHREAD_INCS=""
 PTHREAD_EXTRA=""
 AC_ARG_WITH(pthread,
 	AS_HELP_STRING([--with-pthread=DIR],
-		[pthread library is installed in DIR]), 
+		[pthread library is installed in DIR]),
 	have_pthread="$withval")
 
 case "$have_pthread" in
@@ -1830,12 +1864,12 @@ if test "x$have_pthread" != xno; then
 			CPPFLAGS="$CPPFLAGS $PTHREAD_INCS/pthread $PTHREAD_EXTRA"
 			AC_CHECK_HEADER(pthread.h,[AC_DEFINE(HAVE_PTHREAD_H, 1,
 								[Define if you have the pthread.h])
-					AC_CHECK_HEADERS(pthread.h semaphore.h sched.h) 
-					PTHREAD_INCS="$PTHREAD_INCS/pthread"]) 
+					AC_CHECK_HEADERS(pthread.h semaphore.h sched.h)
+					PTHREAD_INCS="$PTHREAD_INCS/pthread"])
 			;;
 		*)
 			CPPFLAGS="$CPPFLAGS $PTHREAD_INCS $PTHREAD_EXTRA"
-			AC_CHECK_HEADERS(pthread.h semaphore.h sched.h) 
+			AC_CHECK_HEADERS(pthread.h semaphore.h sched.h)
 			;;
 	esac
 	CPPFLAGS="$save_CPPFLAGS"
@@ -1846,7 +1880,7 @@ if test "x$have_pthread" != xno; then
 		yes-auto-clang-5.*|yes-yes-clang-5.*|yes-auto-clang-6.*|yes-yes-clang-6.*|yes-auto-clang-7.*|yes-yes-clang-7.*)
 			# clang 5.*/6.*/7.* (Xcode 6.0) does not
 			# seem to have / require -pthread as compiler
-			# option; on Mac OS X Yosamite, "Apple LLVM 
+			# option; on Mac OS X Yosamite, "Apple LLVM
 			# version 6.0 (clang-600.0.51) (based on LLVM 3.5svn)"
 			# complains about "error: argument unused during
 			# compilation: '-pthread'".
@@ -1899,16 +1933,16 @@ if test "x$have_pthread" != xno; then
 		;;
 	esac
 
-	AC_SEARCH_LIBS(pthread_kill, , 
+	AC_SEARCH_LIBS(pthread_kill, ,
 		AC_DEFINE(HAVE_PTHREAD_KILL, 1,
 			[Define if you have the pthread_kill function]))
-	AC_SEARCH_LIBS(pthread_sigmask, , 
+	AC_SEARCH_LIBS(pthread_sigmask, ,
 		AC_DEFINE(HAVE_PTHREAD_SIGMASK, 1,
 			[Define if you have the pthread_sigmask function]))
-	AC_SEARCH_LIBS(pthread_kill_other_threads_np, , 
+	AC_SEARCH_LIBS(pthread_kill_other_threads_np, ,
 		AC_DEFINE(HAVE_PTHREAD_KILL_OTHER_THREADS_NP, 1,
 			[Define if you have the pthread_kill_other_threads_np function]))
-	AC_SEARCH_LIBS(pthread_setschedprio, , 
+	AC_SEARCH_LIBS(pthread_setschedprio, ,
 		AC_DEFINE(HAVE_PTHREAD_SETSCHEDPRIO, 1,
 			[Define if you have the pthread_setschedprio function]))
 	dnl this function very ugly is overloaded with semaphore stuff
@@ -1942,7 +1976,7 @@ READLINE_LIBS=""
 READLINE_INCS=""
 AC_ARG_WITH(readline,
 	AS_HELP_STRING([--with-readline=DIR],
-		[readline library is installed in DIR]), 
+		[readline library is installed in DIR]),
 	have_readline="$withval")
 
 case "$have_readline" in
@@ -2409,8 +2443,8 @@ if test "x$have_proj" != xno ; then
 	CPPFLAGS="$CPPFLAGS $PROJ_INCS"
 	LDFLAGS="$LDFLAGS $PROJ_LIBS"
 	AC_CHECK_HEADER(proj_api.h,
-		AC_CHECK_LIB(proj, pj_init_plus, 
-			AC_DEFINE(HAVE_PROJ, 1, [Define if the proj library exists]), 
+		AC_CHECK_LIB(proj, pj_init_plus,
+			AC_DEFINE(HAVE_PROJ, 1, [Define if the proj library exists]),
 			[ if test "x$have_proj" != xauto; then AC_MSG_ERROR([-lproj library not found]); fi
 			have_proj=no; why_have_proj="(proj library not found)" ], ),
 		[ if test "x$have_proj" != xauto; then AC_MSG_ERROR([proj_api.h header not found]); fi
@@ -2457,7 +2491,7 @@ if test "x$have_samtools" != xno; then
 			[ why_have_samtools=; AC_DEFINE([HAVE_BAM_BAM_H], 1, [Define to 1 if you have the <samtools/bam.h> header file.]) ],
 			[ why_have_samtools="Neither bam/bam.h or bam/bam.h header not found" ])
 	fi
-	
+
 	if test -z "$why_have_samtools"; then
 		AC_CHECK_HEADER(samtools/sam.h,
 			[ why_have_samtools=; AC_DEFINE([HAVE_SAMTOOLS_SAM_H], 1, [Define to 1 if you have the <samtools/sam.h> header file.]) ],
@@ -2652,7 +2686,7 @@ yes|auto)
 	fi
 	# read include dirs, libs and cflags
 	if test "x$have_liblas" != xno; then
-		LIBLAS_INCS="`$LIBLAS_CONFIG --includes`" 
+		LIBLAS_INCS="`$LIBLAS_CONFIG --includes`"
 		LIBLAS_LIBS="`$LIBLAS_CONFIG --libs`"
 	fi
 	# if lidar is enabled and liblas was not found abort
@@ -2717,14 +2751,14 @@ if test "x$have_gdal" != xno && test "x$have_gdal" != xpkgconf; then
 	LIBS=""
 	found_gdal_h=yes
 	AC_CHECK_HEADER(gdal.h,,
-		AC_CHECK_HEADER(gdal/gdal.h,
+		[AC_CHECK_HEADER(gdal/gdal.h,
 			[if test "x$GDAL_CFLAGS" = x; then
 				GDAL_CFLAGS="-I/usr/include/gdal"
 			else
 				GDAL_CFLAGS="$GDAL_CFLAGS/gdal"
 			fi
 			CPPFLAGS="$save_CPPFLAGS $GDAL_CFLAGS"],
-			[found_gdal_h=no]))
+			[found_gdal_h=no])])
 	if test "x$found_gdal_h" = xyes; then
 		AC_CHECK_LIB(gdal, GDALAllRegister,
 			[AC_DEFINE(HAVE_GDAL, 1, [Define if you have the gdal library])
@@ -2924,7 +2958,7 @@ case "$host_os" in
 esac
 
 if test "x$have_setsockopt" = xno; then
-	AC_CHECK_FUNC(setsockopt, [], 
+	AC_CHECK_FUNC(setsockopt, [],
 	  AC_CHECK_LIB(socket, setsockopt, [ SOCKET_LIBS="-lsocket $SOCKET_LIBS"; have_setsockopt=yes; ]))
 fi
 
@@ -2943,7 +2977,7 @@ if test "x$have_getaddrinfo" = xyes; then
 fi
 
 dnl incase of windows we need to use try_link because windows uses the
-dnl pascal style of function calls and naming scheme. Therefore the 
+dnl pascal style of function calls and naming scheme. Therefore the
 dnl function needs to be compiled with the correct header
 AC_CHECK_TYPE(SOCKET, , AC_DEFINE(SOCKET,int,[type used for sockets]), [#ifdef HAVE_WINSOCK_H
 #include <winsock.h>
@@ -2991,8 +3025,12 @@ case "$enable_int128" in
 yes|auto)
 	have_hge=no
 	why_have_hge='(no 128-bit integer type found)'
-	AC_CHECK_TYPES([__int128, __int128_t, __uint128_t], [have_hge=yes; why_have_hge=''],
-		[if test x$enable_int128 = xyes; then AC_MSG_ERROR([128-bit integers not supported by platform]); fi])
+	AC_CHECK_TYPES([__int128, __int128_t, __uint128_t], [have_hge=yes; why_have_hge=''])
+	if test $have_hge = no; then
+		if test x$enable_int128 = xyes; then
+			AC_MSG_ERROR([128-bit integers not supported by platform])
+		fi
+	fi
 	;;
 no)
 	have_hge=no
@@ -3264,6 +3302,9 @@ AC_SUBST(Erundir)
 Qlibdir="$libdir"
 Xlibdir="`$translatepath "$libdir"`"
 QXlibdir="`echo "$Xlibdir" | sed 's/\\\\/\\\\\\\\/g'`"
+Elibdir="`echo "$Xlibdir" | sed 's/{exec_prefix}/{prefix}/'`"
+eval "Elibdir=${Elibdir}"
+QElibdir="`echo "$Elibdir" | sed 's/\\\\/\\\\\\\\/g'`"
 AC_SUBST(Qlibdir)
 AC_SUBST(Xlibdir)
 AC_SUBST(QXlibdir)
@@ -3340,6 +3381,7 @@ AC_SUBST(QXSOURCE)
 AC_DEFINE_UNQUOTED(LOCALSTATEDIR,"$QElocalstatedir",[modifiable single-machine data])
 AC_DEFINE_UNQUOTED(DATA_DIR,"$QEdatadir",[read-only architecture-independent data])
 AC_DEFINE_UNQUOTED(BINDIR,"$QEbindir",[location where binaries are installed])
+AC_DEFINE_UNQUOTED(LIBDIR,"$QElibdir",[location where libraries are installed])
 
 dnl  On Solaris, libxml2 enables threading only when _REENTRANT, __MT__
 dnl  or _POSIX_C_SOURCE >= 199506L is defined.  The latter is only
@@ -3508,8 +3550,11 @@ typedef lng ptrdiff_t;
 
 /* These are required to make MonetDB's source tree CRAN-compliant */
 #ifdef HAVE_EMBEDDED_R
-#include "tools/embedded/undef.h"
+#include "embedded/undef.h"
 #endif
+
+#define PROMPT1		"\001\001\n"	/* prompt: ready for new query */
+#define PROMPT2		"\001\002\n"	/* prompt: more data needed */
 
 #endif /* _SEEN_MONETDB_CONFIG_H */
 ])
@@ -3529,39 +3574,29 @@ dnl bootstrap adds a (long) list of file names inside the
 dnl AC_CONFIG_FILES command
 AC_CONFIG_FILES([
 Makefile
-rpm.mk
-buildtools/Makefile
 common/Makefile
-clients/Makefile
 gdk/Makefile
-gdk/monetdb-gdk.pc
-monetdb5/Makefile
+mal/Makefile
 sql/Makefile
-tools/Makefile
-buildtools/conf/Makefile
+embedded/Makefile
+mapisplit/Makefile
 common/stream/Makefile
-common/stream/monetdb-stream.pc
 common/options/Makefile
 common/utils/Makefile
-clients/mapilib/Makefile
-clients/mapilib/monetdb-mapi.pc
-monetdb5/mal/Makefile
-monetdb5/modules/Makefile
-monetdb5/optimizer/Makefile
-monetdb5/scheduler/Makefile
-monetdb5/tools/Makefile
-monetdb5/tools/monetdb5.pc
+mal/mal/Makefile
+mal/modules/Makefile
+mal/optimizer/Makefile
+mal/scheduler/Makefile
+mal/tools/Makefile
 sql/include/Makefile
 sql/common/Makefile
 sql/storage/Makefile
 sql/server/Makefile
 sql/backends/Makefile
 sql/scripts/Makefile
-sql/NT/Makefile
-tools/embedded/Makefile
-monetdb5/modules/atoms/Makefile
-monetdb5/modules/kernel/Makefile
-monetdb5/modules/mal/Makefile
+mal/modules/atoms/Makefile
+mal/modules/kernel/Makefile
+mal/modules/mal/Makefile
 sql/storage/bat/Makefile
 sql/backends/monet5/Makefile
 ])
@@ -3584,6 +3619,7 @@ for comp in \
 	'debug     ' \
 	'optimize  ' \
 	'developer ' \
+	'sanitizer ' \
 	'instrument' \
 	'profile   ' \
 ; do
