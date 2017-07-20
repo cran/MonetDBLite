@@ -107,8 +107,8 @@ CONFIG_CLEAN_VPATH_FILES =
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 libstore_la_LIBADD =
 dist_libstore_la_OBJECTS = libstore_la-store_dependency.lo \
-	libstore_la-store_connections.lo libstore_la-store_sequence.lo \
-	libstore_la-store.lo libstore_la-sql_catalog.lo
+	libstore_la-store_sequence.lo libstore_la-store.lo \
+	libstore_la-sql_catalog.lo
 nodist_libstore_la_OBJECTS =
 libstore_la_OBJECTS = $(dist_libstore_la_OBJECTS) \
 	$(nodist_libstore_la_OBJECTS)
@@ -225,7 +225,6 @@ am__relativize = \
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
-ANT = @ANT@
 AR = @AR@
 AS = @AS@
 AUTOCONF = @AUTOCONF@
@@ -234,12 +233,9 @@ AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
 BASH = @BASH@
 BUILD = @BUILD@
-BZ_CFLAGS = @BZ_CFLAGS@
-BZ_LIBS = @BZ_LIBS@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
-CLASSPATH = @CLASSPATH@
 CONFIG_H = @CONFIG_H@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
@@ -247,7 +243,6 @@ CYGPATH_W = @CYGPATH_W@
 CYGPATH_WP = @CYGPATH_WP@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
-DIFF = @DIFF@
 DIRSEP = @DIRSEP@
 DLLTOOL = @DLLTOOL@
 DL_LIBS = @DL_LIBS@
@@ -263,12 +258,7 @@ Elocalstatedir = @Elocalstatedir@
 Elogdir = @Elogdir@
 Erundir = @Erundir@
 FGREP = @FGREP@
-GDAL_CFLAGS = @GDAL_CFLAGS@
-GDAL_LIBS = @GDAL_LIBS@
 GDK_VERSION = @GDK_VERSION@
-GEOS_CONFIG = @GEOS_CONFIG@
-GEOS_INCS = @GEOS_INCS@
-GEOS_LIBS = @GEOS_LIBS@
 GREP = @GREP@
 INSTALL = @INSTALL@
 INSTALL_BACKUP = @INSTALL_BACKUP@
@@ -276,21 +266,10 @@ INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
-JAR = @JAR@
-JAVA = @JAVA@
-JAVAC = @JAVAC@
-JAVACFLAGS = @JAVACFLAGS@
-JAVADOC = @JAVADOC@
-JAVA_HOME = @JAVA_HOME@
-JAVA_VERSION = @JAVA_VERSION@
 KVM_LIBS = @KVM_LIBS@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
 LIBICONV = @LIBICONV@
-LIBLAS_CONFIG = @LIBLAS_CONFIG@
-LIBLAS_INCS = @LIBLAS_INCS@
-LIBLAS_LIBS = @LIBLAS_LIBS@
-LIBLAS_RPM = @LIBLAS_RPM@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
 LIBTOOL = @LIBTOOL@
@@ -314,9 +293,6 @@ NM = @NM@
 NMEDIT = @NMEDIT@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
-ODBCINST_LIBS = @ODBCINST_LIBS@
-ODBC_INCS = @ODBC_INCS@
-ODBC_LIBS = @ODBC_LIBS@
 OTOOL = @OTOOL@
 OTOOL64 = @OTOOL64@
 PACKAGE = @PACKAGE@
@@ -328,32 +304,16 @@ PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATHSEP = @PATHSEP@
 PATH_SEPARATOR = @PATH_SEPARATOR@
-PERL = @PERL@
-PERL_LIBDIR = @PERL_LIBDIR@
 PKG_CONFIG = @PKG_CONFIG@
 PKG_CONFIG_LIBDIR = @PKG_CONFIG_LIBDIR@
 PKG_CONFIG_PATH = @PKG_CONFIG_PATH@
-PKG_CURL = @PKG_CURL@
-PKG_LIBLZMA = @PKG_LIBLZMA@
 PKG_ZLIB = @PKG_ZLIB@
-PROJ_INCS = @PROJ_INCS@
-PROJ_LIBS = @PROJ_LIBS@
 PTHREAD_INCS = @PTHREAD_INCS@
 PTHREAD_LIBS = @PTHREAD_LIBS@
-PYTHON = @PYTHON@
-PYTHON2 = @PYTHON2@
-PYTHON2_LIBDIR = @PYTHON2_LIBDIR@
-PYTHON3 = @PYTHON3@
-PYTHON3_LIBDIR = @PYTHON3_LIBDIR@
 QBUILD = @QBUILD@
 QDIRSEP = @QDIRSEP@
 QSOURCE = @QSOURCE@
 QXBUILD = @QXBUILD@
-QXPERL_LIBDIR = @QXPERL_LIBDIR@
-QXPYTHON2 = @QXPYTHON2@
-QXPYTHON2_LIBDIR = @QXPYTHON2_LIBDIR@
-QXPYTHON3 = @QXPYTHON3@
-QXPYTHON3_LIBDIR = @QXPYTHON3_LIBDIR@
 QXSOURCE = @QXSOURCE@
 QXbindir = @QXbindir@
 QXdatadir = @QXdatadir@
@@ -382,27 +342,17 @@ Qprefix = @Qprefix@
 Qsrcdir = @Qsrcdir@
 Qsysconfdir = @Qsysconfdir@
 RANLIB = @RANLIB@
-RCMD = @RCMD@
-READLINE_INCS = @READLINE_INCS@
-READLINE_LIBS = @READLINE_LIBS@
 READLINK = @READLINK@
-RHOME = @RHOME@
 RM = @RM@
-RPMBUILD = @RPMBUILD@
-SAMTOOLS_CFLAGS = @SAMTOOLS_CFLAGS@
-SAMTOOLS_LIBS = @SAMTOOLS_LIBS@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 SOCKET_LIBS = @SOCKET_LIBS@
 SOEXT = @SOEXT@
 SOURCE = @SOURCE@
-SPHINXCLIENT_CFLAGS = @SPHINXCLIENT_CFLAGS@
-SPHINXCLIENT_LIBS = @SPHINXCLIENT_LIBS@
 STREAM_VERSION = @STREAM_VERSION@
 STRIP = @STRIP@
 THREAD_SAVE_FLAGS = @THREAD_SAVE_FLAGS@
-UUID_LIBS = @UUID_LIBS@
 VERSION = @VERSION@
 XBUILD = @XBUILD@
 XSOURCE = @XSOURCE@
@@ -446,20 +396,12 @@ build_os = @build_os@
 build_vendor = @build_vendor@
 builddir = @builddir@
 builtby = @builtby@
-cfitsio_CFLAGS = @cfitsio_CFLAGS@
-cfitsio_LIBS = @cfitsio_LIBS@
 compilercall = @compilercall@
-curl_CFLAGS = @curl_CFLAGS@
-curl_LIBS = @curl_LIBS@
 datadir = @datadir@
 datarootdir = @datarootdir@
 docdir = @docdir@
 dvidir = @dvidir@
 exec_prefix = @exec_prefix@
-gdal_CFLAGS = @gdal_CFLAGS@
-gdal_LIBS = @gdal_LIBS@
-gsl_CFLAGS = @gsl_CFLAGS@
-gsl_LIBS = @gsl_LIBS@
 host = @host@
 host_alias = @host_alias@
 host_cpu = @host_cpu@
@@ -471,14 +413,6 @@ infodir = @infodir@
 install_sh = @install_sh@
 libdir = @libdir@
 libexecdir = @libexecdir@
-liblzma_CFLAGS = @liblzma_CFLAGS@
-liblzma_LIBS = @liblzma_LIBS@
-libmicrohttpd_CFLAGS = @libmicrohttpd_CFLAGS@
-libmicrohttpd_LIBS = @libmicrohttpd_LIBS@
-libr_CFLAGS = @libr_CFLAGS@
-libr_LIBS = @libr_LIBS@
-libxml2_CFLAGS = @libxml2_CFLAGS@
-libxml2_LIBS = @libxml2_LIBS@
 libxml2version = @libxml2version@
 linkercall = @linkercall@
 localedir = @localedir@
@@ -486,15 +420,8 @@ localstatedir = @localstatedir@
 logdir = @logdir@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
-netcdf_CFLAGS = @netcdf_CFLAGS@
-netcdf_LIBS = @netcdf_LIBS@
-oids = @oids@
 oldincludedir = @oldincludedir@
-openssl_CFLAGS = @openssl_CFLAGS@
-openssl_LIBS = @openssl_LIBS@
 opensslversion = @opensslversion@
-pcre_CFLAGS = @pcre_CFLAGS@
-pcre_LIBS = @pcre_LIBS@
 pcreversion = @pcreversion@
 pdfdir = @pdfdir@
 prefix = @prefix@
@@ -515,20 +442,18 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 translatepath = @translatepath@
-valgrind_CFLAGS = @valgrind_CFLAGS@
-valgrind_LIBS = @valgrind_LIBS@
 zlib_CFLAGS = @zlib_CFLAGS@
 zlib_LIBS = @zlib_LIBS@
 AUTOMAKE_OPTIONS = no-dependencies 1.4 foreign
 libstore_la_CFLAGS = -DLIBSTORE $(AM_CFLAGS)
 storedir = $(libdir)
 nodist_libstore_la_SOURCES = 
-dist_libstore_la_SOURCES = store_dependency.c store_connections.c store_sequence.c store.c sql_catalog.c sql_storage.h store_connections.h store_dependency.h store_sequence.h
+dist_libstore_la_SOURCES = store_dependency.c store_sequence.c store.c sql_catalog.c sql_storage.h store_dependency.h store_sequence.h
 AM_CPPFLAGS = -I$(srcdir) -I../include -I$(srcdir)/../include -I../common -I$(srcdir)/../common -I../../common/options -I$(srcdir)/../../common/options -I../../common/stream -I$(srcdir)/../../common/stream -I../../gdk -I$(srcdir)/../../gdk
 SUBDIRS = bat
 BUILT_SOURCES = 
 MOSTLYCLEANFILES = 
-EXTRA_DIST = Makefile.ag Makefile.msc sql_catalog.c sql_storage.h store.c store_connections.c store_connections.h store_dependency.c store_dependency.h store_sequence.c store_sequence.h
+EXTRA_DIST = Makefile.ag Makefile.msc sql_catalog.c sql_storage.h store.c store_dependency.c store_dependency.h store_sequence.c store_sequence.h
 noinst_LTLIBRARIES = libstore.la
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
@@ -884,19 +809,16 @@ uninstall-am:
 
 libstore_la-store_dependency.lo: store_dependency.c store_dependency.h ../common/../include/sql_mem.h ../common/../include/sql_list.h ../common/sql_string.h ../common/../include/sql_catalog.h ../common/../storage/sql_storage.h ../common/../../common/stream/stream.h ../common/sql_types.h ../common/../include/sql_relation.h ../common/sql_backend.h store_sequence.h ../include/sql_catalog.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstore_la_CFLAGS) $(CFLAGS) $(store_dependency_CFLAGS) -c -o libstore_la-store_dependency.lo `test -f 'store_dependency.c' || echo '$(srcdir)/'`store_dependency.c
-libstore_la-store_connections.lo: store_connections.c store_connections.h store_dependency.h ../common/../include/sql_mem.h ../common/../include/sql_list.h ../common/sql_string.h ../common/../include/sql_catalog.h ../common/../storage/sql_storage.h ../common/../../common/stream/stream.h ../common/sql_types.h ../common/../include/sql_relation.h ../common/sql_backend.h store_sequence.h ../include/sql_catalog.h
-	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstore_la_CFLAGS) $(CFLAGS) $(store_connections_CFLAGS) -c -o libstore_la-store_connections.lo `test -f 'store_connections.c' || echo '$(srcdir)/'`store_connections.c
 libstore_la-store_sequence.lo: store_sequence.c store_sequence.h ../include/sql_catalog.h sql_storage.h ../../gdk/gdk_logger.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstore_la_CFLAGS) $(CFLAGS) $(store_sequence_CFLAGS) -c -o libstore_la-store_sequence.lo `test -f 'store_sequence.c' || echo '$(srcdir)/'`store_sequence.c
-libstore_la-store.lo: store.c ../common/../include/sql_mem.h ../common/../include/sql_list.h ../common/sql_string.h ../common/../include/sql_catalog.h ../common/../storage/sql_storage.h ../common/../../common/stream/stream.h ../common/sql_types.h sql_storage.h ../include/sql_catalog.h ../../gdk/gdk_logger.h store_dependency.h ../common/../include/sql_relation.h ../common/sql_backend.h store_sequence.h store_connections.h bat/bat_utils.h bat/bat_storage.h bat/bat_table.h bat/bat_logger.h
+libstore_la-store.lo: store.c ../common/../include/sql_mem.h ../common/../include/sql_list.h ../common/sql_string.h ../common/../include/sql_catalog.h ../common/../storage/sql_storage.h ../common/../../common/stream/stream.h ../common/sql_types.h sql_storage.h ../include/sql_catalog.h ../../gdk/gdk_logger.h store_dependency.h ../common/../include/sql_relation.h ../common/sql_backend.h store_sequence.h bat/bat_utils.h bat/bat_storage.h bat/bat_table.h bat/bat_logger.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstore_la_CFLAGS) $(CFLAGS) $(store_CFLAGS) -c -o libstore_la-store.lo `test -f 'store.c' || echo '$(srcdir)/'`store.c
 libstore_la-sql_catalog.lo: sql_catalog.c ../include/sql_catalog.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstore_la_CFLAGS) $(CFLAGS) $(sql_catalog_CFLAGS) -c -o libstore_la-sql_catalog.lo `test -f 'sql_catalog.c' || echo '$(srcdir)/'`sql_catalog.c
 store_sequence.o store_sequence.lo: store_sequence.c store_sequence.h ../include/sql_catalog.h sql_storage.h ../../gdk/gdk_logger.h
 sql_catalog.o sql_catalog.lo: sql_catalog.c ../include/sql_catalog.h
-store.o store.lo: store.c ../common/../include/sql_mem.h ../common/../include/sql_list.h ../common/sql_string.h ../common/../include/sql_catalog.h ../common/../storage/sql_storage.h ../common/../../common/stream/stream.h ../common/sql_types.h sql_storage.h ../include/sql_catalog.h ../../gdk/gdk_logger.h store_dependency.h ../common/../include/sql_relation.h ../common/sql_backend.h store_sequence.h store_connections.h bat/bat_utils.h bat/bat_storage.h bat/bat_table.h bat/bat_logger.h
+store.o store.lo: store.c ../common/../include/sql_mem.h ../common/../include/sql_list.h ../common/sql_string.h ../common/../include/sql_catalog.h ../common/../storage/sql_storage.h ../common/../../common/stream/stream.h ../common/sql_types.h sql_storage.h ../include/sql_catalog.h ../../gdk/gdk_logger.h store_dependency.h ../common/../include/sql_relation.h ../common/sql_backend.h store_sequence.h bat/bat_utils.h bat/bat_storage.h bat/bat_table.h bat/bat_logger.h
 store_dependency.o store_dependency.lo: store_dependency.c store_dependency.h ../common/../include/sql_mem.h ../common/../include/sql_list.h ../common/sql_string.h ../common/../include/sql_catalog.h ../common/../storage/sql_storage.h ../common/../../common/stream/stream.h ../common/sql_types.h ../common/../include/sql_relation.h ../common/sql_backend.h store_sequence.h ../include/sql_catalog.h
-store_connections.o store_connections.lo: store_connections.c store_connections.h store_dependency.h ../common/../include/sql_mem.h ../common/../include/sql_list.h ../common/sql_string.h ../common/../include/sql_catalog.h ../common/../storage/sql_storage.h ../common/../../common/stream/stream.h ../common/sql_types.h ../common/../include/sql_relation.h ../common/sql_backend.h store_sequence.h ../include/sql_catalog.h
 install-storeLTLIBRARIES:
 
   include $(top_srcdir)/buildtools/conf/rules.mk

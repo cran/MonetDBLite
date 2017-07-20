@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
  */
 
 #include "monetdb_config.h"
@@ -64,10 +64,10 @@ cmp_print(mvc *sql, stream *fout, int cmp)
 	mnstr_printf(fout, " %s ", r);
 }
 
-static void exps_print(mvc *sql, stream *fout, list *exps, int depth, int alias, int brackets);
+static void exps_print(mvc *sql, stream *fout, list *exps, int depth, list *refs, int alias, int brackets);
 
 static void
-exp_print(mvc *sql, stream *fout, sql_exp *e, int depth, int comma, int alias) 
+exp_print(mvc *sql, stream *fout, sql_exp *e, int depth, list *refs, int comma, int alias) 
 {
 	(void)sql;
 	if (!e)
@@ -80,25 +80,26 @@ exp_print(mvc *sql, stream *fout, sql_exp *e, int depth, int comma, int alias)
 			/* todo */
 		} else if (e->flag & PSM_RETURN) {
 			mnstr_printf(fout, "return ");
-			exp_print(sql, fout, e->l, depth, 0, 0);
+			exp_print(sql, fout, e->l, depth, refs, 0, 0);
 		} else if (e->flag & PSM_WHILE) {
 			mnstr_printf(fout, "while ");
-			exp_print(sql, fout, e->l, depth, 0, 0);
-			exps_print(sql, fout, e->r, depth, alias, 0);
+			exp_print(sql, fout, e->l, depth, refs, 0, 0);
+			exps_print(sql, fout, e->r, depth, refs, alias, 0);
 		} else if (e->flag & PSM_IF) {
 			mnstr_printf(fout, "if ");
-			exp_print(sql, fout, e->l, depth, 0, 0);
-			exps_print(sql, fout, e->r, depth, alias, 0);
+			exp_print(sql, fout, e->l, depth, refs, 0, 0);
+			exps_print(sql, fout, e->r, depth, refs, alias, 0);
 			if (e->f)
-				exps_print(sql, fout, e->f, depth, alias, 0);
+				exps_print(sql, fout, e->f, depth, refs, alias, 0);
 		} else if (e->flag & PSM_REL) {
+			rel_print_(sql, fout, e->l, depth+1, refs, 1);
 		}
 	 	break;
 	}
 	case e_convert: {
 		char *to_type = sql_subtype_string(&e->tpe);
 		mnstr_printf(fout, "%s[", to_type);
-		exp_print(sql, fout, e->l, depth, 0, 0);
+		exp_print(sql, fout, e->l, depth, refs, 0, 0);
 		mnstr_printf(fout, "]");
 		_DELETE(to_type);
 	 	break;
@@ -125,7 +126,7 @@ exp_print(mvc *sql, stream *fout, sql_exp *e, int depth, int comma, int alias)
 				mnstr_printf(fout, "%s", name);
 			} else if (e->f) {	/* values list */
 				list *l = e->f;
-				exp_print(sql, fout, l->h->data, depth, 0, 0);
+				exps_print(sql, fout, l, depth, refs, 0, 0);
 			} else { /* numbered arguments */
 				mnstr_printf(fout, "A%d", e->flag);
 			}
@@ -136,9 +137,9 @@ exp_print(mvc *sql, stream *fout, sql_exp *e, int depth, int comma, int alias)
 		mnstr_printf(fout, "%s.%s", 
 				f->func->s?f->func->s->base.name:"sys", 
 				f->func->base.name);
-		exps_print(sql, fout, e->l, depth, alias, 1);
+		exps_print(sql, fout, e->l, depth, refs, alias, 1);
 		if (e->r)
-			exps_print(sql, fout, e->r, depth, alias, 1);
+			exps_print(sql, fout, e->r, depth, refs, alias, 1);
 	} 	break;
 	case e_aggr: {
 		sql_subaggr *a = e->f;
@@ -150,14 +151,14 @@ exp_print(mvc *sql, stream *fout, sql_exp *e, int depth, int comma, int alias)
 		if (need_no_nil(e))
 			mnstr_printf(fout, " no nil ");
 		if (e->l)
-			exps_print(sql, fout, e->l, depth, alias, 1);
+			exps_print(sql, fout, e->l, depth, refs, alias, 1);
 		else
 			mnstr_printf(fout, "()");
 	} 	break;
 	case e_column: 
 		if (e->l)
-			mnstr_printf(fout, "%s.", (char*)e->l);
-		mnstr_printf(fout, "%s", (char*)e->r);
+			mnstr_printf(fout, "\"%s\".", (char*)e->l);
+		mnstr_printf(fout, "\"%s\"", (char*)e->r);
 		if (e->rname && e->name && e->l && e->r &&
 			strcmp(e->rname, e->l) == 0 &&
 			strcmp(e->name, e->r) == 0) 
@@ -167,40 +168,40 @@ exp_print(mvc *sql, stream *fout, sql_exp *e, int depth, int comma, int alias)
 	 	break;
 	case e_cmp: 
 		if (e->flag == cmp_in || e->flag == cmp_notin) {
-			exp_print(sql, fout, e->l, depth, 0, alias);
+			exp_print(sql, fout, e->l, depth, refs, 0, alias);
 			cmp_print(sql, fout, get_cmp(e));
-			exps_print(sql, fout, e->r, depth, alias, 1);
+			exps_print(sql, fout, e->r, depth, refs, alias, 1);
 		} else if (e->flag == cmp_or) {
-			exps_print(sql, fout, e->l, depth, alias, 1);
+			exps_print(sql, fout, e->l, depth, refs, alias, 1);
 			cmp_print(sql, fout, get_cmp(e));
-			exps_print(sql, fout, e->r, depth, alias, 1);
+			exps_print(sql, fout, e->r, depth, refs, alias, 1);
 		} else if (get_cmp(e) == cmp_filter) {
 			sql_subfunc *f = e->f;
 
-			exps_print(sql, fout, e->l, depth, alias, 1);
+			exps_print(sql, fout, e->l, depth, refs, alias, 1);
 			if (is_anti(e))
 				mnstr_printf(fout, " !");
 			mnstr_printf(fout, " FILTER %s ", f->func->base.name);
-			exps_print(sql, fout, e->r, depth, alias, 1);
+			exps_print(sql, fout, e->r, depth, refs, alias, 1);
 		} else if (e->f) {
-			exp_print(sql, fout, e->r, depth+1, 0, 0);
+			exp_print(sql, fout, e->r, depth+1, refs, 0, 0);
 			if (is_anti(e))
 				mnstr_printf(fout, " ! ");
 			cmp_print(sql, fout, swap_compare(range2lcompare(e->flag)) );
-			exp_print(sql, fout, e->l, depth+1, 0, 0);
+			exp_print(sql, fout, e->l, depth+1, refs, 0, 0);
 			if (is_anti(e))
 				mnstr_printf(fout, " ! ");
 			cmp_print(sql, fout, range2rcompare(e->flag) );
-			exp_print(sql, fout, e->f, depth+1, 0, 0);
+			exp_print(sql, fout, e->f, depth+1, refs, 0, 0);
 			if (e->flag & CMP_SYMMETRIC)
 				mnstr_printf(fout, " SYM ");
 		} else {
-			exp_print(sql, fout, e->l, depth+1, 0, 0);
+			exp_print(sql, fout, e->l, depth+1, refs, 0, 0);
 			if (is_anti(e))
 				mnstr_printf(fout, " ! ");
 			cmp_print(sql, fout, get_cmp(e));
 
-			exp_print(sql, fout, e->r, depth+1, 0, 0);
+			exp_print(sql, fout, e->r, depth+1, refs, 0, 0);
 		}
 	 	break;
 	default:
@@ -223,15 +224,15 @@ exp_print(mvc *sql, stream *fout, sql_exp *e, int depth, int comma, int alias)
 	if (e->name && alias) {
 		mnstr_printf(fout, " as ");
 		if (e->rname)
-			mnstr_printf(fout, "%s.", e->rname);
-		mnstr_printf(fout, "%s", e->name);
+			mnstr_printf(fout, "\"%s\".", e->rname);
+		mnstr_printf(fout, "\"%s\"", e->name);
 	}
 	if (comma)
 		mnstr_printf(fout, ", ");
 }
 
 static void
-exps_print(mvc *sql, stream *fout, list *exps, int depth, int alias, int brackets) 
+exps_print(mvc *sql, stream *fout, list *exps, int depth, list *refs, int alias, int brackets) 
 {
 	node *en;
 
@@ -241,7 +242,7 @@ exps_print(mvc *sql, stream *fout, list *exps, int depth, int alias, int bracket
 		mnstr_printf(fout, " [ ");
 	if (exps)
 		for (en = exps->h; en; en = en->next) 
-			exp_print(sql, fout, en->data, depth+1, (en->next!=NULL), alias);
+			exp_print(sql, fout, en->data, depth+1, refs, (en->next!=NULL), alias);
 	if (brackets)
 		mnstr_printf(fout, ")");
 	else
@@ -319,6 +320,7 @@ rel_print_(mvc *sql, stream  *fout, sql_rel *rel, int depth, list *refs, int dec
 		mnstr_printf(fout, "\n%cREF %d (%d)", decorate?'=':' ', nr, cnt);
 	}
 
+
 	switch (rel->op) {
 	case op_basetable: {
 		sql_table *t = rel->l;
@@ -351,18 +353,18 @@ rel_print_(mvc *sql, stream  *fout, sql_rel *rel, int depth, list *refs, int dec
 					tname);
 		}	
 		if (rel->exps) 
-			exps_print(sql, fout, rel->exps, depth, 1, 0);
+			exps_print(sql, fout, rel->exps, depth, refs, 1, 0);
 	} 	break;
 	case op_table:
 		print_indent(sql, fout, depth, decorate);
 		mnstr_printf(fout, "table ");
 
 		if (rel->r)
-			exp_print(sql, fout, rel->r, depth, 1, 0);
+			exp_print(sql, fout, rel->r, depth, refs, 1, 0);
 		if (rel->l)
-			rel_print_(sql, fout, rel->l, 0, refs, decorate);
+			rel_print_(sql, fout, rel->l, depth+1, refs, decorate);
 		if (rel->exps) 
-			exps_print(sql, fout, rel->exps, depth, 1, 0);
+			exps_print(sql, fout, rel->exps, depth, refs, 1, 0);
 		break;
 	case op_ddl:
 		print_indent(sql, fout, depth, decorate);
@@ -372,7 +374,7 @@ rel_print_(mvc *sql, stream  *fout, sql_rel *rel, int depth, list *refs, int dec
 		if (rel->r)
 			rel_print_(sql, fout, rel->r, depth+1, refs, decorate);
 		if (rel->exps && rel->flag == DDL_PSM) 
-			exps_print(sql, fout, rel->exps, depth, 1, 0);
+			exps_print(sql, fout, rel->exps, depth, refs, 1, 0);
 		break;
 	case op_join: 
 	case op_left: 
@@ -433,7 +435,7 @@ rel_print_(mvc *sql, stream  *fout, sql_rel *rel, int depth, list *refs, int dec
 			rel_print_(sql, fout, rel->r, depth+1, refs, decorate);
 		print_indent(sql, fout, depth, decorate);
 		mnstr_printf(fout, ")");
-		exps_print(sql, fout, rel->exps, depth, 1, 0);
+		exps_print(sql, fout, rel->exps, depth, refs, 1, 0);
 		break;
 	case op_project:
 	case op_select: 
@@ -464,10 +466,10 @@ rel_print_(mvc *sql, stream  *fout, sql_rel *rel, int depth, list *refs, int dec
 			mnstr_printf(fout, ")");
 		}
 		if (rel->op == op_groupby)  /* group by columns */
-			exps_print(sql, fout, rel->r, depth, 1, 0);
-		exps_print(sql, fout, rel->exps, depth, 1, 0);
+			exps_print(sql, fout, rel->r, depth, refs, 1, 0);
+		exps_print(sql, fout, rel->exps, depth, refs, 1, 0);
 		if (rel->r && rel->op == op_project) /* order by columns */
-			exps_print(sql, fout, rel->r, depth, 1, 0);
+			exps_print(sql, fout, rel->r, depth, refs, 1, 0);
 		break;
 	case op_insert:
 	case op_update:
@@ -499,7 +501,7 @@ rel_print_(mvc *sql, stream  *fout, sql_rel *rel, int depth, list *refs, int dec
 		print_indent(sql, fout, depth, decorate);
 		mnstr_printf(fout, ")");
 		if (rel->exps)
-			exps_print(sql, fout, rel->exps, depth, 1, 0);
+			exps_print(sql, fout, rel->exps, depth, refs, 1, 0);
 	} 	break;
 	default:
 		assert(0);
@@ -585,8 +587,31 @@ skipWS( char *r, int *pos)
 static void
 skipIdent( char *r, int *pos)
 {
-	while(r[*pos] && (isalnum(r[*pos]) || r[*pos] == '_' || r[*pos] == '%'))
+	if (r[*pos] == '"') {
 		(*pos)++;
+		while(r[*pos] && r[*pos] != '"')
+			(*pos)++;
+		(*pos)++;
+	} else {
+		while(r[*pos] && (isalnum(r[*pos]) || r[*pos] == '_' || r[*pos] == '%'))
+			(*pos)++;
+	}
+}
+
+static void
+skipIdentOrSymbol( char *r, int *pos)
+{
+	if (r[*pos] == '"') {
+		skipIdent(r, pos);
+	} else {
+		while(r[*pos] && (isalnum(r[*pos]) ||
+				  r[*pos] == '_' || r[*pos] == '%' ||
+				  r[*pos] == '<' || r[*pos] == '>' ||
+				  r[*pos] == '/' || r[*pos] == '*' ||
+				  r[*pos] == '-' || r[*pos] == '+' ||
+				  r[*pos] == '~' || r[*pos] == '^' ))
+			(*pos)++;
+	}
 }
 
 static int
@@ -618,7 +643,7 @@ readString( char *r, int *pos)
 	return st;
 }
 
-static sql_exp* exp_read(mvc *sql, sql_rel *lrel, sql_rel *rrel, char *r, int *pos, int grp) ;
+static sql_exp* exp_read(mvc *sql, sql_rel *lrel, sql_rel *rrel, list *pexps, char *r, int *pos, int grp) ;
 
 
 static void *
@@ -660,7 +685,7 @@ read_prop( mvc *sql, sql_exp *exp, char *r, int *pos)
 }
 
 static list*
-read_exps(mvc *sql, sql_rel *lrel, sql_rel *rrel, char *r, int *pos, char bracket, int grp) 
+read_exps(mvc *sql, sql_rel *lrel, sql_rel *rrel, list *pexps, char *r, int *pos, char bracket, int grp) 
 {
 	list *exps = new_exp_list(sql->sa);
 	sql_exp *e;
@@ -671,7 +696,7 @@ read_exps(mvc *sql, sql_rel *lrel, sql_rel *rrel, char *r, int *pos, char bracke
 
 		(*pos)++;
 		skipWS( r, pos);
-		e = exp_read(sql, lrel, rrel, r, pos, grp);
+		e = exp_read(sql, lrel, rrel, pexps, r, pos, grp);
 		if (!e && r[*pos] != ebracket) {
 			return sql_error(sql, -1, "missing closing %c\n", ebracket);
 		} else if (!e) {
@@ -683,9 +708,16 @@ read_exps(mvc *sql, sql_rel *lrel, sql_rel *rrel, char *r, int *pos, char bracke
 		skipWS( r, pos);
 		read_prop( sql, e, r, pos);
 		while (r[*pos] == ',') {
+			int op = 0;
+
 			(*pos)++;
 			skipWS( r, pos);
-			e = exp_read(sql, lrel, rrel, r, pos, grp);
+			op = *pos;
+			e = exp_read(sql, lrel, rrel, exps, r, pos, grp);
+			if (!e && pexps) {
+				*pos = op;
+				e = exp_read(sql, lrel, rrel, pexps, r, pos, grp);
+			}
 			if (!e)
 				return NULL;
 			append(exps, e);
@@ -701,41 +733,47 @@ read_exps(mvc *sql, sql_rel *lrel, sql_rel *rrel, char *r, int *pos, char bracke
 }
 
 static sql_exp*
-exp_read(mvc *sql, sql_rel *lrel, sql_rel *rrel, char *r, int *pos, int grp) 
+exp_read(mvc *sql, sql_rel *lrel, sql_rel *rrel, list *pexps, char *r, int *pos, int grp) 
 {
 	int f = -1;
-	int not = 1, old, d=0, s=0, unique = 0, no_nils = 0;
+	int not = 1, old, d=0, s=0, unique = 0, no_nils = 0, quote = 0;
 	char *tname, *cname = NULL, *e, *b = r + *pos, *st;
 	sql_exp *exp = NULL;
 	list *exps = NULL;
 	sql_subtype *tpe;
 
+	quote = (r[*pos] == '"');
+	b += quote;
 	skipIdent(r, pos);
-	e = r+*pos;
+	e = r+*pos-quote;
 	skipWS(r, pos);
 	switch(r[*pos]) {
-	/* ident */
 	case '.': 
 		*e = 0;
 		(*pos)++;
 		tname = b;
-		cname = r + *pos;
-		skipIdent(r, pos);
-		e = r+*pos;
-		skipWS(r, pos);
+		cname = r + *pos + quote;
+		skipIdentOrSymbol(r, pos);
+		e = r+*pos - quote;
 		old = *e;
 		*e = 0;
 		
 		tname = sa_strdup(sql->sa, tname);
 		cname = sa_strdup(sql->sa, cname);
-		if (lrel) { 
+		*e = old;
+		skipWS(r, pos);
+		if (pexps) {
+			exp = exps_bind_column2(pexps, tname, cname);
+			if (exp)
+				exp = exp_alias_or_copy(sql, tname, cname, lrel, exp);
+		}
+		if (!exp && lrel) { 
 			exp = rel_bind_column2(sql, lrel, tname, cname, 0);
 			if (!exp && rrel)
 				exp = rel_bind_column2(sql, rrel, tname, cname, 0);
-		} else {
+		} else if (!exp) {
 			exp = exp_column(sql->sa, tname, cname, NULL, CARD_ATOM, 1, (strchr(cname,'%') != NULL));
 		}
-		*e = old;
 		break;
 	/* atom */
 	case '(': 
@@ -744,7 +782,7 @@ exp_read(mvc *sql, sql_rel *lrel, sql_rel *rrel, char *r, int *pos, int grp)
 			list *lexps,*rexps;
 			char *fname = NULL;
 		       
-			lexps = read_exps(sql, lrel, rrel, r, pos, '(', 0);
+			lexps = read_exps(sql, lrel, rrel, pexps, r, pos, '(', 0);
 			skipWS(r, pos);
 			if (strncmp(r+*pos, "or",  strlen("or")) == 0) 
 				(*pos)+= (int) strlen("or");
@@ -763,7 +801,7 @@ exp_read(mvc *sql, sql_rel *lrel, sql_rel *rrel, char *r, int *pos, int grp)
 				skipWS(r,pos);
 			}
 
-			rexps = read_exps(sql, lrel, rrel, r, pos, '(', 0);
+			rexps = read_exps(sql, lrel, rrel, pexps, r, pos, '(', 0);
 			if (filter) {
 				sql_subfunc *func = sql_find_func(sql->sa, mvc_bind_schema(sql, "sys"), fname, 1+list_length(exps), F_FILT, NULL);
 				if (!func)
@@ -797,7 +835,9 @@ exp_read(mvc *sql, sql_rel *lrel, sql_rel *rrel, char *r, int *pos, int grp)
 		if (r[*pos] == '[') { /* convert */
 			(*pos)++;
 			skipWS(r, pos);
-			exp = exp_read(sql, lrel, rrel, r, pos, 0);
+			exp = exp_read(sql, lrel, rrel, pexps, r, pos, 0);
+			if (!exp)
+				return NULL;
 			if (r[*pos] != ']') 
 				return sql_error(sql, -1, "convert: missing ']'\n");
 			(*pos)++;
@@ -805,7 +845,10 @@ exp_read(mvc *sql, sql_rel *lrel, sql_rel *rrel, char *r, int *pos, int grp)
 			exp = exp_convert(sql->sa, exp, exp_subtype(exp), tpe);
 		} else {
 			st = readString(r,pos);
-			exp = exp_atom(sql->sa, atom_general(sql->sa, tpe, st));
+			if (st && strcmp(st, "NULL") == 0)
+				exp = exp_atom(sql->sa, atom_general(sql->sa, tpe, NULL));
+			else
+				exp = exp_atom(sql->sa, atom_general(sql->sa, tpe, st));
 			skipWS(r, pos);
 		}
 		break;
@@ -841,7 +884,9 @@ exp_read(mvc *sql, sql_rel *lrel, sql_rel *rrel, char *r, int *pos, int grp)
 		sql_subaggr *a = NULL;
 		node *n;
 
-		exps = read_exps(sql, lrel, rrel, r, pos, '(', 0);
+		exps = read_exps(sql, lrel, rrel, pexps, r, pos, '(', 0);
+		if (!exps)
+			return NULL;
 		tname = b;
 		*e = 0;
 		s = mvc_bind_schema(sql, tname);
@@ -872,24 +917,41 @@ exp_read(mvc *sql, sql_rel *lrel, sql_rel *rrel, char *r, int *pos, int grp)
 			}
 		}
 		if (!exp && lrel) { 
+			int amb = 0;
+			char *cname;
+
 			old = *e;
 			*e = 0;
-			exp = rel_bind_column(sql, lrel, b, 0);
+			cname = sa_strdup(sql->sa, b);
+			if (pexps) {
+				exp = exps_bind_column(pexps, cname, &amb);
+				if (exp)
+					exp = exp_alias_or_copy(sql, exp->rname, cname, lrel, exp);
+			}
+			(void)amb;
+			assert(amb == 0);
+			if (!exp && lrel)
+				exp = rel_bind_column(sql, lrel, cname, 0);
 			if (!exp && rrel)
-				exp = rel_bind_column(sql, rrel, b, 0);
+				exp = rel_bind_column(sql, rrel, cname, 0);
 			*e = old;
 			skipWS(r,pos);
 		}
 	}
 	if (!exp)
 		return NULL;
+
+	if (r[*pos] == '!') {
+		(*pos)++;
+		skipWS(r, pos);
+		set_anti(exp);
+	}
 	/* [ ASC ] */
 	if (strncmp(r+*pos, "ASC",  strlen("ASC")) == 0) {
 		(*pos)+= (int) strlen("NOT");
 		skipWS(r, pos);
 		set_direction(exp, ASCENDING);
 	}
-
 	/* [ NOT ] NULL */
 	if (strncmp(r+*pos, "NOT",  strlen("NOT")) == 0) {
 		(*pos)+= (int) strlen("NOT");
@@ -920,30 +982,25 @@ exp_read(mvc *sql, sql_rel *lrel, sql_rel *rrel, char *r, int *pos, int grp)
 
 	/* as alias */
 	if (strncmp(r+*pos, "as", 2) == 0) {
-		int old;
 		(*pos)+=2;
 		skipWS(r, pos);
 
-		tname = r+*pos;
+		tname = r+*pos+1;
 		skipIdent(r, pos);
 		if (r[*pos] != '.') {
-			old = r[*pos];
-			r[*pos] = 0;
+			r[*pos-1] = 0;
 			cname = tname;
 			exp_setname(sql->sa, exp, NULL, cname);
-			r[*pos] = old;
 			skipWS(r, pos);
 		} else {
-			r[*pos] = 0;
+			r[*pos-1] = 0;
 			(*pos)++;
-			cname = r+*pos;
+			cname = r+*pos+1;
 			skipIdent(r, pos);
-			e = r+*pos;
+			e = r+*pos-1;
 			skipWS(r, pos);
-			old = *e;
 			*e = 0;
 			exp_setname(sql->sa, exp, tname, cname);
-			*e = old;
 		}
 	}
 	skipWS(r, pos);
@@ -1003,13 +1060,13 @@ exp_read(mvc *sql, sql_rel *lrel, sql_rel *rrel, char *r, int *pos, int grp)
 		if (f == cmp_in || f == cmp_notin) {
 	        	list *exps;
 		       
-			exps = read_exps(sql, lrel, rrel, r, pos, '(', 0);
+			exps = read_exps(sql, lrel, rrel, pexps, r, pos, '(', 0);
 			if (f == cmp_in || f == cmp_notin)
 				return exp_in(sql->sa, exp, exps, f);
 		} else {
 			sql_exp *e;
 
-	        	e = exp_read(sql, lrel, rrel, r, pos, 0);
+	        	e = exp_read(sql, lrel, rrel, pexps, r, pos, 0);
 			if (e && e->type == e_cmp) 
 				return exp_compare2(sql->sa, e->l, exp, e->r, compare2range(swap_compare((comp_type)f),e->flag));
 			else if (e)
@@ -1094,7 +1151,7 @@ rel_read(mvc *sql, char *r, int *pos, list *refs)
 				return rel;
 	
 			/* scan aliases */
-			exps = read_exps(sql, rel, NULL, r, pos, '[', 0);
+			exps = read_exps(sql, rel, NULL, NULL, r, pos, '[', 0);
 			if (exps && list_length(exps))
 				rel->exps = exps;
 			if (strncmp(r+*pos, "COUNT",  strlen("COUNT")) == 0) {
@@ -1114,7 +1171,7 @@ rel_read(mvc *sql, char *r, int *pos, list *refs)
 				return sql_error(sql, -1, "top N: missing ')'\n");
 			(*pos)++;
 			skipWS(r, pos);
-			exps = read_exps(sql, nrel, NULL, r, pos, '[', 0);
+			exps = read_exps(sql, nrel, NULL, NULL, r, pos, '[', 0);
 			rel = rel_topn(sql->sa, nrel, exps);
 			return rel;
 		}
@@ -1134,11 +1191,11 @@ rel_read(mvc *sql, char *r, int *pos, list *refs)
 		(*pos)++;
 		skipWS(r, pos);
 
-		exps = read_exps(sql, nrel, NULL, r, pos, '[', 0);
+		exps = read_exps(sql, nrel, NULL, NULL, r, pos, '[', 0);
 		rel = rel_project(sql->sa, nrel, exps);
 		/* order by ? */
 		if (r[*pos] == '[') 
-			rel->r = read_exps(sql, nrel, rel, r, pos, '[', 0);
+			rel->r = read_exps(sql, nrel, rel, NULL, r, pos, '[', 0);
 		if (distinct)
 			set_distinct(rel);
 		distinct = 0;
@@ -1158,9 +1215,11 @@ rel_read(mvc *sql, char *r, int *pos, list *refs)
 		(*pos)++;
 		skipWS(r, pos);
 
-		gexps = read_exps(sql, nrel, NULL, r, pos, '[', 0);
+		gexps = read_exps(sql, nrel, NULL, NULL, r, pos, '[', 0);
 		skipWS(r, pos);
-		exps = read_exps(sql, nrel, NULL, r, pos, '[', 1);
+		exps = read_exps(sql, nrel, NULL, gexps, r, pos, '[', 1);
+		if (!exps)
+			return NULL;
 
 		rel = rel_groupby(sql, nrel, gexps);
 		rel->exps = exps;
@@ -1179,7 +1238,7 @@ rel_read(mvc *sql, char *r, int *pos, list *refs)
 				return sql_error(sql, -1, "sample: missing ')'\n");
 			(*pos)++;
 			skipWS(r, pos);
-			exps = read_exps(sql, nrel, NULL, r, pos, '[', 0);
+			exps = read_exps(sql, nrel, NULL, NULL, r, pos, '[', 0);
 			rel = rel_sample(sql->sa, nrel, exps);
 			return rel;
 		} else if (r[*pos+2] == 'l') {
@@ -1196,7 +1255,7 @@ rel_read(mvc *sql, char *r, int *pos, list *refs)
 			(*pos)++;
 			skipWS(r, pos);
 
-			exps = read_exps(sql, nrel, NULL, r, pos, '[', 0);
+			exps = read_exps(sql, nrel, NULL, NULL, r, pos, '[', 0);
 			rel = rel_select_copy(sql->sa, nrel, exps);
 			return rel;
 			/* semijoin or antijoin */
@@ -1227,7 +1286,7 @@ rel_read(mvc *sql, char *r, int *pos, list *refs)
 			(*pos)++;
 			skipWS(r, pos);
 
-			exps = read_exps(sql, lrel, rrel, r, pos, '[', 0);
+			exps = read_exps(sql, lrel, rrel, NULL, r, pos, '[', 0);
 			rel = rel_crossproduct(sql->sa, lrel, rrel, j);
 			rel->exps = exps;
 			return rel;
@@ -1281,24 +1340,24 @@ rel_read(mvc *sql, char *r, int *pos, list *refs)
 		(*pos)++;
 		skipWS(r, pos);
 
-		exps = read_exps(sql, lrel, rrel, r, pos, '[', 0);
+		exps = read_exps(sql, lrel, rrel, NULL, r, pos, '[', 0);
 		rel = rel_crossproduct(sql->sa, lrel, rrel, j);
 		rel->exps = exps;
 		return rel;
 	case 'u':
-		if (j != op_basetable) {
+		if (j == op_basetable) {
 			*pos += (int) strlen("union");
 			j = op_union;
 		}
 		/* fall through */
 	case 'i':
-		if (j != op_basetable) {
+		if (j == op_basetable) {
 			*pos += (int) strlen("intersect");
 			j = op_inter;
 		}
 		/* fall through */
 	case 'e':
-		if (j != op_basetable) {
+		if (j == op_basetable) {
 			*pos += (int) strlen("except");
 			j = op_except;
 		}
@@ -1323,9 +1382,10 @@ rel_read(mvc *sql, char *r, int *pos, list *refs)
 		(*pos)++;
 		skipWS(r, pos);
 
-		exps = read_exps(sql, lrel, rrel, r, pos, '[', 0);
+		exps = read_exps(sql, lrel, rrel, NULL, r, pos, '[', 0);
 		rel = rel_setop(sql->sa, lrel, rrel, j);
 		rel->exps = exps;
+		set_processed(rel);
 		return rel;
 	case 'd':
 		/* 'ddl' not supported */

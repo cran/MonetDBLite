@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
  */
 
 /* (c): M. L. Kersten
@@ -145,6 +145,7 @@ static int
 typeidLength(Client cntxt)
 {
 	int l;
+	char id[IDLENGTH], *t= id;
 	str s;
 	skipSpace(cntxt);
 	s = CURRENT(cntxt);
@@ -152,13 +153,16 @@ typeidLength(Client cntxt)
 	if (!idCharacter[(int) (*s)])
 		return 0;
 	l = 1;
-	s++;
-	idCharacter[TMPMARKER] = 0;
+	*t++ = *s++;
 	while (l < IDLENGTH && (idCharacter[(int) (*s)] || isdigit(*s)) ) {
-		s++;
+		*t++ = *s++;
 		l++;
 	}
-	idCharacter[TMPMARKER] = 1;
+	/* recognize the special type variables {any, any_<nr>} */
+	if( strncmp(id, "any",3) == 0)
+		return 3;
+	if( strncmp(id, "any_",4) == 0)
+		return 4;
 	return l;
 }
 
@@ -171,8 +175,6 @@ idCopy(Client cntxt, int length)
 	memcpy(s, CURRENT(cntxt), (size_t) length);
 	s[length] = 0;
 	/* avoid a clash with old temporaries */
-	if (s[0] == TMPMARKER)
-		s[0] = REFMARKER;
 	advance(cntxt, length);
 	return s;
 }
@@ -182,7 +184,6 @@ MALlookahead(Client cntxt, str kw, int length)
 {
 	int i;
 
-	skipSpace(cntxt);
 	/* avoid double test or use lowercase only. */
 	if (currChar(cntxt) == *kw &&
 		strncmp(CURRENT(cntxt), kw, length) == 0 &&
@@ -379,6 +380,7 @@ cstToken(Client cntxt, ValPtr cst)
 	case '-':
 		i++;
 		s++;
+		/* fall through */
 	case '0':
 		if ((s[1] == 'x' || s[1] == 'X')) {
 			/* deal with hex */
@@ -386,6 +388,7 @@ cstToken(Client cntxt, ValPtr cst)
 			i += 2;
 			s += 2;
 		}
+		/* fall through */
 	case '1': case '2': case '3': case '4': case '5':
 	case '6': case '7': case '8': case '9':
 		if (hex)
@@ -404,6 +407,7 @@ cstToken(Client cntxt, ValPtr cst)
 
 		if (hex)
 			goto handleInts;
+		/* fall through */
 	case '.':
 		if (*s == '.' && isdigit(*(s + 1))) {
 			i++;
@@ -663,7 +667,7 @@ simpleTypeId(Client cntxt)
 		cntxt->yycur--; /* keep it */
 		return -1;
 	}
-	tpe = getTypeIndex(CURRENT(cntxt), l, -1);
+	tpe = getAtomIndex(CURRENT(cntxt), l, -1);
 	if (tpe < 0) {
 		parseError(cntxt, "Type identifier expected\n");
 		cntxt->yycur -= l; /* keep it */
@@ -690,53 +694,21 @@ parseTypeId(Client cntxt, int defaultType)
 			return TYPE_bat;
 		}
 
-		if (currChar(cntxt) == ']') {
-			i = newBatType(TYPE_void, tt);
-			if (kt > 0)
-				setAnyColumnIndex(i, kt);
-			nextChar(cntxt); /* skip ] */
-			skipSpace(cntxt);
-			return i;
-		}
-		/* Backward compatibility parsing of :bat[:oid,:type] */
-		if( tt != TYPE_oid){
-			parseError(cntxt, "':oid' expected\n");
-			return i;
-		}
-		if (currChar(cntxt) != ',')
-				parseError(cntxt, "',' expected\n");
-		nextChar(cntxt); /* skip , */
-		skipSpace(cntxt);
-		if (currChar(cntxt) == ':') {
-			tt = simpleTypeId(cntxt);
-			kt = typeAlias(cntxt, tt);
-		} else
-			tt = TYPE_any;
-
-		i = newBatType(TYPE_void, tt);
+		i = newBatType(tt);
 		if (kt > 0)
-			setAnyColumnIndex(i, kt);
+			setTypeIndex(i, kt);
 
 		if (currChar(cntxt) != ']')
 			parseError(cntxt, "']' expected\n");
-		nextChar(cntxt); /* skip ']' */
+		nextChar(cntxt); // skip ']' 
 		skipSpace(cntxt);
 		return i;
-	}
-	/* A pure BAT as generic type should be avoided .*/
-	if (s[0] == ':' && 
-	   ((s[1] == 'b' && s[2] == 'a' && s[3] == 't')  || 
-	    (s[1] == 'B' && s[2] == 'A' && s[3] == 'T')) && 
-	   !idCharacter[(int) s[4]]) {
-		advance(cntxt, 4);
-		//parseError(cntxt, "':bat[:oid,:any]' expected\n");
-		return TYPE_bat;
 	}
 	if (currChar(cntxt) == ':') {
 		tt = simpleTypeId(cntxt);
 		kt = typeAlias(cntxt, tt);
 		if (kt > 0)
-			setAnyColumnIndex(tt, kt);
+			setTypeIndex(tt, kt);
 		return tt;
 	}
 	parseError(cntxt, "<type identifier> expected\n");
@@ -795,6 +767,7 @@ helpInfo(Client cntxt, str *help)
 	if (MALkeyword(cntxt, "comment", 7)) {
 		skipSpace(cntxt);
 		if ((l = stringLength(cntxt))) {
+			GDKfree(*help);
 			*help = strCopy(cntxt, l);
 			if (*help)
 				advance(cntxt, l - 1);
@@ -816,7 +789,8 @@ binding(Client cntxt, MalBlkPtr curBlk, InstrPtr curInstr, int flag)
 	if (l > 0) {
 		varid = findVariableLength(curBlk, CURRENT(cntxt), l);
 		if (varid < 0) {
-			varid = newVariable(curBlk, idCopy(cntxt, l), TYPE_any);
+			varid = newVariable(curBlk, CURRENT(cntxt), l, TYPE_any);
+			advance(cntxt, l);
 			if ( varid < 0)
 				return curInstr;
 			type = typeElm(cntxt, TYPE_any);
@@ -863,7 +837,6 @@ term(Client cntxt, MalBlkPtr curBlk, InstrPtr *curInstr, int ret)
 {
 	int i, idx, flag, free = 1;
 	ValRecord cst;
-	str v = NULL;
 	int cstidx = -1;
 	malType tpe = TYPE_any;
 
@@ -913,8 +886,8 @@ term(Client cntxt, MalBlkPtr curBlk, InstrPtr *curInstr, int ret)
 		}
 	} else if ((i = idLength(cntxt))) {
 		if ((idx = findVariableLength(curBlk, CURRENT(cntxt), i)) == -1) {
-			v = idCopy(cntxt, i);
-			idx = newVariable(curBlk, v, TYPE_any);
+			idx = newVariable(curBlk, CURRENT(cntxt), i, TYPE_any);
+			advance(cntxt, i);
 			if( idx <0)
 				return 0;
 		} else {
@@ -950,7 +923,10 @@ parseAtom(Client cntxt)
 		tpe = TYPE_void;  /* no type qualifier */
 	else
 		tpe = parseTypeId(cntxt, TYPE_int);
-	malAtomDefinition(cntxt->fdout, modnme, tpe);
+	if( malAtomDefinition(cntxt->fdout, modnme, tpe) < 0){
+		skipToEnd(cntxt);
+		return 0;
+	}
 	cntxt->nspace = fixModule(cntxt->nspace, modnme);
 	cntxt->nspace->isAtomModule = TRUE;
 	skipSpace(cntxt);
@@ -958,36 +934,8 @@ parseAtom(Client cntxt)
 	return "";
 }
 
-static str
-parseLibrary(Client cntxt)
-{
-	str libnme = 0, s;
-	int l;
-	char *nxt;
-	ValRecord cst;
-
-	nxt = CURRENT(cntxt);
-	if ((l = idLength(cntxt)) <= 0) {
-		if ((l = cstToken(cntxt, &cst)) && cst.vtype == TYPE_str) {
-			advance(cntxt, l);
-			libnme = putNameLen(nxt + 1, l - 2);
-		} else
-			return parseError(cntxt, "<library name> or <library path> expected\n");
-	} else
-		libnme = putNameLen(nxt, l);
-	s = loadLibrary(libnme, TRUE);
-	(void) putNameLen(nxt, l);
-	if (s){
-		mnstr_printf(cntxt->fdout, "#WARNING: %s\n", s);
-		GDKfree(s);
-	}
-	advance(cntxt, l);
-	return "";
-}
-
 /*
- * It might be handy to clone a module.
- * It gets a copy of all functions known at the point of creation.
+ * All modules, except 'user', should be global
  */
 static str parseModule(Client cntxt)
 {
@@ -1000,6 +948,8 @@ static str parseModule(Client cntxt)
 		return parseError(cntxt, "<module path> expected\n");
 	modnme = putNameLen(nxt, l);
 	advance(cntxt, l);
+	if( ! isModuleDefined(cntxt->nspace,modnme))
+		newModule(NULL,modnme);
 	cntxt->nspace = fixModule(cntxt->nspace, modnme);
 	skipSpace(cntxt);
 	helpInfo(cntxt, &cntxt->nspace->help);
@@ -1051,6 +1001,10 @@ parseInclude(Client cntxt)
 		return 0;
 	}
 	skipToEnd(cntxt);
+
+	if (!malLibraryEnabled(modnme)) {
+		return "";
+	}
 
 	s = loadLibrary(modnme, FALSE);
 	if (s) {
@@ -1121,6 +1075,11 @@ fcnHeader(Client cntxt, int kind)
 	if (currChar(cntxt) == '.') {
 		nextChar(cntxt); /* skip '.' */
 		modnme = fnme;
+		if (isModuleDefined(cntxt->nspace, modnme) == FALSE) {
+			parseError(cntxt, "<module> name not defined\n");
+			skipToEnd(cntxt);
+			return curBlk;
+		}
 		l = operatorLength(cntxt);
 		if (l == 0)
 			l = idLength(cntxt);
@@ -1131,7 +1090,8 @@ fcnHeader(Client cntxt, int kind)
 		}
 		fnme = putNameLen(((char *) CURRENT(cntxt)), l);
 		advance(cntxt, l);
-	}
+	} else 
+		modnme= cntxt->nspace->name;
 
 	/* temporary suspend capturing statements in main block */
 	if (cntxt->backup){
@@ -1139,14 +1099,6 @@ fcnHeader(Client cntxt, int kind)
 		skipToEnd(cntxt);
 		return 0;
 	}
-	cntxt->backup = cntxt->curprg;
-	cntxt->curprg = newFunction(putName("user"), fnme, kind);
-	curPrg = cntxt->curprg;
-	curBlk = curPrg->def;
-	curBlk->flowfixed = 0;
-	curBlk->typefixed = 0;
-	curInstr = getInstrPtr(curBlk, 0);
-
 	if (currChar(cntxt) != '('){
 		parseError(cntxt, "function header '(' expected\n");
 		skipToEnd(cntxt);
@@ -1154,17 +1106,18 @@ fcnHeader(Client cntxt, int kind)
 	}
 	advance(cntxt, 1);
 
-	setModuleId(curInstr, modnme ? putName(modnme) :
-			putName(cntxt->nspace->name));
-
-	if (isModuleDefined(cntxt->nspace, getModuleId(curInstr)) == FALSE) {
-		if (cntxt->backup) {
-			cntxt->curprg = cntxt->backup;
-			cntxt->backup = 0;
-		}
-		parseError(cntxt, "<module> name not defined\n");
-		return curBlk;
+	assert(!cntxt->backup);
+	cntxt->backup = cntxt->curprg;
+	cntxt->curprg = newFunction( modnme, fnme, kind);
+	curPrg = cntxt->curprg;
+	if (!curPrg) {
+		cntxt->curprg = cntxt->backup;
+		return NULL;
 	}
+	curBlk = curPrg->def;
+	curBlk->flowfixed = 0;
+	curBlk->typefixed = 0;
+	curInstr = getInstrPtr(curBlk, 0);
 
 	/* get calling parameters */
 	ch = currChar(cntxt);
@@ -1180,8 +1133,10 @@ fcnHeader(Client cntxt, int kind)
 			if (ch == ')')
 				break;
 			if (cntxt->backup) {
+				freeSymbol(cntxt->curprg);
 				cntxt->curprg = cntxt->backup;
 				cntxt->backup = 0;
+				curBlk = NULL;
 			}
 			parseError(cntxt, "',' expected\n");
 			skipToEnd(cntxt);
@@ -1193,6 +1148,12 @@ fcnHeader(Client cntxt, int kind)
 	}
 	if (currChar(cntxt) != ')') {
 		freeInstruction(curInstr);
+		if (cntxt->backup) {
+			freeSymbol(cntxt->curprg);
+			cntxt->curprg = cntxt->backup;
+			cntxt->backup = 0;
+			curBlk = NULL;
+		}
 		parseError(cntxt, "')' expected\n");
 		skipToEnd(cntxt);
 		return curBlk;
@@ -1230,6 +1191,12 @@ fcnHeader(Client cntxt, int kind)
 			if ((ch = currChar(cntxt)) != ',') {
 				if (ch == ')')
 					break;
+				if (cntxt->backup) {
+					freeSymbol(cntxt->curprg);
+					cntxt->curprg = cntxt->backup;
+					cntxt->backup = 0;
+					curBlk = NULL;
+				}
 				parseError(cntxt, "',' expected\n");
 				skipToEnd(cntxt);
 				return curBlk;
@@ -1244,6 +1211,12 @@ fcnHeader(Client cntxt, int kind)
 		newarg = (short *) GDKmalloc(max * sizeof(curInstr->argv[0]));
 		if (newarg == NULL){
 			parseError(cntxt, MAL_MALLOC_FAIL);
+			if (cntxt->backup) {
+				freeSymbol(cntxt->curprg);
+				cntxt->curprg = cntxt->backup;
+				cntxt->backup = 0;
+				curBlk = NULL;
+			}
 			skipToEnd(cntxt);
 			return curBlk;
 		}
@@ -1261,8 +1234,10 @@ fcnHeader(Client cntxt, int kind)
 		if (currChar(cntxt) != ')') {
 			freeInstruction(curInstr);
 			if (cntxt->backup) {
+				freeSymbol(cntxt->curprg);
 				cntxt->curprg = cntxt->backup;
 				cntxt->backup = 0;
+				curBlk = NULL;
 			}
 			parseError(cntxt, "')' expected\n");
 			skipToEnd(cntxt);
@@ -1352,9 +1327,12 @@ parseCommandPattern(Client cntxt, int kind)
 	modnme = putNameLen(modnme, l);
 	if (isModuleDefined(cntxt->nspace, modnme))
 		insertSymbol(findModule(cntxt->nspace, modnme), curPrg);
-	else
+	else {
+		freeSymbol(curPrg);
+		cntxt->curprg = cntxt->backup;
+		cntxt->backup = 0;
 		return (MalBlkPtr) parseError(cntxt, "<module> not found\n");
-	trimMalBlk(curBlk);
+	}
 	chkProgram(cntxt->fdout, cntxt->nspace, curBlk);
 	if (cntxt->backup) {
 		cntxt->curprg = cntxt->backup;
@@ -1374,7 +1352,6 @@ parseCommandPattern(Client cntxt, int kind)
  * [note, command and patterns do not have a MAL block]
  */
 	if (MALkeyword(cntxt, "address", 7)) {
-		str nme;
 		int i;
 		i = idLength(cntxt);
 		if (i == 0) {
@@ -1382,13 +1359,17 @@ parseCommandPattern(Client cntxt, int kind)
 			return 0;
 		}
 		cntxt->blkmode = 0;
-		nme = idCopy(cntxt, i);
 		if (getModuleId(curInstr))
 			setModuleId(curInstr, NULL);
 		setModuleScope(curInstr,
 				findModule(cntxt->nspace, modnme));
-		curInstr->fcn = getAddress(cntxt->fdout, cntxt->srcFile, modnme, nme, 0);
-		curBlk->binding = nme;
+
+		memcpy(curBlk->binding, CURRENT(cntxt), (size_t)(i < IDLENGTH? i:IDLENGTH-1));
+		curBlk->binding[(i< IDLENGTH? i:IDLENGTH-1)] = 0;
+		/* avoid a clash with old temporaries */
+		advance(cntxt, i);
+		curInstr->fcn = getAddress(cntxt->fdout, cntxt->srcFile, curBlk->binding, 0);
+
 		if (cntxt->nspace->isAtomModule) {
 			if (curInstr->fcn == NULL) {
 				parseError(cntxt, "<address> not found\n");
@@ -1430,7 +1411,7 @@ parseFunction(Client cntxt, int kind)
 			return 0;
 		}
 		nme = idCopy(cntxt, i);
-		curInstr->fcn = getAddress(cntxt->fdout, cntxt->srcFile, cntxt->nspace->name, nme, 0);
+		curInstr->fcn = getAddress(cntxt->fdout, cntxt->srcFile, nme, 0);
 		GDKfree(nme);
 		if (curInstr->fcn == NULL) {
 			parseError(cntxt, "<address> not found\n");
@@ -1479,7 +1460,6 @@ parseEnd(Client cntxt)
 		}
 		pushEndInstruction(curBlk);
 		insertSymbol(cntxt->nspace, cntxt->curprg);
-		trimMalBlk(cntxt->curprg->def);
 		cntxt->blkmode = 0;
 		curBlk->typefixed = 0;
 		chkProgram(cntxt->fdout, cntxt->nspace, cntxt->curprg->def);
@@ -1526,9 +1506,9 @@ parseEnd(Client cntxt)
 
 #define GETvariable	\
 	if ((varid = findVariableLength(curBlk, CURRENT(cntxt), l)) == -1) { \
-		arg = idCopy(cntxt, l);	 \
-		varid = newVariable(curBlk, arg, TYPE_any);	\
-		assert(varid >=  0);\
+		varid = newVariable(curBlk, CURRENT(cntxt),l, TYPE_any);	\
+		advance(cntxt, l);\
+		if(varid <  0) return;\
 	} else \
 		advance(cntxt, l);
 
@@ -1573,7 +1553,16 @@ parseAssign(Client cntxt, int cntrl)
 
 	curPrg = cntxt->curprg;
 	curBlk = curPrg->def;
-	curInstr = newInstruction(curBlk, cntrl ? cntrl : ASSIGNsymbol);
+
+	curInstr = newInstruction(curBlk, NULL, NULL);
+	if (!curInstr) {
+			curBlk->errors++;
+			return;
+	}
+	if(cntrl){
+		curInstr->token = ASSIGNsymbol;
+		curInstr->barrier = cntrl;
+	}
 
 	/* start the parsing by recognition of the lhs of an assignment */
 	if (currChar(cntxt) == '(') {
@@ -1771,16 +1760,13 @@ part3:
 		parseError(cntxt, "return assignment expected\n");
 }
 
-
-#define BRKONERR if (curPrg->def->errors >= MAXERRORS) \
-		return curPrg->def->errors;
 int
 parseMAL(Client cntxt, Symbol curPrg, int skipcomments)
 {
 	int cntrl = 0;
 	/*Symbol curPrg= cntxt->curprg;*/
 	char c;
-	int inlineProp =0, unsafeProp = 0;
+	int inlineProp =0, unsafeProp = 0, sealedProp = 0;
 
 	echoInput(cntxt);
 	/* here the work takes place */
@@ -1817,7 +1803,12 @@ parseMAL(Client cntxt, Symbol curPrg, int skipcomments)
 				*e = 0;
 			if (! skipcomments && e > start && curBlk->stop > 0 ) {
 				ValRecord cst;
-				curInstr = newInstruction(curBlk, REMsymbol);
+				curInstr = newInstruction(curBlk, NULL, NULL);
+				if (!curInstr) {
+					return 1;
+				}
+				curInstr->token= REMsymbol;
+				curInstr->barrier= 0;
 				cst.vtype = TYPE_str;
 				cst.len = (int) strlen(start);
 				cst.val.sval = GDKstrdup(start);
@@ -1842,12 +1833,18 @@ parseMAL(Client cntxt, Symbol curPrg, int skipcomments)
 			goto allLeft;
 		case 'C': case 'c':
 			if (MALkeyword(cntxt, "command", 7)) {
-				parseCommandPattern(cntxt, COMMANDsymbol);
+				MalBlkPtr p = parseCommandPattern(cntxt, COMMANDsymbol);
+				if (p) {
+					p->unsafeProp = unsafeProp;
+					p->sealedProp = sealedProp;
+				}
 				cntxt->curprg->def->unsafeProp = unsafeProp;
-				if( inlineProp )
+				cntxt->curprg->def->sealedProp = sealedProp;
+				if (inlineProp)
 					showException(cntxt->fdout, SYNTAX, "parseError", "INLINE ignored");
 				inlineProp = 0;
 				unsafeProp = 0;
+				sealedProp = 0;
 				continue;
 			}
 			if (MALkeyword(cntxt, "catch", 5)) {
@@ -1867,12 +1864,18 @@ parseMAL(Client cntxt, Symbol curPrg, int skipcomments)
 			goto allLeft;
 		case 'F': case 'f':
 			if (MALkeyword(cntxt, "function", 8)) {
+				MalBlkPtr p;
 				cntxt->blkmode++;
-				if (parseFunction(cntxt, FUNCTIONsymbol)){
+				if ((p = parseFunction(cntxt, FUNCTIONsymbol))){
+					p->inlineProp = inlineProp;
+					p->unsafeProp = unsafeProp;
+					p->sealedProp = sealedProp;
 					cntxt->curprg->def->inlineProp = inlineProp;
 					cntxt->curprg->def->unsafeProp = unsafeProp;
+					cntxt->curprg->def->sealedProp = sealedProp;
 					inlineProp = 0;
 					unsafeProp = 0;
+					sealedProp = 0;
 					break;
 				}
 			} else if (MALkeyword(cntxt, "factory", 7)) {
@@ -1880,8 +1883,11 @@ parseMAL(Client cntxt, Symbol curPrg, int skipcomments)
 					showException(cntxt->fdout, SYNTAX, "parseError", "INLINE ignored");
 				if( unsafeProp)
 					showException(cntxt->fdout, SYNTAX, "parseError", "UNSAFE ignored");
+				if( sealedProp)
+					showException(cntxt->fdout, SYNTAX, "parseError", "SEALED ignored");
 				inlineProp = 0;
 				unsafeProp = 0;
+				sealedProp = 0;
 				cntxt->blkmode++;
 				parseFunction(cntxt, FACTORYsymbol);
 				break;
@@ -1897,10 +1903,6 @@ parseMAL(Client cntxt, Symbol curPrg, int skipcomments)
 				continue;
 			goto allLeft;
 		case 'L': case 'l':
-			if (MALkeyword(cntxt, "library", 7)) {
-				parseLibrary(cntxt);
-				continue;
-			}
 			if (MALkeyword(cntxt, "leave", 5))
 				cntrl = LEAVEsymbol;
 			goto allLeft;
@@ -1911,12 +1913,19 @@ parseMAL(Client cntxt, Symbol curPrg, int skipcomments)
 			goto allLeft;
 		case 'P': case 'p':
 			if (MALkeyword(cntxt, "pattern", 7)) {
+				MalBlkPtr p;
 				if( inlineProp )
 					showException(cntxt->fdout, SYNTAX, "parseError", "INLINE ignored");
-				parseCommandPattern(cntxt, PATTERNsymbol);
+				p = parseCommandPattern(cntxt, PATTERNsymbol);
+				if (p) {
+					p->unsafeProp = unsafeProp;
+					p->sealedProp = sealedProp;
+				}
 				cntxt->curprg->def->unsafeProp = unsafeProp;
+				cntxt->curprg->def->sealedProp = sealedProp;
 				inlineProp = 0;
 				unsafeProp = 0;
+				sealedProp = 0;
 				continue;
 			}
 			goto allLeft;
@@ -1933,9 +1942,16 @@ parseMAL(Client cntxt, Symbol curPrg, int skipcomments)
 				cntrl = RETURNsymbol;
 			}
 			goto allLeft;
+		case 's':
+			if (MALkeyword(cntxt, "sealed", 6)) {
+				sealedProp= 1;
+				skipSpace(cntxt);
+				continue;
+			}
+			goto allLeft;
 		case 'U': case 'u': 
 			if (MALkeyword(cntxt, "unsafe", 6)) {
-				unsafeProp= 1;
+				unsafeProp = 1;
 				skipSpace(cntxt);
 				continue;
 			}
@@ -1945,10 +1961,12 @@ parseMAL(Client cntxt, Symbol curPrg, int skipcomments)
 				cntrl = YIELDsymbol;
 				goto allLeft;
 			}
+			/* fall through */
 		default: allLeft :
 			parseAssign(cntxt, cntrl);
 			cntrl = 0;
-			BRKONERR;
+			if (curPrg->def->errors >= MAXERRORS) \
+				return curPrg->def->errors;
 		}
 	}
 	return curPrg->def->errors;

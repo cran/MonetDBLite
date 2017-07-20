@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
  */
 
 /*
@@ -36,12 +36,11 @@
 #include <mal_stack.h>
 #include <mal_interpreter.h>
 
-#include <tablet.h>
-#include <streams.h>
+#include "tablet.h"
 #include <mtime.h>
 #include <math.h>
-#include <blob.h>
-#include <mkey.h>
+#include "blob.h"
+#include "mkey.h"
 #include <str.h>
 #include "sql_privileges.h"
 #include "sql_decimal.h"
@@ -49,32 +48,25 @@
 #include "sql_qc.h"
 #include "sql_env.h"
 #include "sql_statement.h"
-#include "querylog.h"
 
 #include <bat/bat_storage.h>
 #include <bat/bat_utils.h>
 
-#if SIZEOF_WRD == SIZEOF_INT
-#define wrdToStr(sptr, lptr, p) intToStr(sptr, lptr, (int*)p)
-#else
-#define wrdToStr(sptr, lptr, p) lngToStr(sptr, lptr, (lng*)p)
-#endif
-
 extern int sqlcleanup(mvc *c, int err);
 extern sql_rel *sql_symbol2relation(mvc *c, symbol *sym);
-extern stmt *sql_relation2stmt(mvc *c, sql_rel *r);
 
+extern BAT *mvc_bind(mvc *m, const char *sname, const char *tname, const char *cname, int access);
 extern BAT *mvc_bind_idxbat(mvc *m, const char *sname, const char *tname, const char *iname, int access);
 
 sql5_export str SQLmvc(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
-sql5_export str SQLtransaction(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
 sql5_export str SQLcommit(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
 sql5_export str SQLabort(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
-sql5_export str SQLshutdown_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
 sql5_export str SQLtransaction2(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
 sql5_export str SQLcatalog(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
 
 sql5_export str mvc_append_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
+sql5_export str mvc_append_column(sql_trans *t, sql_column *c, BAT *ins);
+
 sql5_export str mvc_update_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
 sql5_export str mvc_bind_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
 sql5_export str mvc_bind_idxbat_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
@@ -83,10 +75,10 @@ sql5_export str mvc_delete_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, Instr
 sql5_export str SQLtid(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
 sql5_export str DELTAbat(bat *result, const bat *col, const bat *uid, const bat *uval, const bat *ins);
 sql5_export str DELTAsub(bat *result, const bat *col, const bat *cid, const bat *uid, const bat *uval, const bat *ins);
-sql5_export str DELTAproject(bat *result, const bat *subselect, const bat *col, const bat *uid, const bat *uval, const bat *ins);
+sql5_export str DELTAproject(bat *result, const bat *select, const bat *col, const bat *uid, const bat *uval, const bat *ins);
 sql5_export str DELTAbat2(bat *result, const bat *col, const bat *uid, const bat *uval);
 sql5_export str DELTAsub2(bat *result, const bat *col, const bat *cid, const bat *uid, const bat *uval);
-sql5_export str DELTAproject2(bat *result, const bat *subselect, const bat *col, const bat *uid, const bat *uval);
+sql5_export str DELTAproject2(bat *result, const bat *select, const bat *col, const bat *uid, const bat *uval);
 
 sql5_export str BATleftproject(bat *result, const bat *col, const bat *l, const bat *r);
 
@@ -113,6 +105,7 @@ sql5_export str mvc_scalar_value_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk,
 sql5_export str mvc_row_result_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
 sql5_export str mvc_export_row_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
 sql5_export str mvc_import_table_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
+sql5_export str mvc_append_bats_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
 sql5_export str mvc_bin_import_table_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
 sql5_export str setVariable(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
 sql5_export str getVariable(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
@@ -124,6 +117,7 @@ sql5_export str mvc_get_value(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPt
 sql5_export str mvc_getVersion(lng *r, const int *clientid);
 sql5_export str mvc_restart_seq(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
 sql5_export str zero_or_one(ptr ret, const bat *bid);
+sql5_export str SQLall(ptr ret, const bat *bid);
 sql5_export str not_unique(bit *ret, const bat *bid);
 sql5_export str SQLshrink(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
 sql5_export str SQLreuse(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
@@ -138,7 +132,6 @@ sql5_export str second_interval_str(lng *res, const str *s, const int *ek, const
 sql5_export str dump_cache(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
 sql5_export str dump_opt_stats(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
 sql5_export str dump_trace(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
-sql5_export str sql_sessions_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
 sql5_export str sql_storage(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
 sql5_export str sql_querylog_catalog(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
 sql5_export str sql_querylog_calls(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
@@ -151,6 +144,8 @@ sql5_export str sql_dense_rank(bat *rid, const bat *bid);
 sql5_export str SQLidentity(oid *rid, const void *i);
 sql5_export str BATSQLidentity(bat *rid, const bat *bid);
 sql5_export str PBATSQLidentity(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
+sql5_export str create_table_or_view(mvc *sql, char *sname, char *tname, sql_table *t, int temp);
+sql5_export str create_table_from_emit(Client cntxt, char *sname, char *tname, sql_emit_col *columns, size_t ncols);
 
 sql5_export str bte_dec_round_wrap(bte *res, const bte *v, const bte *r);
 sql5_export str bte_bat_dec_round_wrap(bat *res, const bat *v, const bte *r);
@@ -196,21 +191,6 @@ sql5_export str nil_2dec_int(int *res, const void *val, const int *d, const int 
 sql5_export str nil_2num_int(int *res, const void *v, const int *len);
 sql5_export str batnil_2dec_int(bat *res, const bat *val, const int *d, const int *sc);
 sql5_export str batnil_2num_int(bat *res, const bat *v, const int *len);
-
-sql5_export str wrd_dec_round_wrap(wrd *res, const wrd *v, const wrd *r);
-sql5_export str wrd_bat_dec_round_wrap(bat *res, const bat *v, const wrd *r);
-sql5_export str wrd_round_wrap(wrd *res, const wrd *v, const int *d, const int *s, const bte *r);
-sql5_export str wrd_bat_round_wrap(bat *res, const bat *v, const int *d, const int *s, const bte *r);
-sql5_export str str_2dec_wrd(wrd *res, const str *val, const int *d, const int *sc);
-sql5_export str str_2num_wrd(wrd *res, const str *v, const int *len);
-sql5_export str batstr_2dec_wrd(bat *res, const bat *val, const int *d, const int *sc);
-sql5_export str batstr_2num_wrd(bat *res, const bat *v, const int *len);
-sql5_export str wrd_dec2second_interval(lng *res, const int *sc, const wrd *dec, const int *ek, const int *sk);
-
-sql5_export str nil_2dec_wrd(wrd *res, const void *val, const int *d, const int *sc);
-sql5_export str nil_2num_wrd(wrd *res, const void *v, const int *len);
-sql5_export str batnil_2dec_wrd(bat *res, const bat *val, const int *d, const int *sc);
-sql5_export str batnil_2num_wrd(bat *res, const bat *v, const int *len);
 
 sql5_export str lng_dec_round_wrap(lng *res, const lng *v, const lng *r);
 sql5_export str lng_bat_dec_round_wrap(bat *res, const bat *v, const lng *r);
@@ -331,5 +311,8 @@ sql5_export str STRstrings(str *res, const str *src);
 sql5_export str BATSTRstrings(bat *res, const bat *src);
 
 sql5_export str SQLflush_log(void *ret);
+
+sql5_export str SQLexist(bit *res, bat *id);
+sql5_export str SQLexist_val(bit *res, void *val);
 
 #endif /* _SQL_H */

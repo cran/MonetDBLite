@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
  */
 
 /*
@@ -19,7 +19,7 @@
  * Within the MAL layer types are encoded in 32-bit integers using
  * bit stuffing to save some space.
  * The integer contains the following fields:
- * anyHeadIndex (bit 25-22), anyColumnIndex (bit 21-18),
+ * anyHeadIndex (bit 25-22), anyTypeIndex (bit 21-18),
  * batType (bit 17) headType (16-9) and tailType(8-0)
  * This encoding scheme permits a limited number of different bat types.
  * The headless case assumes all head types are TYPE_void/TYPE_oid
@@ -34,30 +34,24 @@
 str
 getTypeName(malType tpe)
 {
-	char buf[PATHLENGTH], *s;
-	size_t l = PATHLENGTH;
+	char buf[PATHLENGTH];
 	int k;
 
 	if (tpe == TYPE_any)
 		return GDKstrdup("any");
 	if (isaBatType(tpe)) {
-		snprintf(buf, l, "bat[");
-		l -= strlen(buf);
-		s = buf + strlen(buf);
-		k = getColumnIndex(tpe);
+		k = getTypeIndex(tpe);
 		if (k)
-			snprintf(s, l, ":any%c%d]",TMPMARKER,  k);
-		else if (getColumnType(tpe) == TYPE_any)
-			snprintf(s, l, ":any]");
+			snprintf(buf, sizeof(buf), "bat[:any%c%d]",TMPMARKER,  k);
+		else if (getBatType(tpe) == TYPE_any)
+			snprintf(buf, sizeof(buf), "bat[:any]");
 		else
-			snprintf(s, l, ":%s]", ATOMname(getColumnType(tpe)));
+			snprintf(buf, sizeof(buf), "bat[:%s]", ATOMname(getBatType(tpe)));
 		return GDKstrdup(buf);
 	}
 	if (isAnyExpression(tpe)) {
-		strncpy(buf, "any", 4);
-		if (isAnyExpression(tpe))
-			snprintf(buf + 3, PATHLENGTH - 3, "%c%d",
-					TMPMARKER, getColumnIndex(tpe));
+		snprintf(buf, sizeof(buf), "any%c%d",
+				 TMPMARKER, getTypeIndex(tpe));
 		return GDKstrdup(buf);
 	}
 	return GDKstrdup(ATOMname(tpe));
@@ -70,11 +64,14 @@ str
 getTypeIdentifier(malType tpe){
 	str s,t,v;
 	s= getTypeName(tpe);
+	if (s == NULL)
+		return NULL;
 	for ( t=s; *t; t++)
 		if ( !isalnum((int) *t) )
 			*t='_';
 	t--;
-	if (*t == '_') *t = 0;
+	if (*t == '_')
+		*t = 0;
 	for (v=s, t=s+1; *t; t++){
 		if (  !(*t == '_' && *v == '_' ) )
 			*++v = *t;
@@ -101,11 +98,16 @@ getTypeIdentifier(malType tpe){
 #define qt(x) (nme[1]==x[1] && nme[2]==x[2] )
 
 int
-getTypeIndex(str nme, int len, int deftype)
+getAtomIndex(const char *nme, int len, int deftype)
 {
-	int i,k=0;
-	char old=0;
+	int i;
 
+	if (len < 0)
+		len = (int) strlen(nme);
+	if (len >= IDLENGTH) {
+		/* name too long: cannot match any atom name */
+		return deftype;
+	}
 	if (len == 3)
 		switch (*nme) {
 		case 'a':
@@ -156,25 +158,15 @@ getTypeIndex(str nme, int len, int deftype)
 			if (qt("sht"))
 				return TYPE_sht;
 			break;
-		case 'w':
-			if (qt("wrd"))
-				return TYPE_wrd;
-			break;
 		}
-	if( nme[0]=='v' && qt("voi") && nme[3] == 'd')
-				return TYPE_void;
-	if( len > 0 ){
-		old=  nme[k = MIN(IDLENGTH, len)];
-		nme[k] = 0;
-	}
-	for(i= TYPE_str; i< GDKatomcnt; i++)
-		if( BATatoms[i].name[0]==nme[0] &&
-			strcmp(nme,BATatoms[i].name)==0) break;
-	if( len > 0)
-		nme[k]=old;
-	if (i == GDKatomcnt)
-		i = deftype;
-	return i;
+	else if (len == 4 && nme[0]=='v' && qt("voi") && nme[3] == 'd')
+		return TYPE_void;
+	for (i = TYPE_str; i < GDKatomcnt; i++)
+		if (BATatoms[i].name[0] == nme[0] &&
+			strncmp(nme, BATatoms[i].name, len) == 0 &&
+			BATatoms[i].name[len] == 0)
+			return i;
+	return deftype;
 }
 
 inline int
@@ -185,12 +177,6 @@ findGDKtype(int type)
 	if (isaBatType(type))
 		return TYPE_bat;
 	return ATOMtype(type);
-}
-
-inline int
-isTmpName(const char *n)
-{
-	return n && *n == TMPMARKER ;
 }
 
 int

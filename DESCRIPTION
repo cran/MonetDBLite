@@ -1,5 +1,5 @@
 Package: MonetDBLite
-Version: 0.3.1
+Version: 0.4.0
 Title: In-Process Version of MonetDB for R
 Author: Hannes Muehleisen [aut, cre], Anthony Damico [aut], Mark Raasveldt [ctb], Thomas Lumley [ctb], MonetDB Development Team [ctb]
 Maintainer: Hannes Muehleisen <hannes@cwi.nl>
@@ -9,10 +9,11 @@ URL: https://github.com/hannesmuehleisen/MonetDBLite
 BugReports: https://github.com/hannesmuehleisen/MonetDBLite/issues
 SystemRequirements: GNU make
 Depends: R (>= 3.2.0)
-Imports: DBI (>= 0.3.1), digest (>= 0.6.4), methods, codetools
-Suggests: testthat, survey, nycflights13, RSQLite, dplyr, gdata
+Imports: DBI (>= 0.6), digest (>= 0.6.4), methods, codetools
+Suggests: assertthat, testthat, survey, nycflights13, RSQLite, dbplyr,
+        dplyr, gdata, callr, devtools, DBItest
 Collate: mapi.R dbi.R dbapply.R dplyr.R control.R embedded.R
 NeedsCompilation: yes
-Packaged: 2016-06-16 16:37:35 UTC; hannes
+Packaged: 2017-07-20 13:21:01 UTC; hannes
 Repository: CRAN
-Date/Publication: 2016-06-17 08:57:00
+Date/Publication: 2017-07-20 13:59:46 UTC

@@ -14,9 +14,6 @@
 /* read-only architecture-independent data */
 #undef DATA_DIR
 
-/* Program to perform diffs */
-#undef DIFF
-
 /* Directory separator */
 #undef DIR_SEP
 
@@ -44,20 +41,11 @@
 /* Define to 1 if you have the `backtrace' function. */
 #undef HAVE_BACKTRACE
 
-/* Define to 1 if you have the <samtools/bam.h> header file. */
-#undef HAVE_BAM_BAM_H
+/* Define to 1 if you have the `cbrt' function. */
+#undef HAVE_CBRT
 
-/* Define to 1 if you have the <bam/bgzf.h> header file. */
-#undef HAVE_BAM_BGZF_H
-
-/* Define to 1 if you have the <bam/kstring.h> header file. */
-#undef HAVE_BAM_KSTRING_H
-
-/* Define to 1 if you have the <bam/sam.h> header file. */
-#undef HAVE_BAM_SAM_H
-
-/* If the console should be used */
-#undef HAVE_CONSOLE
+/* Define to 1 if you have the `clock_gettime' function. */
+#undef HAVE_CLOCK_GETTIME
 
 /* Define to 1 if you have the `ctime_r' function. */
 #undef HAVE_CTIME_R
@@ -65,8 +53,9 @@
 /* Define if you have ctime_r(time_t*,char *buf,size_t s) */
 #undef HAVE_CTIME_R3
 
-/* Define if you have the cURL library */
-#undef HAVE_CURL
+/* Define to 1 if you have the declaration of `tzname', and to 0 if you don't.
+   */
+#undef HAVE_DECL_TZNAME
 
 /* Define to 1 if you have the <dirent.h> header file, and it defines `DIR'.
    */
@@ -102,9 +91,6 @@
 /* Define to 1 if you have the <fenv.h> header file. */
 #undef HAVE_FENV_H
 
-/* Define if the fits module is to be enabled */
-#undef HAVE_FITS
-
 /* Define to 1 if you have the `fpclass' function. */
 #undef HAVE_FPCLASS
 
@@ -119,9 +105,6 @@
 
 /* Define to 1 if you have the `ftime' function. */
 #undef HAVE_FTIME
-
-/* Define if you have the gdal library */
-#undef HAVE_GDAL
 
 /* Define to 1 if you have the `getaddrinfo' function. */
 #undef HAVE_GETADDRINFO
@@ -141,17 +124,11 @@
 /* Define to 1 if you have the `getopt_long' function. */
 #undef HAVE_GETOPT_LONG
 
-/* Define to 1 if you have the `GetSystemInfo' function. */
-#undef HAVE_GETSYSTEMINFO
-
 /* Define to 1 if you have the `gettimeofday' function. */
 #undef HAVE_GETTIMEOFDAY
 
 /* Define to 1 if you have the `getuid' function. */
 #undef HAVE_GETUID
-
-/* Define if you have the gsl library */
-#undef HAVE_GSL
 
 /* Define if you have the iconv() function and it works. */
 #undef HAVE_ICONV
@@ -162,6 +139,9 @@
 /* Define to 1 if you have the <ieeefp.h> header file. */
 #undef HAVE_IEEEFP_H
 
+/* Define to 1 if the system has the type `intptr_t'. */
+#undef HAVE_INTPTR_T
+
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
@@ -170,9 +150,6 @@
 
 /* Define to 1 if you have the `isinf' function. */
 #undef HAVE_ISINF
-
-/* Define to 1 if you have the `kill' function. */
-#undef HAVE_KILL
 
 /* Define to 1 if you have the <kvm.h> header file. */
 #undef HAVE_KVM_H
@@ -183,32 +160,14 @@
 /* Define if you have the libatomic_ops library */
 #undef HAVE_LIBATOMIC_OPS
 
-/* Define if you have the bz2 library */
-#undef HAVE_LIBBZ2
-
 /* Define to 1 if you have the <libgen.h> header file. */
 #undef HAVE_LIBGEN_H
 
 /* Define to 1 if you have the <libintl.h> header file. */
 #undef HAVE_LIBINTL_H
 
-/* Define if you have the lzma library */
-#undef HAVE_LIBLZMA
-
-/* Define if you have the pcre library */
-#undef HAVE_LIBPCRE
-
 /* Define if you have the pthread library */
 #undef HAVE_LIBPTHREAD
-
-/* Define if you have libR installed */
-#undef HAVE_LIBR
-
-/* Define if you have the readline library */
-#undef HAVE_LIBREADLINE
-
-/* Define if you have the xml library */
-#undef HAVE_LIBXML
 
 /* Define if you have the z library */
 #undef HAVE_LIBZ
@@ -246,29 +205,17 @@
 /* Define to 1 if you have the <malloc.h> header file. */
 #undef HAVE_MALLOC_H
 
-/* Define to 1 if you have the `mallopt' function. */
-#undef HAVE_MALLOPT
-
 /* Enable MAPI */
 #undef HAVE_MAPI
 
-/* Define to 1 if you have the `MD5' function. */
-#undef HAVE_MD5
-
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
-
-/* Define if the microhttpd server is to be enabled */
-#undef HAVE_MICROHTTPD
 
 /* Define to 1 if you have the `mremap' function. */
 #undef HAVE_MREMAP
 
 /* Define to 1 if you have the <ndir.h> header file, and it defines `DIR'. */
 #undef HAVE_NDIR_H
-
-/* Define if the netcdf module is to be enabled */
-#undef HAVE_NETCDF
 
 /* Define to 1 if you have the <netdb.h> header file. */
 #undef HAVE_NETDB_H
@@ -281,15 +228,6 @@
 
 /* Define to 1 if you have the `nl_langinfo' function. */
 #undef HAVE_NL_LANGINFO
-
-/* Define to 1 if you have the <odbcinst.h> header file. */
-#undef HAVE_ODBCINST_H
-
-/* Define if you have the OpenSSL library */
-#undef HAVE_OPENSSL
-
-/* Define to 1 if you have the `pipe' function. */
-#undef HAVE_PIPE
 
 /* Define to 1 if you have the `popen' function. */
 #undef HAVE_POPEN
@@ -306,20 +244,11 @@
 /* Define to 1 if you have the <procfs.h> header file. */
 #undef HAVE_PROCFS_H
 
-/* Define if the proj library exists */
-#undef HAVE_PROJ
-
 /* Define to 1 if you have the <pthread.h> header file. */
 #undef HAVE_PTHREAD_H
 
 /* Define if you have the pthread_kill function */
 #undef HAVE_PTHREAD_KILL
-
-/* Define if you have the pthread_kill_other_threads_np function */
-#undef HAVE_PTHREAD_KILL_OTHER_THREADS_NP
-
-/* Define if you have the pthread_setschedprio function */
-#undef HAVE_PTHREAD_SETSCHEDPRIO
 
 /* Define if you have the pthread_sigmask function */
 #undef HAVE_PTHREAD_SIGMASK
@@ -333,36 +262,8 @@
 /* Define to 1 if you have the <pwd.h> header file. */
 #undef HAVE_PWD_H
 
-/* Define to 1 if you have the <regex.h> header file. */
-#undef HAVE_REGEX_H
-
-/* Define to 1 if you have the `RIPEMD160' function. */
-#undef HAVE_RIPEMD160
-
-/* Define to 1 if you have the <rlimit.h> header file. */
-#undef HAVE_RLIMIT_H
-
 /* Define to 1 if you have the `round' function. */
 #undef HAVE_ROUND
-
-/* Define if you have the samtools version 0.1.x (providing the bam library)
-   */
-#undef HAVE_SAMTOOLS
-
-/* Define to 1 if you have the <samtools/bam.h> header file. */
-#undef HAVE_SAMTOOLS_BAM_H
-
-/* Define to 1 if you have the <samtools/bgzf.h> header file. */
-#undef HAVE_SAMTOOLS_BGZF_H
-
-/* Define to 1 if you have the <samtools/kstring.h> header file. */
-#undef HAVE_SAMTOOLS_KSTRING_H
-
-/* Define to 1 if you have the <samtools/sam.h> header file. */
-#undef HAVE_SAMTOOLS_SAM_H
-
-/* Define to 1 if you have the `sbrk' function. */
-#undef HAVE_SBRK
 
 /* Define to 1 if you have the <sched.h> header file. */
 #undef HAVE_SCHED_H
@@ -379,21 +280,6 @@
 /* Define to 1 if you have the `setsid' function. */
 #undef HAVE_SETSID
 
-/* Define to 1 if you have the `SHA1' function. */
-#undef HAVE_SHA1
-
-/* Define to 1 if you have the `SHA224' function. */
-#undef HAVE_SHA224
-
-/* Define to 1 if you have the `SHA256' function. */
-#undef HAVE_SHA256
-
-/* Define to 1 if you have the `SHA384' function. */
-#undef HAVE_SHA384
-
-/* Define to 1 if you have the `SHA512' function. */
-#undef HAVE_SHA512
-
 /* Define to 1 if you have the `shutdown' function. */
 #undef HAVE_SHUTDOWN
 
@@ -403,23 +289,11 @@
 /* Define to 1 if you have the <signal.h> header file. */
 #undef HAVE_SIGNAL_H
 
-/* Define if your mallinfo struct has signed elements */
-#undef HAVE_SIGNED_MALLINFO
-
 /* Define to 1 if the system has the type `socklen_t'. */
 #undef HAVE_SOCKLEN_T
 
-/* Define if you have the sphinxclient library */
-#undef HAVE_SPHINXCLIENT
-
-/* Define if you have the SQLGetPrivateProfileString function */
-#undef HAVE_SQLGETPRIVATEPROFILESTRING
-
 /* Define to 1 if stdbool.h conforms to C99. */
 #undef HAVE_STDBOOL_H
-
-/* Define to 1 if you have the <stddef.h> header file. */
-#undef HAVE_STDDEF_H
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
@@ -463,8 +337,8 @@
 /* Define to 1 if you have the `strtoull' function. */
 #undef HAVE_STRTOULL
 
-/* Define if you have struct mallinfo */
-#undef HAVE_STRUCT_MALLINFO
+/* Define to 1 if `tm_zone' is a member of `struct tm'. */
+#undef HAVE_STRUCT_TM_TM_ZONE
 
 /* Define to 1 if you have the `sysconf' function. */
 #undef HAVE_SYSCONF
@@ -534,8 +408,16 @@
 /* Define to 1 if you have the <time.h> header file. */
 #undef HAVE_TIME_H
 
+/* Define to 1 if your `struct tm' has `tm_zone'. Deprecated, use
+   `HAVE_STRUCT_TM_TM_ZONE' instead. */
+#undef HAVE_TM_ZONE
+
 /* Define to 1 if you have the `trunc' function. */
 #undef HAVE_TRUNC
+
+/* Define to 1 if you don't have `tm_zone' but do have the external array
+   `tzname'. */
+#undef HAVE_TZNAME
 
 /* Define to 1 if the system has the type `uintptr_t'. */
 #undef HAVE_UINTPTR_T
@@ -546,29 +428,11 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
-/* Define if you have mallinfo */
-#undef HAVE_USEFUL_MALLINFO
-
-/* Define to 1 if you have the <utime.h> header file. */
-#undef HAVE_UTIME_H
-
-/* uuid */
-#undef HAVE_UUID
-
 /* Define to 1 if you have the <uuid/uuid.h> header file. */
 #undef HAVE_UUID_UUID_H
 
-/* Define if you have valgrind installed and want to use it */
-#undef HAVE_VALGRIND
-
-/* Define to 1 if you have the <winsock2.h> header file. */
-#undef HAVE_WINSOCK2_H
-
 /* Define to 1 if you have the <winsock.h> header file. */
 #undef HAVE_WINSOCK_H
-
-/* Define to 1 if you have the <xmmintrin.h> header file. */
-#undef HAVE_XMMINTRIN_H
 
 /* Define to 1 if the system has the type `_Bool'. */
 #undef HAVE__BOOL
@@ -578,6 +442,9 @@
 
 /* Define if you have _sys_siglist */
 #undef HAVE__SYS_SIGLIST
+
+/* Define if you have the `__builtin_{add,sub,mul}_overflow' functions. */
+#undef HAVE___BUILTIN_ADD_OVERFLOW
 
 /* Define to 1 if the system has the type `__int128'. */
 #undef HAVE___INT128
@@ -597,9 +464,6 @@
 /* Define as const if the declaration of iconv() needs const. */
 #undef ICONV_CONST
 
-/* Define as SQLLEN * or SQLPOINTER depending on the include file */
-#undef LENP_OR_POINTER_T
-
 /* location where libraries are installed */
 #undef LIBDIR
 
@@ -615,11 +479,11 @@
 /* The used password hash algorithm */
 #undef MONETDB5_PASSWDHASH
 
+/* The used password hash algorithm */
+#undef MONETDB5_PASSWDHASH_TOKEN
+
 /* Release name or "unreleased" */
 #undef MONETDB_RELEASE
-
-/* Define if the oid type should use 32 bits on a 64-bit architecture */
-#undef MONET_OID32
 
 /* Define if you do not want assertions */
 #undef NDEBUG
@@ -653,9 +517,6 @@
 
 /* Compiler flag */
 #undef PROFILE
-
-/* The home of R */
-#undef RHOME
 
 /* The size of `char', as computed by sizeof. */
 #undef SIZEOF_CHAR
@@ -705,14 +566,14 @@
 /* Shared Object prefix */
 #undef SO_PREFIX
 
-/* compiling for static code analysis */
-#undef STATIC_CODE_ANALYSIS
-
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
 
 /* Define to 1 if you can safely include both <sys/time.h> and <time.h>. */
 #undef TIME_WITH_SYS_TIME
+
+/* Define to 1 if your <sys/time.h> declares `struct tm'. */
+#undef TM_IN_SYS_TIME
 
 /* Format to print 64 bit unsigned integers. */
 #undef ULLFMT
@@ -850,6 +711,9 @@
 #ifdef HAVE_STDINT_H
 #include <stdint.h>
 #endif
+#ifndef HAVE_INTPTR_T
+typedef ssize_t intptr_t;
+#endif
 #ifndef HAVE_UINTPTR_T
 typedef size_t uintptr_t;
 #endif
@@ -906,9 +770,6 @@ typedef lng ptrdiff_t;
 #if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901 && !defined(__svr4__) && !defined(WIN32) && !defined(__sgi)) || __GNUC__ > 3
 # define SZFMT "%zu"
 # define SSZFMT "%zd"
-#elif defined(__MINGW32__)
-# define SZFMT "%u"
-# define SSZFMT "%ld"
 #elif SIZEOF_SIZE_T == SIZEOF_INT
 # define SZFMT "%u"
 # define SSZFMT "%d"
@@ -984,6 +845,7 @@ typedef lng ptrdiff_t;
 #endif
 
 /* These are required to make MonetDB's source tree CRAN-compliant */
+
 #ifdef HAVE_EMBEDDED_R
 #include "embedded/undef.h"
 #endif

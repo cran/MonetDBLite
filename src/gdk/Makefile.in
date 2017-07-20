@@ -139,19 +139,19 @@ libbat_la_DEPENDENCIES = ../common/options/libmoptions.la \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
-dist_libbat_la_OBJECTS = libbat_la-gdk_batop.lo \
-	libbat_la-gdk_select.lo libbat_la-gdk_search.lo \
+	$(am__DEPENDENCIES_1)
+dist_libbat_la_OBJECTS = libbat_la-gdk_select.lo libbat_la-gdk_calc.lo \
+	libbat_la-gdk_ssort.lo libbat_la-gdk_aggr.lo \
+	libbat_la-gdk_batop.lo libbat_la-gdk_search.lo \
 	libbat_la-gdk_hash.lo libbat_la-gdk_tm.lo \
-	libbat_la-gdk_align.lo libbat_la-gdk_bbp.lo \
-	libbat_la-gdk_heap.lo libbat_la-gdk_utils.lo \
-	libbat_la-gdk_atoms.lo libbat_la-gdk_qsort.lo \
-	libbat_la-gdk_ssort.lo libbat_la-gdk_storage.lo \
+	libbat_la-gdk_orderidx.lo libbat_la-gdk_align.lo \
+	libbat_la-gdk_bbp.lo libbat_la-gdk_heap.lo \
+	libbat_la-gdk_utils.lo libbat_la-gdk_atoms.lo \
+	libbat_la-gdk_qsort.lo libbat_la-gdk_storage.lo \
 	libbat_la-gdk_bat.lo libbat_la-gdk_delta.lo \
 	libbat_la-gdk_cross.lo libbat_la-gdk_system.lo \
 	libbat_la-gdk_value.lo libbat_la-gdk_posix.lo \
 	libbat_la-gdk_logger.lo libbat_la-gdk_sample.lo \
-	libbat_la-gdk_calc.lo libbat_la-gdk_aggr.lo \
 	libbat_la-gdk_group.lo libbat_la-gdk_imprints.lo \
 	libbat_la-gdk_join.lo libbat_la-gdk_project.lo \
 	libbat_la-gdk_unique.lo libbat_la-gdk_firstn.lo
@@ -229,7 +229,6 @@ DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
-ANT = @ANT@
 AR = @AR@
 AS = @AS@
 AUTOCONF = @AUTOCONF@
@@ -238,12 +237,9 @@ AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
 BASH = @BASH@
 BUILD = @BUILD@
-BZ_CFLAGS = @BZ_CFLAGS@
-BZ_LIBS = @BZ_LIBS@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@ $(THREAD_SAVE_FLAGS)
-CLASSPATH = @CLASSPATH@
 CONFIG_H = @CONFIG_H@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
@@ -251,7 +247,6 @@ CYGPATH_W = @CYGPATH_W@
 CYGPATH_WP = @CYGPATH_WP@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
-DIFF = @DIFF@
 DIRSEP = @DIRSEP@
 DLLTOOL = @DLLTOOL@
 DL_LIBS = @DL_LIBS@
@@ -267,12 +262,7 @@ Elocalstatedir = @Elocalstatedir@
 Elogdir = @Elogdir@
 Erundir = @Erundir@
 FGREP = @FGREP@
-GDAL_CFLAGS = @GDAL_CFLAGS@
-GDAL_LIBS = @GDAL_LIBS@
 GDK_VERSION = @GDK_VERSION@
-GEOS_CONFIG = @GEOS_CONFIG@
-GEOS_INCS = @GEOS_INCS@
-GEOS_LIBS = @GEOS_LIBS@
 GREP = @GREP@
 INSTALL = @INSTALL@
 INSTALL_BACKUP = @INSTALL_BACKUP@
@@ -280,21 +270,10 @@ INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
-JAR = @JAR@
-JAVA = @JAVA@
-JAVAC = @JAVAC@
-JAVACFLAGS = @JAVACFLAGS@
-JAVADOC = @JAVADOC@
-JAVA_HOME = @JAVA_HOME@
-JAVA_VERSION = @JAVA_VERSION@
 KVM_LIBS = @KVM_LIBS@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
 LIBICONV = @LIBICONV@
-LIBLAS_CONFIG = @LIBLAS_CONFIG@
-LIBLAS_INCS = @LIBLAS_INCS@
-LIBLAS_LIBS = @LIBLAS_LIBS@
-LIBLAS_RPM = @LIBLAS_RPM@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
 LIBTOOL = @LIBTOOL@
@@ -318,9 +297,6 @@ NM = @NM@
 NMEDIT = @NMEDIT@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
-ODBCINST_LIBS = @ODBCINST_LIBS@
-ODBC_INCS = @ODBC_INCS@
-ODBC_LIBS = @ODBC_LIBS@
 OTOOL = @OTOOL@
 OTOOL64 = @OTOOL64@
 PACKAGE = @PACKAGE@
@@ -332,32 +308,16 @@ PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATHSEP = @PATHSEP@
 PATH_SEPARATOR = @PATH_SEPARATOR@
-PERL = @PERL@
-PERL_LIBDIR = @PERL_LIBDIR@
 PKG_CONFIG = @PKG_CONFIG@
 PKG_CONFIG_LIBDIR = @PKG_CONFIG_LIBDIR@
 PKG_CONFIG_PATH = @PKG_CONFIG_PATH@
-PKG_CURL = @PKG_CURL@
-PKG_LIBLZMA = @PKG_LIBLZMA@
 PKG_ZLIB = @PKG_ZLIB@
-PROJ_INCS = @PROJ_INCS@
-PROJ_LIBS = @PROJ_LIBS@
 PTHREAD_INCS = @PTHREAD_INCS@
 PTHREAD_LIBS = @PTHREAD_LIBS@
-PYTHON = @PYTHON@
-PYTHON2 = @PYTHON2@
-PYTHON2_LIBDIR = @PYTHON2_LIBDIR@
-PYTHON3 = @PYTHON3@
-PYTHON3_LIBDIR = @PYTHON3_LIBDIR@
 QBUILD = @QBUILD@
 QDIRSEP = @QDIRSEP@
 QSOURCE = @QSOURCE@
 QXBUILD = @QXBUILD@
-QXPERL_LIBDIR = @QXPERL_LIBDIR@
-QXPYTHON2 = @QXPYTHON2@
-QXPYTHON2_LIBDIR = @QXPYTHON2_LIBDIR@
-QXPYTHON3 = @QXPYTHON3@
-QXPYTHON3_LIBDIR = @QXPYTHON3_LIBDIR@
 QXSOURCE = @QXSOURCE@
 QXbindir = @QXbindir@
 QXdatadir = @QXdatadir@
@@ -386,27 +346,17 @@ Qprefix = @Qprefix@
 Qsrcdir = @Qsrcdir@
 Qsysconfdir = @Qsysconfdir@
 RANLIB = @RANLIB@
-RCMD = @RCMD@
-READLINE_INCS = @READLINE_INCS@
-READLINE_LIBS = @READLINE_LIBS@
 READLINK = @READLINK@
-RHOME = @RHOME@
 RM = @RM@
-RPMBUILD = @RPMBUILD@
-SAMTOOLS_CFLAGS = @SAMTOOLS_CFLAGS@
-SAMTOOLS_LIBS = @SAMTOOLS_LIBS@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 SOCKET_LIBS = @SOCKET_LIBS@
 SOEXT = @SOEXT@
 SOURCE = @SOURCE@
-SPHINXCLIENT_CFLAGS = @SPHINXCLIENT_CFLAGS@
-SPHINXCLIENT_LIBS = @SPHINXCLIENT_LIBS@
 STREAM_VERSION = @STREAM_VERSION@
 STRIP = @STRIP@
 THREAD_SAVE_FLAGS = @THREAD_SAVE_FLAGS@
-UUID_LIBS = @UUID_LIBS@
 VERSION = @VERSION@
 XBUILD = @XBUILD@
 XSOURCE = @XSOURCE@
@@ -450,20 +400,12 @@ build_os = @build_os@
 build_vendor = @build_vendor@
 builddir = @builddir@
 builtby = @builtby@
-cfitsio_CFLAGS = @cfitsio_CFLAGS@
-cfitsio_LIBS = @cfitsio_LIBS@
 compilercall = @compilercall@
-curl_CFLAGS = @curl_CFLAGS@
-curl_LIBS = @curl_LIBS@
 datadir = @datadir@
 datarootdir = @datarootdir@
 docdir = @docdir@
 dvidir = @dvidir@
 exec_prefix = @exec_prefix@
-gdal_CFLAGS = @gdal_CFLAGS@
-gdal_LIBS = @gdal_LIBS@
-gsl_CFLAGS = @gsl_CFLAGS@
-gsl_LIBS = @gsl_LIBS@
 host = @host@
 host_alias = @host_alias@
 host_cpu = @host_cpu@
@@ -475,14 +417,6 @@ infodir = @infodir@
 install_sh = @install_sh@
 libdir = @libdir@
 libexecdir = @libexecdir@
-liblzma_CFLAGS = @liblzma_CFLAGS@
-liblzma_LIBS = @liblzma_LIBS@
-libmicrohttpd_CFLAGS = @libmicrohttpd_CFLAGS@
-libmicrohttpd_LIBS = @libmicrohttpd_LIBS@
-libr_CFLAGS = @libr_CFLAGS@
-libr_LIBS = @libr_LIBS@
-libxml2_CFLAGS = @libxml2_CFLAGS@
-libxml2_LIBS = @libxml2_LIBS@
 libxml2version = @libxml2version@
 linkercall = @linkercall@
 localedir = @localedir@
@@ -490,15 +424,8 @@ localstatedir = @localstatedir@
 logdir = @logdir@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
-netcdf_CFLAGS = @netcdf_CFLAGS@
-netcdf_LIBS = @netcdf_LIBS@
-oids = @oids@
 oldincludedir = @oldincludedir@
-openssl_CFLAGS = @openssl_CFLAGS@
-openssl_LIBS = @openssl_LIBS@
 opensslversion = @opensslversion@
-pcre_CFLAGS = @pcre_CFLAGS@
-pcre_LIBS = @pcre_LIBS@
 pcreversion = @pcreversion@
 pdfdir = @pdfdir@
 prefix = @prefix@
@@ -519,8 +446,6 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 translatepath = @translatepath@
-valgrind_CFLAGS = @valgrind_CFLAGS@
-valgrind_LIBS = @valgrind_LIBS@
 zlib_CFLAGS = @zlib_CFLAGS@
 zlib_LIBS = @zlib_LIBS@
 AUTOMAKE_OPTIONS = no-dependencies 1.4 foreign
@@ -528,12 +453,12 @@ libbat_la_CFLAGS = -DLIBGDK $(AM_CFLAGS)
 batdir = $(libdir)
 libbat_la_LIBADD = ../common/options/libmoptions.la ../common/stream/libstream.la ../common/utils/libmutils.la $(MATH_LIBS) $(SOCKET_LIBS) $(zlib_LIBS) $(BZ_LIBS) $(MALLOC_LIBS) $(PTHREAD_LIBS) $(DL_LIBS) $(PSAPILIB) $(KVM_LIBS)
 nodist_libbat_la_SOURCES = 
-dist_libbat_la_SOURCES = gdk.h gdk_cand.h gdk_atomic.h gdk_batop.c gdk_select.c gdk_search.c gdk_hash.c gdk_hash.h gdk_tm.c gdk_align.c gdk_bbp.c gdk_bbp.h gdk_heap.c gdk_utils.c gdk_utils.h gdk_atoms.c gdk_atoms.h gdk_qsort.c gdk_qsort_impl.h gdk_ssort.c gdk_ssort_impl.h gdk_storage.c gdk_bat.c gdk_delta.c gdk_cross.c gdk_system.c gdk_value.c gdk_posix.c gdk_logger.c gdk_sample.c gdk_private.h gdk_delta.h gdk_logger.h gdk_posix.h gdk_system.h gdk_system_private.h gdk_tm.h gdk_storage.h gdk_calc.c gdk_calc.h gdk_calc_compare.h gdk_calc_private.h gdk_aggr.c gdk_group.c gdk_imprints.c gdk_imprints.h gdk_join.c gdk_project.c gdk_unique.c gdk_firstn.c
+dist_libbat_la_SOURCES = gdk_select.c gdk_calc.c gdk_calc.h gdk_calc_compare.h gdk_calc_private.h gdk_ssort.c gdk_ssort_impl.h gdk_aggr.c gdk.h gdk_cand.h gdk_atomic.h gdk_batop.c gdk_search.c gdk_hash.c gdk_hash.h gdk_tm.c gdk_orderidx.c gdk_align.c gdk_bbp.c gdk_bbp.h gdk_heap.c gdk_utils.c gdk_utils.h gdk_atoms.c gdk_atoms.h gdk_qsort.c gdk_qsort_impl.h gdk_storage.c gdk_bat.c gdk_delta.c gdk_cross.c gdk_system.c gdk_value.c gdk_posix.c gdk_logger.c gdk_sample.c gdk_private.h gdk_delta.h gdk_logger.h gdk_posix.h gdk_system.h gdk_system_private.h gdk_tm.h gdk_storage.h gdk_group.c gdk_imprints.c gdk_imprints.h gdk_join.c gdk_project.c gdk_unique.c gdk_firstn.c
 libbat_la_LDFLAGS = -version-info $(GDK_VERSION)
 AM_CPPFLAGS = -I$(srcdir) -I../common/options -I$(srcdir)/../common/options -I../common/stream -I$(srcdir)/../common/stream -I../common/utils -I$(srcdir)/../common/utils $(valgrind_CFLAGS)
 BUILT_SOURCES = 
 MOSTLYCLEANFILES = 
-EXTRA_DIST = Makefile.ag Makefile.msc gdk.h gdk_aggr.c gdk_align.c gdk_atomic.h gdk_atoms.c gdk_atoms.h gdk_bat.c gdk_batop.c gdk_bbp.c gdk_bbp.h gdk_calc.c gdk_calc.h gdk_calc_compare.h gdk_calc_private.h gdk_cand.h gdk_cross.c gdk_delta.c gdk_delta.h gdk_firstn.c gdk_group.c gdk_hash.c gdk_hash.h gdk_heap.c gdk_imprints.c gdk_imprints.h gdk_join.c gdk_logger.c gdk_logger.h gdk_posix.c gdk_posix.h gdk_private.h gdk_project.c gdk_qsort.c gdk_qsort_impl.h gdk_sample.c gdk_search.c gdk_select.c gdk_ssort.c gdk_ssort_impl.h gdk_storage.c gdk_storage.h gdk_system.c gdk_system.h gdk_system_private.h gdk_tm.c gdk_tm.h gdk_unique.c gdk_utils.c gdk_utils.h gdk_value.c
+EXTRA_DIST = Makefile.ag Makefile.msc gdk.h gdk_aggr.c gdk_align.c gdk_atomic.h gdk_atoms.c gdk_atoms.h gdk_bat.c gdk_batop.c gdk_bbp.c gdk_bbp.h gdk_calc.c gdk_calc.h gdk_calc_compare.h gdk_calc_private.h gdk_cand.h gdk_cross.c gdk_delta.c gdk_delta.h gdk_firstn.c gdk_group.c gdk_hash.c gdk_hash.h gdk_heap.c gdk_imprints.c gdk_imprints.h gdk_join.c gdk_logger.c gdk_logger.h gdk_orderidx.c gdk_posix.c gdk_posix.h gdk_private.h gdk_project.c gdk_qsort.c gdk_qsort_impl.h gdk_sample.c gdk_search.c gdk_select.c gdk_ssort.c gdk_ssort_impl.h gdk_storage.c gdk_storage.h gdk_system.c gdk_system.h gdk_system_private.h gdk_tm.c gdk_tm.h gdk_unique.c gdk_utils.c gdk_utils.h gdk_value.c
 bat_LTLIBRARIES = libbat.la
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
@@ -840,16 +765,24 @@ uninstall-am: uninstall-batLTLIBRARIES
 .PRECIOUS: Makefile
 
 $(do)install-batLTLIBRARIES : 
-libbat_la-gdk_batop.lo: gdk_batop.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h
-	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libbat_la_CFLAGS) $(CFLAGS) $(gdk_batop_CFLAGS) -c -o libbat_la-gdk_batop.lo `test -f 'gdk_batop.c' || echo '$(srcdir)/'`gdk_batop.c
-libbat_la-gdk_select.lo: gdk_select.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_cand.h gdk_private.h gdk_system_private.h gdk_imprints.h
+libbat_la-gdk_select.lo: gdk_select.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_cand.h gdk_private.h gdk_system_private.h ../common/utils/mutils.h gdk_imprints.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libbat_la_CFLAGS) $(CFLAGS) $(gdk_select_CFLAGS) -c -o libbat_la-gdk_select.lo `test -f 'gdk_select.c' || echo '$(srcdir)/'`gdk_select.c
+libbat_la-gdk_calc.lo: gdk_calc.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h gdk_calc_private.h gdk_cand.h gdk_calc_compare.h
+	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libbat_la_CFLAGS) $(CFLAGS) $(gdk_calc_CFLAGS) -c -o libbat_la-gdk_calc.lo `test -f 'gdk_calc.c' || echo '$(srcdir)/'`gdk_calc.c
+libbat_la-gdk_ssort.lo: gdk_ssort.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h gdk_ssort_impl.h
+	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libbat_la_CFLAGS) $(CFLAGS) $(gdk_ssort_CFLAGS) -c -o libbat_la-gdk_ssort.lo `test -f 'gdk_ssort.c' || echo '$(srcdir)/'`gdk_ssort.c
+libbat_la-gdk_aggr.lo: gdk_aggr.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h gdk_calc_private.h gdk_cand.h
+	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libbat_la_CFLAGS) $(CFLAGS) $(gdk_aggr_CFLAGS) -c -o libbat_la-gdk_aggr.lo `test -f 'gdk_aggr.c' || echo '$(srcdir)/'`gdk_aggr.c
+libbat_la-gdk_batop.lo: gdk_batop.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h gdk_cand.h
+	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libbat_la_CFLAGS) $(CFLAGS) $(gdk_batop_CFLAGS) -c -o libbat_la-gdk_batop.lo `test -f 'gdk_batop.c' || echo '$(srcdir)/'`gdk_batop.c
 libbat_la-gdk_search.lo: gdk_search.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libbat_la_CFLAGS) $(CFLAGS) $(gdk_search_CFLAGS) -c -o libbat_la-gdk_search.lo `test -f 'gdk_search.c' || echo '$(srcdir)/'`gdk_search.c
 libbat_la-gdk_hash.lo: gdk_hash.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libbat_la_CFLAGS) $(CFLAGS) $(gdk_hash_CFLAGS) -c -o libbat_la-gdk_hash.lo `test -f 'gdk_hash.c' || echo '$(srcdir)/'`gdk_hash.c
 libbat_la-gdk_tm.lo: gdk_tm.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h gdk_tm.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libbat_la_CFLAGS) $(CFLAGS) $(gdk_tm_CFLAGS) -c -o libbat_la-gdk_tm.lo `test -f 'gdk_tm.c' || echo '$(srcdir)/'`gdk_tm.c
+libbat_la-gdk_orderidx.lo: gdk_orderidx.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h
+	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libbat_la_CFLAGS) $(CFLAGS) $(gdk_orderidx_CFLAGS) -c -o libbat_la-gdk_orderidx.lo `test -f 'gdk_orderidx.c' || echo '$(srcdir)/'`gdk_orderidx.c
 libbat_la-gdk_align.lo: gdk_align.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libbat_la_CFLAGS) $(CFLAGS) $(gdk_align_CFLAGS) -c -o libbat_la-gdk_align.lo `test -f 'gdk_align.c' || echo '$(srcdir)/'`gdk_align.c
 libbat_la-gdk_bbp.lo: gdk_bbp.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h gdk_storage.h ../common/utils/mutils.h
@@ -862,15 +795,13 @@ libbat_la-gdk_atoms.lo: gdk_atoms.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h 
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libbat_la_CFLAGS) $(CFLAGS) $(gdk_atoms_CFLAGS) -c -o libbat_la-gdk_atoms.lo `test -f 'gdk_atoms.c' || echo '$(srcdir)/'`gdk_atoms.c
 libbat_la-gdk_qsort.lo: gdk_qsort.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h gdk_qsort_impl.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libbat_la_CFLAGS) $(CFLAGS) $(gdk_qsort_CFLAGS) -c -o libbat_la-gdk_qsort.lo `test -f 'gdk_qsort.c' || echo '$(srcdir)/'`gdk_qsort.c
-libbat_la-gdk_ssort.lo: gdk_ssort.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h gdk_ssort_impl.h
-	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libbat_la_CFLAGS) $(CFLAGS) $(gdk_ssort_CFLAGS) -c -o libbat_la-gdk_ssort.lo `test -f 'gdk_ssort.c' || echo '$(srcdir)/'`gdk_ssort.c
 libbat_la-gdk_storage.lo: gdk_storage.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h gdk_storage.h ../common/utils/mutils.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libbat_la_CFLAGS) $(CFLAGS) $(gdk_storage_CFLAGS) -c -o libbat_la-gdk_storage.lo `test -f 'gdk_storage.c' || echo '$(srcdir)/'`gdk_storage.c
 libbat_la-gdk_bat.lo: gdk_bat.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libbat_la_CFLAGS) $(CFLAGS) $(gdk_bat_CFLAGS) -c -o libbat_la-gdk_bat.lo `test -f 'gdk_bat.c' || echo '$(srcdir)/'`gdk_bat.c
 libbat_la-gdk_delta.lo: gdk_delta.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libbat_la_CFLAGS) $(CFLAGS) $(gdk_delta_CFLAGS) -c -o libbat_la-gdk_delta.lo `test -f 'gdk_delta.c' || echo '$(srcdir)/'`gdk_delta.c
-libbat_la-gdk_cross.lo: gdk_cross.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h
+libbat_la-gdk_cross.lo: gdk_cross.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h gdk_cand.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libbat_la_CFLAGS) $(CFLAGS) $(gdk_cross_CFLAGS) -c -o libbat_la-gdk_cross.lo `test -f 'gdk_cross.c' || echo '$(srcdir)/'`gdk_cross.c
 libbat_la-gdk_system.lo: gdk_system.c gdk_system.h gdk_atomic.h gdk_system_private.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libbat_la_CFLAGS) $(CFLAGS) $(gdk_system_CFLAGS) -c -o libbat_la-gdk_system.lo `test -f 'gdk_system.c' || echo '$(srcdir)/'`gdk_system.c
@@ -882,11 +813,7 @@ libbat_la-gdk_logger.lo: gdk_logger.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libbat_la_CFLAGS) $(CFLAGS) $(gdk_logger_CFLAGS) -c -o libbat_la-gdk_logger.lo `test -f 'gdk_logger.c' || echo '$(srcdir)/'`gdk_logger.c
 libbat_la-gdk_sample.lo: gdk_sample.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libbat_la_CFLAGS) $(CFLAGS) $(gdk_sample_CFLAGS) -c -o libbat_la-gdk_sample.lo `test -f 'gdk_sample.c' || echo '$(srcdir)/'`gdk_sample.c
-libbat_la-gdk_calc.lo: gdk_calc.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h gdk_calc_private.h gdk_cand.h gdk_calc_compare.h
-	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libbat_la_CFLAGS) $(CFLAGS) $(gdk_calc_CFLAGS) -c -o libbat_la-gdk_calc.lo `test -f 'gdk_calc.c' || echo '$(srcdir)/'`gdk_calc.c
-libbat_la-gdk_aggr.lo: gdk_aggr.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h gdk_calc_private.h gdk_cand.h
-	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libbat_la_CFLAGS) $(CFLAGS) $(gdk_aggr_CFLAGS) -c -o libbat_la-gdk_aggr.lo `test -f 'gdk_aggr.c' || echo '$(srcdir)/'`gdk_aggr.c
-libbat_la-gdk_group.lo: gdk_group.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h
+libbat_la-gdk_group.lo: gdk_group.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h gdk_cand.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libbat_la_CFLAGS) $(CFLAGS) $(gdk_group_CFLAGS) -c -o libbat_la-gdk_group.lo `test -f 'gdk_group.c' || echo '$(srcdir)/'`gdk_group.c
 libbat_la-gdk_imprints.lo: gdk_imprints.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h gdk_imprints.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libbat_la_CFLAGS) $(CFLAGS) $(gdk_imprints_CFLAGS) -c -o libbat_la-gdk_imprints.lo `test -f 'gdk_imprints.c' || echo '$(srcdir)/'`gdk_imprints.c
@@ -898,12 +825,12 @@ libbat_la-gdk_unique.lo: gdk_unique.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libbat_la_CFLAGS) $(CFLAGS) $(gdk_unique_CFLAGS) -c -o libbat_la-gdk_unique.lo `test -f 'gdk_unique.c' || echo '$(srcdir)/'`gdk_unique.c
 libbat_la-gdk_firstn.lo: gdk_firstn.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h gdk_calc_private.h gdk_cand.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libbat_la_CFLAGS) $(CFLAGS) $(gdk_firstn_CFLAGS) -c -o libbat_la-gdk_firstn.lo `test -f 'gdk_firstn.c' || echo '$(srcdir)/'`gdk_firstn.c
-gdk_bat.o gdk_bat.lo: gdk_bat.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h
+gdk_utils.o gdk_utils.lo: gdk_utils.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h ../common/utils/mutils.h
 gdk_qsort.o gdk_qsort.lo: gdk_qsort.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h gdk_qsort_impl.h
 gdk_delta.o gdk_delta.lo: gdk_delta.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h
 gdk_aggr.o gdk_aggr.lo: gdk_aggr.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h gdk_calc_private.h gdk_cand.h
-gdk_group.o gdk_group.lo: gdk_group.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h
-gdk_utils.o gdk_utils.lo: gdk_utils.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h ../common/utils/mutils.h
+gdk_group.o gdk_group.lo: gdk_group.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h gdk_cand.h
+gdk_bat.o gdk_bat.lo: gdk_bat.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h
 gdk_tm.o gdk_tm.lo: gdk_tm.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h gdk_tm.h
 gdk_align.o gdk_align.lo: gdk_align.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h
 gdk_hash.o gdk_hash.lo: gdk_hash.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h
@@ -912,13 +839,13 @@ gdk_logger.o gdk_logger.lo: gdk_logger.c gdk.h gdk_system.h gdk_atomic.h gdk_pos
 gdk_bbp.o gdk_bbp.lo: gdk_bbp.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h gdk_storage.h ../common/utils/mutils.h
 gdk_sample.o gdk_sample.lo: gdk_sample.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h
 gdk_atoms.o gdk_atoms.lo: gdk_atoms.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h
-gdk_cross.o gdk_cross.lo: gdk_cross.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h
+gdk_cross.o gdk_cross.lo: gdk_cross.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h gdk_cand.h
 gdk_storage.o gdk_storage.lo: gdk_storage.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h gdk_storage.h ../common/utils/mutils.h
-gdk_select.o gdk_select.lo: gdk_select.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_cand.h gdk_private.h gdk_system_private.h gdk_imprints.h
+gdk_select.o gdk_select.lo: gdk_select.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_cand.h gdk_private.h gdk_system_private.h ../common/utils/mutils.h gdk_imprints.h
 gdk_calc.o gdk_calc.lo: gdk_calc.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h gdk_calc_private.h gdk_cand.h gdk_calc_compare.h
 gdk_ssort.o gdk_ssort.lo: gdk_ssort.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h gdk_ssort_impl.h
 gdk_system.o gdk_system.lo: gdk_system.c gdk_system.h gdk_atomic.h gdk_system_private.h
-gdk_batop.o gdk_batop.lo: gdk_batop.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h
+gdk_batop.o gdk_batop.lo: gdk_batop.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h gdk_cand.h
 gdk_firstn.o gdk_firstn.lo: gdk_firstn.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h gdk_calc_private.h gdk_cand.h
 gdk_join.o gdk_join.lo: gdk_join.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h gdk_calc_private.h gdk_cand.h
 gdk_project.o gdk_project.lo: gdk_project.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h
@@ -927,6 +854,7 @@ gdk_search.o gdk_search.lo: gdk_search.c gdk.h gdk_system.h gdk_atomic.h gdk_pos
 gdk_heap.o gdk_heap.lo: gdk_heap.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h
 gdk_value.o gdk_value.lo: gdk_value.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h
 gdk_posix.o gdk_posix.lo: gdk_posix.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h ../common/utils/mutils.h
+gdk_orderidx.o gdk_orderidx.lo: gdk_orderidx.c gdk.h gdk_system.h gdk_atomic.h gdk_posix.h ../common/stream/stream.h gdk_delta.h gdk_hash.h gdk_atoms.h gdk_bbp.h gdk_utils.h ../common/options/monet_options.h gdk_calc.h gdk_private.h gdk_system_private.h
 
   include $(top_srcdir)/buildtools/conf/rules.mk
 

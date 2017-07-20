@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
  */
 
 /*
@@ -60,7 +60,7 @@
 #define INTERNAL_OBJ_CREATE "Can not create object"
 #define INTERNAL_AUTHORIZATION "authorization BATs not empty"
 
-#define MAL_MALLOC_FAIL	"could not allocate space for"
+#define MAL_MALLOC_FAIL	"HY001!could not allocate space"
 #define MAL_STACK_FAIL	"Running out of stack space."
 #define MAL_CALLDEPTH_FAIL	"Recursive call limit reached."
 
@@ -129,4 +129,6 @@
 
 #define GDK_EXCEPTION "GDK reported error."
 #define MAL_DEPRECATED "Deprecated MAL operation."
+
+#define TYPE_NOT_SUPPORTED "Type is not supported"
 #endif /* MAL_ERRORS */

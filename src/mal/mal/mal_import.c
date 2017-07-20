@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
  */
 
 /* Author(s) M.L. Kersten
@@ -112,7 +112,7 @@ malLoadScript(Client c, str name, bstream **fdin)
 	bstream *oldfdin = c->fdin; \
 	int oldyycur = c->yycur; \
 	int oldlisting = c->listing; \
-	int oldmode = c->mode; \
+	enum clientmode oldmode = c->mode; \
 	int oldblkmode = c->blkmode; \
 	str oldsrcFile = c->srcFile; \
 	ClientInput *oldbak = c->bak; \
@@ -121,7 +121,7 @@ malLoadScript(Client c, str name, bstream **fdin)
 	Symbol oldprg = c->curprg; \
 	MalStkPtr oldglb = c->glb	/* ; added by caller */
 #define restoreState3 \
-	int oldmode = c->mode; \
+	enum clientmode oldmode = c->mode; \
 	int oldblkmode = c->blkmode; \
 	str oldsrcFile = c->srcFile; \
 	Module oldnspace = c->nspace; \
@@ -130,7 +130,7 @@ malLoadScript(Client c, str name, bstream **fdin)
 
 #define restoreClient1 \
 	if (c->fdin)  \
-		(void) bstream_destroy(c->fdin); \
+		bstream_destroy(c->fdin); \
 	c->fdin = oldfdin;  \
 	c->yycur = oldyycur;  \
 	c->listing = oldlisting; \
@@ -150,12 +150,11 @@ malLoadScript(Client c, str name, bstream **fdin)
 	restoreClient1 \
 	restoreClient2
 #define restoreClient3 \
-	if (c->fdin)  \
+	if (c->fdin && c->bak)  \
 		MCpopClientInput(c); \
 	c->mode = oldmode; \
 	c->blkmode = oldblkmode; \
 	c->srcFile = oldsrcFile;
-
 
 #ifdef HAVE_EMBEDDED
 extern char* mal_init_inline;
@@ -167,14 +166,14 @@ extern char* mal_init_inline;
 str
 malInclude(Client c, str name, int listing)
 {
-	str s= MAL_SUCCEED;
+	str s = MAL_SUCCEED;
 	str filename;
 	str p;
 
 	bstream *oldfdin = c->fdin;
 	int oldyycur = c->yycur;
 	int oldlisting = c->listing;
-	int oldmode = c->mode;
+	enum clientmode oldmode = c->mode;
 	int oldblkmode = c->blkmode;
 	ClientInput *oldbak = c->bak;
 	str oldprompt = c->prompt;
@@ -194,18 +193,26 @@ malInclude(Client c, str name, int listing)
 	(void) p;
 	{
 		size_t mal_init_len = strlen(mal_init_inline);
-		buffer* mal_init_buf = buffer_create(mal_init_len);
-		stream* mal_init_stream = buffer_rastream(mal_init_buf, name);
-		buffer_init(mal_init_buf, mal_init_inline, mal_init_len);
+		buffer mal_init_buf;
+		stream* mal_init_stream = buffer_rastream(&mal_init_buf, name);
+		if (!mal_init_stream) {
+			restoreClient;
+			return createException(MAL,"mal.eval", "WARNING: could not setup init script.");
+		}
+		mal_init_buf.pos = 0;
+		mal_init_buf.len = mal_init_len;
+		mal_init_buf.buf = mal_init_inline;
 		c->srcFile = name;
 		c->yycur = 0;
 		c->bak = NULL;
 		c->fdin = bstream_create(mal_init_stream, mal_init_len);
+		if (!c->fdin) {
+			restoreClient;
+			return createException(MAL,"mal.eval", "WARNING: could not setup init script.");
+		}
 		bstream_next(c->fdin);
 		parseMAL(c, c->curprg, 1);
-		free(mal_init_buf);
-		free(mal_init_stream);
-		free(c->fdin);
+		bstream_destroy(c->fdin);
 		c->fdin = NULL;
 	}
 #else
@@ -222,7 +229,7 @@ malInclude(Client c, str name, int listing)
 				parseMAL(c, c->curprg, 1);
 				bstream_destroy(c->fdin);
 			} else {
-				GDKfree(s); // not interested in error here
+				freeException(s); // not interested in error here
 				s = MAL_SUCCEED;
 			}
 			if (p)
@@ -290,11 +297,13 @@ evalFile(Client c, str fname, int listing)
 			c->yycur = 0;
 			c->bak = NULL;
 			MSinitClientPrg(c, "user", "main");     /* re-initialize context */
-			MCpushClientInput(c, bstream_create(fd, 128 * BLOCK), c->listing, "");
-			msg = runScenario(c);
+			if( MCpushClientInput(c, bstream_create(fd, 128 * BLOCK), c->listing, "") < 0){
+				msg = createException(MAL,"mal.eval", "WARNING: could not switch client input stream\n");
+			} else
+				msg = runScenario(c);
 			if (msg != MAL_SUCCEED) {
 				dumpExceptionsToStream(c->fdout, msg);
-				GDKfree(msg);
+				freeException(msg);
 			}
 		}
 		filename = p + 1;
@@ -309,8 +318,10 @@ evalFile(Client c, str fname, int listing)
 		c->yycur = 0;
 		c->bak = NULL;
 		MSinitClientPrg(c, "user", "main");     /* re-initialize context */
-		MCpushClientInput(c, bstream_create(fd, 128 * BLOCK), c->listing, "");
-		msg = runScenario(c);
+		if( MCpushClientInput(c, bstream_create(fd, 128 * BLOCK), c->listing, "") < 0){
+				msg = createException(MAL,"mal.eval", "WARNING: could not switch client input stream\n");
+		} else
+			msg = runScenario(c);
 	}
 	GDKfree(fname);
 
@@ -391,7 +402,7 @@ compileString(Symbol *fcn, Client c, str s)
 #define runPhase(X, Y) \
 	if (msg == MAL_SUCCEED && c->phase[X] && (msg = (str) (*c->phase[X])(c))) {	\
 		/* error occurred  and ignored */ \
-		GDKfree(msg); msg = MAL_SUCCEED; \
+		freeException(msg); msg = MAL_SUCCEED; \
 		Y; \
 		if (b) \
 			GDKfree(b);	\

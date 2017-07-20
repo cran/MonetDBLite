@@ -43,7 +43,7 @@ s|@CC@|%CC%|
 s|@CCDEPMODE@||
 s|@cfitsio_CFLAGS@||
 s|@cfitsio_LIBS@||
-s|@CFLAGS@|-O3 -I"%RINCLUDE%" -DHAVE_EMBEDDED=1 -DHAVE_EMBEDDED_R=1|
+s|@CFLAGS@|-I"%RINCLUDE%" -DHAVE_EMBEDDED=1 -DHAVE_EMBEDDED_R=1 %ADD_CFLAGS%|
 s|@CLASSPATH@||
 s|@compilercall@||
 s|@configure_input@||
@@ -168,9 +168,6 @@ s|@PACKAGE_URL@||
 s|@PACKAGE_VERSION@||
 s|@PATHSEP@|;|
 s|@PATH_SEPARATOR@|;|
-s|@pcreversion@|8.3.7|
-s|@pcre_CFLAGS@|-I$(top_builddir)/embedded/windows/pcre-8.37/include|
-s|@pcre_LIBS@||
 s|@pdfdir@||
 s|@PERL@||
 s|@PERL_LIBDIR@||

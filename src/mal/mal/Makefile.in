@@ -116,10 +116,9 @@ dist_libmal_la_OBJECTS = libmal_la-mal.lo libmal_la-mal_atom.lo \
 	libmal_la-mal_linker.lo libmal_la-mal_listing.lo \
 	libmal_la-mal_module.lo libmal_la-mal_namespace.lo \
 	libmal_la-mal_parser.lo libmal_la-mal_profiler.lo \
-	libmal_la-mal_readline.lo libmal_la-mal_resolve.lo \
-	libmal_la-mal_scenario.lo libmal_la-mal_session.lo \
-	libmal_la-mal_stack.lo libmal_la-mal_type.lo \
-	libmal_la-mal_utils.lo
+	libmal_la-mal_resolve.lo libmal_la-mal_scenario.lo \
+	libmal_la-mal_session.lo libmal_la-mal_stack.lo \
+	libmal_la-mal_type.lo libmal_la-mal_utils.lo
 nodist_libmal_la_OBJECTS =
 libmal_la_OBJECTS = $(dist_libmal_la_OBJECTS) \
 	$(nodist_libmal_la_OBJECTS)
@@ -194,7 +193,6 @@ DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
-ANT = @ANT@
 AR = @AR@
 AS = @AS@
 AUTOCONF = @AUTOCONF@
@@ -203,12 +201,9 @@ AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
 BASH = @BASH@
 BUILD = @BUILD@
-BZ_CFLAGS = @BZ_CFLAGS@
-BZ_LIBS = @BZ_LIBS@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@ $(THREAD_SAVE_FLAGS)
-CLASSPATH = @CLASSPATH@
 CONFIG_H = @CONFIG_H@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
@@ -216,7 +211,6 @@ CYGPATH_W = @CYGPATH_W@
 CYGPATH_WP = @CYGPATH_WP@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
-DIFF = @DIFF@
 DIRSEP = @DIRSEP@
 DLLTOOL = @DLLTOOL@
 DL_LIBS = @DL_LIBS@
@@ -232,12 +226,7 @@ Elocalstatedir = @Elocalstatedir@
 Elogdir = @Elogdir@
 Erundir = @Erundir@
 FGREP = @FGREP@
-GDAL_CFLAGS = @GDAL_CFLAGS@
-GDAL_LIBS = @GDAL_LIBS@
 GDK_VERSION = @GDK_VERSION@
-GEOS_CONFIG = @GEOS_CONFIG@
-GEOS_INCS = @GEOS_INCS@
-GEOS_LIBS = @GEOS_LIBS@
 GREP = @GREP@
 INSTALL = @INSTALL@
 INSTALL_BACKUP = @INSTALL_BACKUP@
@@ -245,21 +234,10 @@ INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
-JAR = @JAR@
-JAVA = @JAVA@
-JAVAC = @JAVAC@
-JAVACFLAGS = @JAVACFLAGS@
-JAVADOC = @JAVADOC@
-JAVA_HOME = @JAVA_HOME@
-JAVA_VERSION = @JAVA_VERSION@
 KVM_LIBS = @KVM_LIBS@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
 LIBICONV = @LIBICONV@
-LIBLAS_CONFIG = @LIBLAS_CONFIG@
-LIBLAS_INCS = @LIBLAS_INCS@
-LIBLAS_LIBS = @LIBLAS_LIBS@
-LIBLAS_RPM = @LIBLAS_RPM@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
 LIBTOOL = @LIBTOOL@
@@ -283,9 +261,6 @@ NM = @NM@
 NMEDIT = @NMEDIT@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
-ODBCINST_LIBS = @ODBCINST_LIBS@
-ODBC_INCS = @ODBC_INCS@
-ODBC_LIBS = @ODBC_LIBS@
 OTOOL = @OTOOL@
 OTOOL64 = @OTOOL64@
 PACKAGE = @PACKAGE@
@@ -297,32 +272,16 @@ PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATHSEP = @PATHSEP@
 PATH_SEPARATOR = @PATH_SEPARATOR@
-PERL = @PERL@
-PERL_LIBDIR = @PERL_LIBDIR@
 PKG_CONFIG = @PKG_CONFIG@
 PKG_CONFIG_LIBDIR = @PKG_CONFIG_LIBDIR@
 PKG_CONFIG_PATH = @PKG_CONFIG_PATH@
-PKG_CURL = @PKG_CURL@
-PKG_LIBLZMA = @PKG_LIBLZMA@
 PKG_ZLIB = @PKG_ZLIB@
-PROJ_INCS = @PROJ_INCS@
-PROJ_LIBS = @PROJ_LIBS@
 PTHREAD_INCS = @PTHREAD_INCS@
 PTHREAD_LIBS = @PTHREAD_LIBS@
-PYTHON = @PYTHON@
-PYTHON2 = @PYTHON2@
-PYTHON2_LIBDIR = @PYTHON2_LIBDIR@
-PYTHON3 = @PYTHON3@
-PYTHON3_LIBDIR = @PYTHON3_LIBDIR@
 QBUILD = @QBUILD@
 QDIRSEP = @QDIRSEP@
 QSOURCE = @QSOURCE@
 QXBUILD = @QXBUILD@
-QXPERL_LIBDIR = @QXPERL_LIBDIR@
-QXPYTHON2 = @QXPYTHON2@
-QXPYTHON2_LIBDIR = @QXPYTHON2_LIBDIR@
-QXPYTHON3 = @QXPYTHON3@
-QXPYTHON3_LIBDIR = @QXPYTHON3_LIBDIR@
 QXSOURCE = @QXSOURCE@
 QXbindir = @QXbindir@
 QXdatadir = @QXdatadir@
@@ -351,27 +310,17 @@ Qprefix = @Qprefix@
 Qsrcdir = @Qsrcdir@
 Qsysconfdir = @Qsysconfdir@
 RANLIB = @RANLIB@
-RCMD = @RCMD@
-READLINE_INCS = @READLINE_INCS@
-READLINE_LIBS = @READLINE_LIBS@
 READLINK = @READLINK@
-RHOME = @RHOME@
 RM = @RM@
-RPMBUILD = @RPMBUILD@
-SAMTOOLS_CFLAGS = @SAMTOOLS_CFLAGS@
-SAMTOOLS_LIBS = @SAMTOOLS_LIBS@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 SOCKET_LIBS = @SOCKET_LIBS@
 SOEXT = @SOEXT@
 SOURCE = @SOURCE@
-SPHINXCLIENT_CFLAGS = @SPHINXCLIENT_CFLAGS@
-SPHINXCLIENT_LIBS = @SPHINXCLIENT_LIBS@
 STREAM_VERSION = @STREAM_VERSION@
 STRIP = @STRIP@
 THREAD_SAVE_FLAGS = @THREAD_SAVE_FLAGS@
-UUID_LIBS = @UUID_LIBS@
 VERSION = @VERSION@
 XBUILD = @XBUILD@
 XSOURCE = @XSOURCE@
@@ -415,20 +364,12 @@ build_os = @build_os@
 build_vendor = @build_vendor@
 builddir = @builddir@
 builtby = @builtby@
-cfitsio_CFLAGS = @cfitsio_CFLAGS@
-cfitsio_LIBS = @cfitsio_LIBS@
 compilercall = @compilercall@
-curl_CFLAGS = @curl_CFLAGS@
-curl_LIBS = @curl_LIBS@
 datadir = @datadir@
 datarootdir = @datarootdir@
 docdir = @docdir@
 dvidir = @dvidir@
 exec_prefix = @exec_prefix@
-gdal_CFLAGS = @gdal_CFLAGS@
-gdal_LIBS = @gdal_LIBS@
-gsl_CFLAGS = @gsl_CFLAGS@
-gsl_LIBS = @gsl_LIBS@
 host = @host@
 host_alias = @host_alias@
 host_cpu = @host_cpu@
@@ -440,14 +381,6 @@ infodir = @infodir@
 install_sh = @install_sh@
 libdir = @libdir@
 libexecdir = @libexecdir@
-liblzma_CFLAGS = @liblzma_CFLAGS@
-liblzma_LIBS = @liblzma_LIBS@
-libmicrohttpd_CFLAGS = @libmicrohttpd_CFLAGS@
-libmicrohttpd_LIBS = @libmicrohttpd_LIBS@
-libr_CFLAGS = @libr_CFLAGS@
-libr_LIBS = @libr_LIBS@
-libxml2_CFLAGS = @libxml2_CFLAGS@
-libxml2_LIBS = @libxml2_LIBS@
 libxml2version = @libxml2version@
 linkercall = @linkercall@
 localedir = @localedir@
@@ -455,15 +388,8 @@ localstatedir = @localstatedir@
 logdir = @logdir@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
-netcdf_CFLAGS = @netcdf_CFLAGS@
-netcdf_LIBS = @netcdf_LIBS@
-oids = @oids@
 oldincludedir = @oldincludedir@
-openssl_CFLAGS = @openssl_CFLAGS@
-openssl_LIBS = @openssl_LIBS@
 opensslversion = @opensslversion@
-pcre_CFLAGS = @pcre_CFLAGS@
-pcre_LIBS = @pcre_LIBS@
 pcreversion = @pcreversion@
 pdfdir = @pdfdir@
 prefix = @prefix@
@@ -484,19 +410,17 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 translatepath = @translatepath@
-valgrind_CFLAGS = @valgrind_CFLAGS@
-valgrind_LIBS = @valgrind_LIBS@
 zlib_CFLAGS = @zlib_CFLAGS@
 zlib_LIBS = @zlib_LIBS@
 AUTOMAKE_OPTIONS = no-dependencies 1.4 foreign
 libmal_la_CFLAGS = -DLIBMAL $(AM_CFLAGS)
 maldir = $(libdir)
 nodist_libmal_la_SOURCES = 
-dist_libmal_la_SOURCES = mal.c mal.h mal_atom.c mal_atom.h mal_authorize.c mal_authorize.h mal_builder.c mal_builder.h mal_client.c mal_client.h mal_errors.h mal_exception.c mal_exception.h mal_factory.c mal_factory.h mal_function.c mal_function.h mal_import.c mal_import.h mal_runtime.c mal_runtime.h mal_instruction.c mal_instruction.h mal_resource.c mal_resource.h mal_interpreter.c mal_interpreter.h mal_dataflow.c mal_dataflow.h mal_linker.c mal_linker.h mal_listing.c mal_listing.h mal_module.c mal_module.h mal_namespace.c mal_namespace.h mal_parser.c mal_parser.h mal_profiler.c mal_profiler.h mal_readline.c mal_readline.h mal_resolve.c mal_resolve.h mal_scenario.c mal_scenario.h mal_session.c mal_session.h mal_stack.c mal_stack.h mal_type.c mal_type.h mal_utils.c mal_utils.h mal_private.h
+dist_libmal_la_SOURCES = mal.c mal.h mal_atom.c mal_atom.h mal_authorize.c mal_authorize.h mal_builder.c mal_builder.h mal_client.c mal_client.h mal_errors.h mal_exception.c mal_exception.h mal_factory.c mal_factory.h mal_function.c mal_function.h mal_import.c mal_import.h mal_runtime.c mal_runtime.h mal_instruction.c mal_instruction.h mal_resource.c mal_resource.h mal_interpreter.c mal_interpreter.h mal_dataflow.c mal_dataflow.h mal_linker.c mal_linker.h mal_listing.c mal_listing.h mal_module.c mal_module.h mal_namespace.c mal_namespace.h mal_parser.c mal_parser.h mal_profiler.c mal_profiler.h mal_resolve.c mal_resolve.h mal_scenario.c mal_scenario.h mal_session.c mal_session.h mal_stack.c mal_stack.h mal_type.c mal_type.h mal_utils.c mal_utils.h mal_private.h
 AM_CPPFLAGS = -I$(srcdir) -I../../common/options -I$(srcdir)/../../common/options -I../../common/stream -I$(srcdir)/../../common/stream -I../../common/utils -I$(srcdir)/../../common/utils -I../../gdk -I$(srcdir)/../../gdk -I../optimizer -I$(srcdir)/../optimizer
 BUILT_SOURCES = 
 MOSTLYCLEANFILES = 
-EXTRA_DIST = Makefile.ag Makefile.msc mal.c mal.h mal_atom.c mal_atom.h mal_authorize.c mal_authorize.h mal_builder.c mal_builder.h mal_client.c mal_client.h mal_dataflow.c mal_dataflow.h mal_errors.h mal_exception.c mal_exception.h mal_factory.c mal_factory.h mal_function.c mal_function.h mal_import.c mal_import.h mal_instruction.c mal_instruction.h mal_interpreter.c mal_interpreter.h mal_linker.c mal_linker.h mal_listing.c mal_listing.h mal_module.c mal_module.h mal_namespace.c mal_namespace.h mal_parser.c mal_parser.h mal_private.h mal_profiler.c mal_profiler.h mal_readline.c mal_readline.h mal_resolve.c mal_resolve.h mal_resource.c mal_resource.h mal_runtime.c mal_runtime.h mal_scenario.c mal_scenario.h mal_session.c mal_session.h mal_stack.c mal_stack.h mal_type.c mal_type.h mal_utils.c mal_utils.h
+EXTRA_DIST = Makefile.ag Makefile.msc mal.c mal.h mal_atom.c mal_atom.h mal_authorize.c mal_authorize.h mal_builder.c mal_builder.h mal_client.c mal_client.h mal_dataflow.c mal_dataflow.h mal_errors.h mal_exception.c mal_exception.h mal_factory.c mal_factory.h mal_function.c mal_function.h mal_import.c mal_import.h mal_instruction.c mal_instruction.h mal_interpreter.c mal_interpreter.h mal_linker.c mal_linker.h mal_listing.c mal_listing.h mal_module.c mal_module.h mal_namespace.c mal_namespace.h mal_parser.c mal_parser.h mal_private.h mal_profiler.c mal_profiler.h mal_resolve.c mal_resolve.h mal_resource.c mal_resource.h mal_runtime.c mal_runtime.h mal_scenario.c mal_scenario.h mal_session.c mal_session.h mal_stack.c mal_stack.h mal_type.c mal_type.h mal_utils.c mal_utils.h
 noinst_LTLIBRARIES = libmal.la
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
@@ -779,87 +703,84 @@ uninstall-am: uninstall-local
 
 .PRECIOUS: Makefile
 
-libmal_la-mal.lo: mal.c mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_linker.h mal_authorize.h mal_instruction.h mal_type.h mal_namespace.h mal_client.h mal_resolve.h mal_exception.h mal_errors.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_session.h mal_scenario.h mal_import.h mal_utils.h mal_parser.h mal_interpreter.h mal_factory.h mal_dataflow.h mal_private.h mal_runtime.h mal_resource.h ../optimizer/opt_statistics.h
+libmal_la-mal.lo: mal.c mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_linker.h mal_authorize.h mal_instruction.h mal_type.h mal_namespace.h mal_client.h mal_resolve.h mal_exception.h mal_errors.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_session.h mal_scenario.h mal_import.h mal_utils.h mal_parser.h mal_interpreter.h mal_factory.h mal_dataflow.h mal_private.h mal_runtime.h mal_resource.h ../../common/options/monet_options.h ../../common/stream/stream.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmal_la_CFLAGS) $(CFLAGS) $(mal_CFLAGS) -c -o libmal_la-mal.lo `test -f 'mal.c' || echo '$(srcdir)/'`mal.c
-libmal_la-mal_atom.lo: mal_atom.c mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_atom.h mal_exception.h mal_errors.h mal_private.h
+libmal_la-mal_atom.lo: mal_atom.c mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_atom.h mal_exception.h mal_errors.h mal_private.h ../../common/options/monet_options.h ../../common/stream/stream.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmal_la_CFLAGS) $(CFLAGS) $(mal_atom_CFLAGS) -c -o libmal_la-mal_atom.lo `test -f 'mal_atom.c' || echo '$(srcdir)/'`mal_atom.c
-libmal_la-mal_authorize.lo: mal_authorize.c mal_authorize.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_client.h mal_resolve.h mal_exception.h mal_errors.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_private.h ../../common/utils/mcrypt.h
+libmal_la-mal_authorize.lo: mal_authorize.c mal_authorize.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_client.h mal_resolve.h mal_exception.h mal_errors.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_private.h ../../common/utils/mcrypt.h ../../common/options/monet_options.h ../../common/stream/stream.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmal_la_CFLAGS) $(CFLAGS) $(mal_authorize_CFLAGS) -c -o libmal_la-mal_authorize.lo `test -f 'mal_authorize.c' || echo '$(srcdir)/'`mal_authorize.c
-libmal_la-mal_builder.lo: mal_builder.c mal_builder.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_function.h mal_module.h mal_resolve.h mal_exception.h mal_errors.h mal_listing.h
+libmal_la-mal_builder.lo: mal_builder.c mal_builder.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_function.h mal_module.h mal_resolve.h mal_exception.h mal_errors.h mal_listing.h ../../common/options/monet_options.h ../../common/stream/stream.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmal_la_CFLAGS) $(CFLAGS) $(mal_builder_CFLAGS) -c -o libmal_la-mal_builder.lo `test -f 'mal_builder.c' || echo '$(srcdir)/'`mal_builder.c
-libmal_la-mal_client.lo: mal_client.c mal_client.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_resolve.h mal_exception.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_errors.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_readline.h mal_import.h mal_session.h mal_scenario.h mal_utils.h mal_parser.h mal_private.h mal_runtime.h mal_authorize.h
+libmal_la-mal_client.lo: mal_client.c mal_client.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_resolve.h mal_exception.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_errors.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_import.h mal_session.h mal_scenario.h mal_utils.h mal_parser.h mal_private.h mal_runtime.h mal_authorize.h ../../common/options/monet_options.h ../../common/stream/stream.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmal_la_CFLAGS) $(CFLAGS) $(mal_client_CFLAGS) -c -o libmal_la-mal_client.lo `test -f 'mal_client.c' || echo '$(srcdir)/'`mal_client.c
-libmal_la-mal_exception.lo: mal_exception.c mal_exception.h mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_errors.h mal_private.h
+libmal_la-mal_exception.lo: mal_exception.c mal_exception.h mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_errors.h mal_private.h ../../common/options/monet_options.h ../../common/stream/stream.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmal_la_CFLAGS) $(CFLAGS) $(mal_exception_CFLAGS) -c -o libmal_la-mal_exception.lo `test -f 'mal_exception.c' || echo '$(srcdir)/'`mal_exception.c
-libmal_la-mal_factory.lo: mal_factory.c mal_factory.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_client.h mal_resolve.h mal_exception.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_errors.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_interpreter.h mal_session.h mal_scenario.h mal_import.h mal_utils.h mal_private.h
+libmal_la-mal_factory.lo: mal_factory.c mal_factory.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_client.h mal_resolve.h mal_exception.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_errors.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_interpreter.h mal_session.h mal_scenario.h mal_import.h mal_utils.h mal_private.h ../../common/options/monet_options.h ../../common/stream/stream.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmal_la_CFLAGS) $(CFLAGS) $(mal_factory_CFLAGS) -c -o libmal_la-mal_factory.lo `test -f 'mal_factory.c' || echo '$(srcdir)/'`mal_factory.c
-libmal_la-mal_function.lo: mal_function.c mal_function.h mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_module.h mal_resolve.h mal_exception.h mal_errors.h mal_listing.h mal_interpreter.h mal_client.h mal_profiler.h mal_factory.h mal_private.h
+libmal_la-mal_function.lo: mal_function.c mal_function.h mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_module.h mal_resolve.h mal_exception.h mal_errors.h mal_listing.h mal_interpreter.h mal_client.h mal_profiler.h mal_factory.h mal_private.h ../../common/options/monet_options.h ../../common/stream/stream.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmal_la_CFLAGS) $(CFLAGS) $(mal_function_CFLAGS) -c -o libmal_la-mal_function.lo `test -f 'mal_function.c' || echo '$(srcdir)/'`mal_function.c
-libmal_la-mal_import.lo: mal_import.c mal_import.h mal_exception.h mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_errors.h mal_client.h mal_resolve.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_session.h mal_scenario.h mal_utils.h mal_interpreter.h mal_factory.h mal_linker.h mal_parser.h mal_private.h
+libmal_la-mal_import.lo: mal_import.c mal_import.h mal_exception.h mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_errors.h mal_client.h mal_resolve.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_session.h mal_scenario.h mal_utils.h mal_interpreter.h mal_factory.h mal_linker.h mal_parser.h mal_private.h ../../common/options/monet_options.h ../../common/stream/stream.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmal_la_CFLAGS) $(CFLAGS) $(mal_import_CFLAGS) -c -o libmal_la-mal_import.lo `test -f 'mal_import.c' || echo '$(srcdir)/'`mal_import.c
-libmal_la-mal_runtime.lo: mal_runtime.c mal_utils.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_runtime.h mal_client.h mal_resolve.h mal_exception.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_errors.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_interpreter.h mal_factory.h mal_authorize.h mal_resource.h mal_private.h
+libmal_la-mal_runtime.lo: mal_runtime.c mal_utils.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_runtime.h mal_client.h mal_resolve.h mal_exception.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_errors.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_interpreter.h mal_factory.h mal_authorize.h mal_resource.h mal_private.h ../../common/options/monet_options.h ../../common/stream/stream.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmal_la_CFLAGS) $(CFLAGS) $(mal_runtime_CFLAGS) -c -o libmal_la-mal_runtime.lo `test -f 'mal_runtime.c' || echo '$(srcdir)/'`mal_runtime.c
-libmal_la-mal_instruction.lo: mal_instruction.c mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_function.h mal_module.h mal_resolve.h mal_exception.h mal_errors.h mal_listing.h mal_utils.h
+libmal_la-mal_instruction.lo: mal_instruction.c mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_function.h mal_module.h mal_resolve.h mal_exception.h mal_errors.h mal_listing.h mal_utils.h ../../common/options/monet_options.h ../../common/stream/stream.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmal_la_CFLAGS) $(CFLAGS) $(mal_instruction_CFLAGS) -c -o libmal_la-mal_instruction.lo `test -f 'mal_instruction.c' || echo '$(srcdir)/'`mal_instruction.c
-libmal_la-mal_resource.lo: mal_resource.c mal_resource.h mal_interpreter.h mal_client.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_resolve.h mal_exception.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_errors.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_factory.h mal_private.h
+libmal_la-mal_resource.lo: mal_resource.c mal_resource.h mal_interpreter.h mal_client.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_resolve.h mal_exception.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_errors.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_factory.h mal_private.h ../../common/options/monet_options.h ../../common/stream/stream.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmal_la_CFLAGS) $(CFLAGS) $(mal_resource_CFLAGS) -c -o libmal_la-mal_resource.lo `test -f 'mal_resource.c' || echo '$(srcdir)/'`mal_resource.c
-libmal_la-mal_interpreter.lo: mal_interpreter.c mal_runtime.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_client.h mal_resolve.h mal_exception.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_errors.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_interpreter.h mal_factory.h mal_resource.h mal_private.h
+libmal_la-mal_interpreter.lo: mal_interpreter.c mal_runtime.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_client.h mal_resolve.h mal_exception.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_errors.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_interpreter.h mal_factory.h mal_resource.h mal_private.h ../../common/options/monet_options.h ../../common/stream/stream.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmal_la_CFLAGS) $(CFLAGS) $(mal_interpreter_CFLAGS) -c -o libmal_la-mal_interpreter.lo `test -f 'mal_interpreter.c' || echo '$(srcdir)/'`mal_interpreter.c
-libmal_la-mal_dataflow.lo: mal_dataflow.c mal_dataflow.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_client.h mal_resolve.h mal_exception.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_errors.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_private.h mal_runtime.h mal_resource.h mal_interpreter.h mal_factory.h
+libmal_la-mal_dataflow.lo: mal_dataflow.c mal_dataflow.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_client.h mal_resolve.h mal_exception.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_errors.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_private.h mal_runtime.h mal_resource.h mal_interpreter.h mal_factory.h ../../common/options/monet_options.h ../../common/stream/stream.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmal_la_CFLAGS) $(CFLAGS) $(mal_dataflow_CFLAGS) -c -o libmal_la-mal_dataflow.lo `test -f 'mal_dataflow.c' || echo '$(srcdir)/'`mal_dataflow.c
-libmal_la-mal_linker.lo: mal_linker.c mal_module.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_linker.h mal_function.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_resolve.h mal_exception.h mal_errors.h mal_listing.h mal_import.h mal_client.h mal_profiler.h mal_session.h mal_scenario.h mal_utils.h mal_private.h ../../common/utils/mutils.h
+libmal_la-mal_linker.lo: mal_linker.c mal_module.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_linker.h mal_function.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_resolve.h mal_exception.h mal_errors.h mal_listing.h mal_import.h mal_client.h mal_profiler.h mal_session.h mal_scenario.h mal_utils.h mal_private.h ../../common/utils/mutils.h ../../common/options/monet_options.h ../../common/stream/stream.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmal_la_CFLAGS) $(CFLAGS) $(mal_linker_CFLAGS) -c -o libmal_la-mal_linker.lo `test -f 'mal_linker.c' || echo '$(srcdir)/'`mal_linker.c
-libmal_la-mal_listing.lo: mal_listing.c mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_function.h mal_module.h mal_resolve.h mal_exception.h mal_errors.h mal_listing.h mal_utils.h
+libmal_la-mal_listing.lo: mal_listing.c mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_function.h mal_module.h mal_resolve.h mal_exception.h mal_errors.h mal_listing.h mal_utils.h ../../common/options/monet_options.h ../../common/stream/stream.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmal_la_CFLAGS) $(CFLAGS) $(mal_listing_CFLAGS) -c -o libmal_la-mal_listing.lo `test -f 'mal_listing.c' || echo '$(srcdir)/'`mal_listing.c
-libmal_la-mal_module.lo: mal_module.c mal_module.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_function.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_resolve.h mal_exception.h mal_errors.h mal_listing.h mal_client.h mal_profiler.h mal_interpreter.h mal_factory.h mal_private.h
+libmal_la-mal_module.lo: mal_module.c mal_module.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_function.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_resolve.h mal_exception.h mal_errors.h mal_listing.h mal_client.h mal_profiler.h mal_interpreter.h mal_factory.h mal_private.h ../../common/options/monet_options.h ../../common/stream/stream.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmal_la_CFLAGS) $(CFLAGS) $(mal_module_CFLAGS) -c -o libmal_la-mal_module.lo `test -f 'mal_module.c' || echo '$(srcdir)/'`mal_module.c
-libmal_la-mal_namespace.lo: mal_namespace.c mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_namespace.h mal_exception.h mal_instruction.h mal_stack.h mal_errors.h mal_private.h
+libmal_la-mal_namespace.lo: mal_namespace.c mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_namespace.h mal_exception.h mal_instruction.h mal_stack.h mal_errors.h mal_private.h ../../common/options/monet_options.h ../../common/stream/stream.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmal_la_CFLAGS) $(CFLAGS) $(mal_namespace_CFLAGS) -c -o libmal_la-mal_namespace.lo `test -f 'mal_namespace.c' || echo '$(srcdir)/'`mal_namespace.c
-libmal_la-mal_parser.lo: mal_parser.c mal_parser.h mal_import.h mal_exception.h mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_errors.h mal_client.h mal_resolve.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_session.h mal_scenario.h mal_utils.h mal_linker.h mal_atom.h mal_interpreter.h mal_factory.h mal_builder.h mal_private.h
+libmal_la-mal_parser.lo: mal_parser.c mal_parser.h mal_import.h mal_exception.h mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_errors.h mal_client.h mal_resolve.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_session.h mal_scenario.h mal_utils.h mal_linker.h mal_atom.h mal_interpreter.h mal_factory.h mal_builder.h mal_private.h ../../common/options/monet_options.h ../../common/stream/stream.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmal_la_CFLAGS) $(CFLAGS) $(mal_parser_CFLAGS) -c -o libmal_la-mal_parser.lo `test -f 'mal_parser.c' || echo '$(srcdir)/'`mal_parser.c
-libmal_la-mal_profiler.lo: mal_profiler.c mal_function.h mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_module.h mal_resolve.h mal_exception.h mal_errors.h mal_listing.h mal_profiler.h mal_client.h mal_runtime.h mal_resource.h mal_interpreter.h mal_factory.h mal_utils.h
+libmal_la-mal_profiler.lo: mal_profiler.c mal_function.h mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_module.h mal_resolve.h mal_exception.h mal_errors.h mal_listing.h mal_profiler.h mal_client.h mal_runtime.h mal_resource.h mal_interpreter.h mal_factory.h mal_utils.h ../../common/options/monet_options.h ../../common/stream/stream.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmal_la_CFLAGS) $(CFLAGS) $(mal_profiler_CFLAGS) -c -o libmal_la-mal_profiler.lo `test -f 'mal_profiler.c' || echo '$(srcdir)/'`mal_profiler.c
-libmal_la-mal_readline.lo: mal_readline.c mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_client.h mal_resolve.h mal_exception.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_errors.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_scenario.h mal_import.h mal_session.h mal_utils.h mal_readline.h
-	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmal_la_CFLAGS) $(CFLAGS) $(mal_readline_CFLAGS) -c -o libmal_la-mal_readline.lo `test -f 'mal_readline.c' || echo '$(srcdir)/'`mal_readline.c
-libmal_la-mal_resolve.lo: mal_resolve.c mal_resolve.h mal_exception.h mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_errors.h mal_function.h mal_module.h mal_listing.h mal_private.h
+libmal_la-mal_resolve.lo: mal_resolve.c mal_resolve.h mal_exception.h mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_errors.h mal_function.h mal_module.h mal_listing.h mal_private.h mal_linker.h ../../common/options/monet_options.h ../../common/stream/stream.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmal_la_CFLAGS) $(CFLAGS) $(mal_resolve_CFLAGS) -c -o libmal_la-mal_resolve.lo `test -f 'mal_resolve.c' || echo '$(srcdir)/'`mal_resolve.c
-libmal_la-mal_scenario.lo: mal_scenario.c mal_scenario.h mal_import.h mal_exception.h mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_errors.h mal_client.h mal_resolve.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_session.h mal_utils.h mal_linker.h mal_authorize.h mal_private.h
+libmal_la-mal_scenario.lo: mal_scenario.c mal_scenario.h mal_import.h mal_exception.h mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_errors.h mal_client.h mal_resolve.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_session.h mal_utils.h mal_linker.h mal_authorize.h mal_private.h ../../common/options/monet_options.h ../../common/stream/stream.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmal_la_CFLAGS) $(CFLAGS) $(mal_scenario_CFLAGS) -c -o libmal_la-mal_scenario.lo `test -f 'mal_scenario.c' || echo '$(srcdir)/'`mal_scenario.c
-libmal_la-mal_session.lo: mal_session.c mal_session.h mal_scenario.h mal_import.h mal_exception.h mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_errors.h mal_client.h mal_resolve.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_utils.h mal_interpreter.h mal_factory.h mal_linker.h mal_parser.h mal_readline.h mal_authorize.h mal_private.h
+libmal_la-mal_session.lo: mal_session.c mal_session.h mal_scenario.h mal_import.h mal_exception.h mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_errors.h mal_client.h mal_resolve.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_utils.h mal_interpreter.h mal_factory.h mal_parser.h mal_builder.h mal_authorize.h mal_private.h ../../common/options/monet_options.h ../../common/stream/stream.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmal_la_CFLAGS) $(CFLAGS) $(mal_session_CFLAGS) -c -o libmal_la-mal_session.lo `test -f 'mal_session.c' || echo '$(srcdir)/'`mal_session.c
-libmal_la-mal_stack.lo: mal_stack.c mal_stack.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h
+libmal_la-mal_stack.lo: mal_stack.c mal_stack.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_exception.h mal_instruction.h mal_type.h mal_namespace.h mal_errors.h ../../common/options/monet_options.h ../../common/stream/stream.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmal_la_CFLAGS) $(CFLAGS) $(mal_stack_CFLAGS) -c -o libmal_la-mal_stack.lo `test -f 'mal_stack.c' || echo '$(srcdir)/'`mal_stack.c
-libmal_la-mal_type.lo: mal_type.c mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h
+libmal_la-mal_type.lo: mal_type.c mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h ../../common/options/monet_options.h ../../common/stream/stream.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmal_la_CFLAGS) $(CFLAGS) $(mal_type_CFLAGS) -c -o libmal_la-mal_type.lo `test -f 'mal_type.c' || echo '$(srcdir)/'`mal_type.c
-libmal_la-mal_utils.lo: mal_utils.c mal_utils.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h
+libmal_la-mal_utils.lo: mal_utils.c mal_utils.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h ../../common/options/monet_options.h ../../common/stream/stream.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmal_la_CFLAGS) $(CFLAGS) $(mal_utils_CFLAGS) -c -o libmal_la-mal_utils.lo `test -f 'mal_utils.c' || echo '$(srcdir)/'`mal_utils.c
-mal_exception.o mal_exception.lo: mal_exception.c mal_exception.h mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_errors.h mal_private.h
-mal_authorize.o mal_authorize.lo: mal_authorize.c mal_authorize.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_client.h mal_resolve.h mal_exception.h mal_errors.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_private.h ../../common/utils/mcrypt.h
-mal_linker.o mal_linker.lo: mal_linker.c mal_module.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_linker.h mal_function.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_resolve.h mal_exception.h mal_errors.h mal_listing.h mal_import.h mal_client.h mal_profiler.h mal_session.h mal_scenario.h mal_utils.h mal_private.h ../../common/utils/mutils.h
-mal_type.o mal_type.lo: mal_type.c mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h
-mal_client.o mal_client.lo: mal_client.c mal_client.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_resolve.h mal_exception.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_errors.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_readline.h mal_import.h mal_session.h mal_scenario.h mal_utils.h mal_parser.h mal_private.h mal_runtime.h mal_authorize.h
-mal_interpreter.o mal_interpreter.lo: mal_interpreter.c mal_runtime.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_client.h mal_resolve.h mal_exception.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_errors.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_interpreter.h mal_factory.h mal_resource.h mal_private.h
-mal_namespace.o mal_namespace.lo: mal_namespace.c mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_namespace.h mal_exception.h mal_instruction.h mal_stack.h mal_errors.h mal_private.h
-mal_resolve.o mal_resolve.lo: mal_resolve.c mal_resolve.h mal_exception.h mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_errors.h mal_function.h mal_module.h mal_listing.h mal_private.h
-mal_parser.o mal_parser.lo: mal_parser.c mal_parser.h mal_import.h mal_exception.h mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_errors.h mal_client.h mal_resolve.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_session.h mal_scenario.h mal_utils.h mal_linker.h mal_atom.h mal_interpreter.h mal_factory.h mal_builder.h mal_private.h
-mal_module.o mal_module.lo: mal_module.c mal_module.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_function.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_resolve.h mal_exception.h mal_errors.h mal_listing.h mal_client.h mal_profiler.h mal_interpreter.h mal_factory.h mal_private.h
-mal_profiler.o mal_profiler.lo: mal_profiler.c mal_function.h mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_module.h mal_resolve.h mal_exception.h mal_errors.h mal_listing.h mal_profiler.h mal_client.h mal_runtime.h mal_resource.h mal_interpreter.h mal_factory.h mal_utils.h
-mal_runtime.o mal_runtime.lo: mal_runtime.c mal_utils.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_runtime.h mal_client.h mal_resolve.h mal_exception.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_errors.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_interpreter.h mal_factory.h mal_authorize.h mal_resource.h mal_private.h
-mal_utils.o mal_utils.lo: mal_utils.c mal_utils.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h
-mal_instruction.o mal_instruction.lo: mal_instruction.c mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_function.h mal_module.h mal_resolve.h mal_exception.h mal_errors.h mal_listing.h mal_utils.h
-mal_listing.o mal_listing.lo: mal_listing.c mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_function.h mal_module.h mal_resolve.h mal_exception.h mal_errors.h mal_listing.h mal_utils.h
-mal_function.o mal_function.lo: mal_function.c mal_function.h mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_module.h mal_resolve.h mal_exception.h mal_errors.h mal_listing.h mal_interpreter.h mal_client.h mal_profiler.h mal_factory.h mal_private.h
-mal_import.o mal_import.lo: mal_import.c mal_import.h mal_exception.h mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_errors.h mal_client.h mal_resolve.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_session.h mal_scenario.h mal_utils.h mal_interpreter.h mal_factory.h mal_linker.h mal_parser.h mal_private.h
-mal_readline.o mal_readline.lo: mal_readline.c mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_client.h mal_resolve.h mal_exception.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_errors.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_scenario.h mal_import.h mal_session.h mal_utils.h mal_readline.h
-mal_resource.o mal_resource.lo: mal_resource.c mal_resource.h mal_interpreter.h mal_client.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_resolve.h mal_exception.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_errors.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_factory.h mal_private.h
-mal_dataflow.o mal_dataflow.lo: mal_dataflow.c mal_dataflow.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_client.h mal_resolve.h mal_exception.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_errors.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_private.h mal_runtime.h mal_resource.h mal_interpreter.h mal_factory.h
-mal_builder.o mal_builder.lo: mal_builder.c mal_builder.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_function.h mal_module.h mal_resolve.h mal_exception.h mal_errors.h mal_listing.h
-mal_session.o mal_session.lo: mal_session.c mal_session.h mal_scenario.h mal_import.h mal_exception.h mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_errors.h mal_client.h mal_resolve.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_utils.h mal_interpreter.h mal_factory.h mal_linker.h mal_parser.h mal_readline.h mal_authorize.h mal_private.h
-mal_atom.o mal_atom.lo: mal_atom.c mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_atom.h mal_exception.h mal_errors.h mal_private.h
-mal.o mal.lo: mal.c mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_linker.h mal_authorize.h mal_instruction.h mal_type.h mal_namespace.h mal_client.h mal_resolve.h mal_exception.h mal_errors.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_session.h mal_scenario.h mal_import.h mal_utils.h mal_parser.h mal_interpreter.h mal_factory.h mal_dataflow.h mal_private.h mal_runtime.h mal_resource.h ../optimizer/opt_statistics.h
-mal_stack.o mal_stack.lo: mal_stack.c mal_stack.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h
-mal_scenario.o mal_scenario.lo: mal_scenario.c mal_scenario.h mal_import.h mal_exception.h mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_errors.h mal_client.h mal_resolve.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_session.h mal_utils.h mal_linker.h mal_authorize.h mal_private.h
-mal_factory.o mal_factory.lo: mal_factory.c mal_factory.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_client.h mal_resolve.h mal_exception.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_errors.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_interpreter.h mal_session.h mal_scenario.h mal_import.h mal_utils.h mal_private.h
+mal_exception.o mal_exception.lo: mal_exception.c mal_exception.h mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_errors.h mal_private.h ../../common/options/monet_options.h ../../common/stream/stream.h
+mal_authorize.o mal_authorize.lo: mal_authorize.c mal_authorize.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_client.h mal_resolve.h mal_exception.h mal_errors.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_private.h ../../common/utils/mcrypt.h ../../common/options/monet_options.h ../../common/stream/stream.h
+mal_linker.o mal_linker.lo: mal_linker.c mal_module.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_linker.h mal_function.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_resolve.h mal_exception.h mal_errors.h mal_listing.h mal_import.h mal_client.h mal_profiler.h mal_session.h mal_scenario.h mal_utils.h mal_private.h ../../common/utils/mutils.h ../../common/options/monet_options.h ../../common/stream/stream.h
+mal_type.o mal_type.lo: mal_type.c mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h ../../common/options/monet_options.h ../../common/stream/stream.h
+mal_client.o mal_client.lo: mal_client.c mal_client.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_resolve.h mal_exception.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_errors.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_import.h mal_session.h mal_scenario.h mal_utils.h mal_parser.h mal_private.h mal_runtime.h mal_authorize.h ../../common/options/monet_options.h ../../common/stream/stream.h
+mal_interpreter.o mal_interpreter.lo: mal_interpreter.c mal_runtime.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_client.h mal_resolve.h mal_exception.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_errors.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_interpreter.h mal_factory.h mal_resource.h mal_private.h ../../common/options/monet_options.h ../../common/stream/stream.h
+mal_namespace.o mal_namespace.lo: mal_namespace.c mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_namespace.h mal_exception.h mal_instruction.h mal_stack.h mal_errors.h mal_private.h ../../common/options/monet_options.h ../../common/stream/stream.h
+mal_resolve.o mal_resolve.lo: mal_resolve.c mal_resolve.h mal_exception.h mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_errors.h mal_function.h mal_module.h mal_listing.h mal_private.h mal_linker.h ../../common/options/monet_options.h ../../common/stream/stream.h
+mal_parser.o mal_parser.lo: mal_parser.c mal_parser.h mal_import.h mal_exception.h mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_errors.h mal_client.h mal_resolve.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_session.h mal_scenario.h mal_utils.h mal_linker.h mal_atom.h mal_interpreter.h mal_factory.h mal_builder.h mal_private.h ../../common/options/monet_options.h ../../common/stream/stream.h
+mal_module.o mal_module.lo: mal_module.c mal_module.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_function.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_resolve.h mal_exception.h mal_errors.h mal_listing.h mal_client.h mal_profiler.h mal_interpreter.h mal_factory.h mal_private.h ../../common/options/monet_options.h ../../common/stream/stream.h
+mal_profiler.o mal_profiler.lo: mal_profiler.c mal_function.h mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_module.h mal_resolve.h mal_exception.h mal_errors.h mal_listing.h mal_profiler.h mal_client.h mal_runtime.h mal_resource.h mal_interpreter.h mal_factory.h mal_utils.h ../../common/options/monet_options.h ../../common/stream/stream.h
+mal_runtime.o mal_runtime.lo: mal_runtime.c mal_utils.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_runtime.h mal_client.h mal_resolve.h mal_exception.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_errors.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_interpreter.h mal_factory.h mal_authorize.h mal_resource.h mal_private.h ../../common/options/monet_options.h ../../common/stream/stream.h
+mal_utils.o mal_utils.lo: mal_utils.c mal_utils.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h ../../common/options/monet_options.h ../../common/stream/stream.h
+mal_instruction.o mal_instruction.lo: mal_instruction.c mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_function.h mal_module.h mal_resolve.h mal_exception.h mal_errors.h mal_listing.h mal_utils.h ../../common/options/monet_options.h ../../common/stream/stream.h
+mal_listing.o mal_listing.lo: mal_listing.c mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_function.h mal_module.h mal_resolve.h mal_exception.h mal_errors.h mal_listing.h mal_utils.h ../../common/options/monet_options.h ../../common/stream/stream.h
+mal_function.o mal_function.lo: mal_function.c mal_function.h mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_module.h mal_resolve.h mal_exception.h mal_errors.h mal_listing.h mal_interpreter.h mal_client.h mal_profiler.h mal_factory.h mal_private.h ../../common/options/monet_options.h ../../common/stream/stream.h
+mal_import.o mal_import.lo: mal_import.c mal_import.h mal_exception.h mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_errors.h mal_client.h mal_resolve.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_session.h mal_scenario.h mal_utils.h mal_interpreter.h mal_factory.h mal_linker.h mal_parser.h mal_private.h ../../common/options/monet_options.h ../../common/stream/stream.h
+mal_resource.o mal_resource.lo: mal_resource.c mal_resource.h mal_interpreter.h mal_client.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_resolve.h mal_exception.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_errors.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_factory.h mal_private.h ../../common/options/monet_options.h ../../common/stream/stream.h
+mal_dataflow.o mal_dataflow.lo: mal_dataflow.c mal_dataflow.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_client.h mal_resolve.h mal_exception.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_errors.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_private.h mal_runtime.h mal_resource.h mal_interpreter.h mal_factory.h ../../common/options/monet_options.h ../../common/stream/stream.h
+mal_builder.o mal_builder.lo: mal_builder.c mal_builder.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_function.h mal_module.h mal_resolve.h mal_exception.h mal_errors.h mal_listing.h ../../common/options/monet_options.h ../../common/stream/stream.h
+mal_session.o mal_session.lo: mal_session.c mal_session.h mal_scenario.h mal_import.h mal_exception.h mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_errors.h mal_client.h mal_resolve.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_utils.h mal_interpreter.h mal_factory.h mal_parser.h mal_builder.h mal_authorize.h mal_private.h ../../common/options/monet_options.h ../../common/stream/stream.h
+mal_atom.o mal_atom.lo: mal_atom.c mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_atom.h mal_exception.h mal_errors.h mal_private.h ../../common/options/monet_options.h ../../common/stream/stream.h
+mal.o mal.lo: mal.c mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_linker.h mal_authorize.h mal_instruction.h mal_type.h mal_namespace.h mal_client.h mal_resolve.h mal_exception.h mal_errors.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_session.h mal_scenario.h mal_import.h mal_utils.h mal_parser.h mal_interpreter.h mal_factory.h mal_dataflow.h mal_private.h mal_runtime.h mal_resource.h ../../common/options/monet_options.h ../../common/stream/stream.h
+mal_stack.o mal_stack.lo: mal_stack.c mal_stack.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_exception.h mal_instruction.h mal_type.h mal_namespace.h mal_errors.h ../../common/options/monet_options.h ../../common/stream/stream.h
+mal_scenario.o mal_scenario.lo: mal_scenario.c mal_scenario.h mal_import.h mal_exception.h mal_instruction.h mal_type.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_stack.h mal_namespace.h mal_errors.h mal_client.h mal_resolve.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_session.h mal_utils.h mal_linker.h mal_authorize.h mal_private.h ../../common/options/monet_options.h ../../common/stream/stream.h
+mal_factory.o mal_factory.lo: mal_factory.c mal_factory.h mal.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h mal_client.h mal_resolve.h mal_exception.h mal_instruction.h mal_type.h mal_stack.h mal_namespace.h mal_errors.h mal_function.h mal_module.h mal_listing.h mal_profiler.h mal_interpreter.h mal_session.h mal_scenario.h mal_import.h mal_utils.h mal_private.h ../../common/options/monet_options.h ../../common/stream/stream.h
 dist-hook:
 	mkdir -p $(distdir)/Tests
 	cp -pR $(srcdir)/Tests/* $(distdir)/Tests
@@ -879,6 +800,14 @@ install-exec-local-mal_type.h: mal_type.h
 uninstall-local-mal_type.h: 
 	$(RM) $(DESTDIR)$(includedir)/monetdb/mal_type.h
 
+install-exec-local-mal_profiler.h: mal_profiler.h
+	-mkdir -p $(DESTDIR)$(includedir)/monetdb
+	-$(RM) $(DESTDIR)$(includedir)/monetdb/mal_profiler.h
+	$(INSTALL_DATA) $< $(DESTDIR)$(includedir)/monetdb/mal_profiler.h
+
+uninstall-local-mal_profiler.h: 
+	$(RM) $(DESTDIR)$(includedir)/monetdb/mal_profiler.h
+
 install-exec-local-mal_errors.h: mal_errors.h
 	-mkdir -p $(DESTDIR)$(includedir)/monetdb
 	-$(RM) $(DESTDIR)$(includedir)/monetdb/mal_errors.h
@@ -887,6 +816,22 @@ install-exec-local-mal_errors.h: mal_errors.h
 uninstall-local-mal_errors.h: 
 	$(RM) $(DESTDIR)$(includedir)/monetdb/mal_errors.h
 
+install-exec-local-mal_client.h: mal_client.h
+	-mkdir -p $(DESTDIR)$(includedir)/monetdb
+	-$(RM) $(DESTDIR)$(includedir)/monetdb/mal_client.h
+	$(INSTALL_DATA) $< $(DESTDIR)$(includedir)/monetdb/mal_client.h
+
+uninstall-local-mal_client.h: 
+	$(RM) $(DESTDIR)$(includedir)/monetdb/mal_client.h
+
+install-exec-local-mal_resolve.h: mal_resolve.h
+	-mkdir -p $(DESTDIR)$(includedir)/monetdb
+	-$(RM) $(DESTDIR)$(includedir)/monetdb/mal_resolve.h
+	$(INSTALL_DATA) $< $(DESTDIR)$(includedir)/monetdb/mal_resolve.h
+
+uninstall-local-mal_resolve.h: 
+	$(RM) $(DESTDIR)$(includedir)/monetdb/mal_resolve.h
+
 install-exec-local-mal_namespace.h: mal_namespace.h
 	-mkdir -p $(DESTDIR)$(includedir)/monetdb
 	-$(RM) $(DESTDIR)$(includedir)/monetdb/mal_namespace.h
@@ -894,6 +839,22 @@ install-exec-local-mal_namespace.h: mal_namespace.h
 
 uninstall-local-mal_namespace.h: 
 	$(RM) $(DESTDIR)$(includedir)/monetdb/mal_namespace.h
+
+install-exec-local-mal_interpreter.h: mal_interpreter.h
+	-mkdir -p $(DESTDIR)$(includedir)/monetdb
+	-$(RM) $(DESTDIR)$(includedir)/monetdb/mal_interpreter.h
+	$(INSTALL_DATA) $< $(DESTDIR)$(includedir)/monetdb/mal_interpreter.h
+
+uninstall-local-mal_interpreter.h: 
+	$(RM) $(DESTDIR)$(includedir)/monetdb/mal_interpreter.h
+
+install-exec-local-mal_module.h: mal_module.h
+	-mkdir -p $(DESTDIR)$(includedir)/monetdb
+	-$(RM) $(DESTDIR)$(includedir)/monetdb/mal_module.h
+	$(INSTALL_DATA) $< $(DESTDIR)$(includedir)/monetdb/mal_module.h
+
+uninstall-local-mal_module.h: 
+	$(RM) $(DESTDIR)$(includedir)/monetdb/mal_module.h
 
 install-exec-local-mal_stack.h: mal_stack.h
 	-mkdir -p $(DESTDIR)$(includedir)/monetdb
@@ -911,6 +872,22 @@ install-exec-local-mal_instruction.h: mal_instruction.h
 uninstall-local-mal_instruction.h: 
 	$(RM) $(DESTDIR)$(includedir)/monetdb/mal_instruction.h
 
+install-exec-local-mal_listing.h: mal_listing.h
+	-mkdir -p $(DESTDIR)$(includedir)/monetdb
+	-$(RM) $(DESTDIR)$(includedir)/monetdb/mal_listing.h
+	$(INSTALL_DATA) $< $(DESTDIR)$(includedir)/monetdb/mal_listing.h
+
+uninstall-local-mal_listing.h: 
+	$(RM) $(DESTDIR)$(includedir)/monetdb/mal_listing.h
+
+install-exec-local-mal_function.h: mal_function.h
+	-mkdir -p $(DESTDIR)$(includedir)/monetdb
+	-$(RM) $(DESTDIR)$(includedir)/monetdb/mal_function.h
+	$(INSTALL_DATA) $< $(DESTDIR)$(includedir)/monetdb/mal_function.h
+
+uninstall-local-mal_function.h: 
+	$(RM) $(DESTDIR)$(includedir)/monetdb/mal_function.h
+
 install-exec-local-mal.h: mal.h
 	-mkdir -p $(DESTDIR)$(includedir)/monetdb
 	-$(RM) $(DESTDIR)$(includedir)/monetdb/mal.h
@@ -918,9 +895,17 @@ install-exec-local-mal.h: mal.h
 
 uninstall-local-mal.h: 
 	$(RM) $(DESTDIR)$(includedir)/monetdb/mal.h
+
+install-exec-local-mal_factory.h: mal_factory.h
+	-mkdir -p $(DESTDIR)$(includedir)/monetdb
+	-$(RM) $(DESTDIR)$(includedir)/monetdb/mal_factory.h
+	$(INSTALL_DATA) $< $(DESTDIR)$(includedir)/monetdb/mal_factory.h
+
+uninstall-local-mal_factory.h: 
+	$(RM) $(DESTDIR)$(includedir)/monetdb/mal_factory.h
 install-malLTLIBRARIES:
-uninstall-local: uninstall-local-mal.h uninstall-local-mal_errors.h uninstall-local-mal_exception.h uninstall-local-mal_instruction.h uninstall-local-mal_namespace.h uninstall-local-mal_stack.h uninstall-local-mal_type.h
-install-exec-local: install-exec-local-mal.h install-exec-local-mal_errors.h install-exec-local-mal_exception.h install-exec-local-mal_instruction.h install-exec-local-mal_namespace.h install-exec-local-mal_stack.h install-exec-local-mal_type.h
+uninstall-local: uninstall-local-mal.h uninstall-local-mal_client.h uninstall-local-mal_errors.h uninstall-local-mal_exception.h uninstall-local-mal_factory.h uninstall-local-mal_function.h uninstall-local-mal_instruction.h uninstall-local-mal_interpreter.h uninstall-local-mal_listing.h uninstall-local-mal_module.h uninstall-local-mal_namespace.h uninstall-local-mal_profiler.h uninstall-local-mal_resolve.h uninstall-local-mal_stack.h uninstall-local-mal_type.h
+install-exec-local: install-exec-local-mal.h install-exec-local-mal_client.h install-exec-local-mal_errors.h install-exec-local-mal_exception.h install-exec-local-mal_factory.h install-exec-local-mal_function.h install-exec-local-mal_instruction.h install-exec-local-mal_interpreter.h install-exec-local-mal_listing.h install-exec-local-mal_module.h install-exec-local-mal_namespace.h install-exec-local-mal_profiler.h install-exec-local-mal_resolve.h install-exec-local-mal_stack.h install-exec-local-mal_type.h
 
   include $(top_srcdir)/buildtools/conf/rules.mk
 

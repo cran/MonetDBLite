@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
  */
 
 #include "monetdb_config.h"
@@ -44,13 +44,20 @@ sql_ref_dec(sql_ref *r)
 sql_allocator *sa_create(void)
 {
 	sql_allocator *sa = MNEW(sql_allocator);
-	
+	if (sa == NULL) {
+		return NULL;
+	}
 	sa->size = 64;
 	sa->nr = 1;
 	sa->blks = NEW_ARRAY(char*,sa->size);
+	if (sa->blks == NULL) {
+		_DELETE(sa);
+		return NULL;
+	}
 	sa->blks[0] = NEW_ARRAY(char,SA_BLOCK);
 	sa->usedmem = SA_BLOCK;
-	if (!sa->blks[0]) {
+	if (sa->blks[0] == NULL) {
+		_DELETE(sa->blks);
 		_DELETE(sa);
 		return NULL;
 	}
@@ -84,34 +91,35 @@ char *sa_alloc( sql_allocator *sa, size_t sz )
 {
 	char *r;
 	sz = round16(sz);
-	if (sz > SA_BLOCK) {
-		char *t;
-		r = GDKmalloc(sz);
-		if (sa->nr >= sa->size) {
-			sa->size *=2;
-			sa->blks = RENEW_ARRAY(char*,sa->blks,sa->size);
-		}
-		t = sa->blks[sa->nr-1];
-		sa->blks[sa->nr-1] = r;
-		sa->blks[sa->nr] = t;
-		sa->nr ++;
-		sa->usedmem += sz;
-		return r;
-	}
 	if (sz > (SA_BLOCK-sa->used)) {
-		r = GDKmalloc(SA_BLOCK);
+		r = GDKmalloc(sz > SA_BLOCK ? sz : SA_BLOCK);
+		if (r == NULL)
+			return NULL;
 		if (sa->nr >= sa->size) {
+			char **tmp;
 			sa->size *=2;
-			sa->blks = RENEW_ARRAY(char*,sa->blks,sa->size);
+			tmp = RENEW_ARRAY(char*,sa->blks,sa->size);
+			if (tmp == NULL) {
+				sa->size /= 2; /* undo */
+				return NULL;
+			}
+			sa->blks = tmp;
 		}
-		sa->blks[sa->nr] = r;
-		sa->nr ++;
-		sa->used = sz;
-		sa->usedmem += SA_BLOCK;
-		return r;
+		if (sz > SA_BLOCK) {
+			sa->blks[sa->nr] = sa->blks[sa->nr-1];
+			sa->blks[sa->nr-1] = r;
+			sa->nr ++;
+			sa->usedmem += sz;
+		} else {
+			sa->blks[sa->nr] = r;
+			sa->nr ++;
+			sa->used = sz;
+			sa->usedmem += SA_BLOCK;
+		}
+	} else {
+		r = sa->blks[sa->nr-1] + sa->used;
+		sa->used += sz;
 	}
-	r = sa->blks[sa->nr-1] + sa->used;
-	sa->used += sz;
 	return r;
 }
 

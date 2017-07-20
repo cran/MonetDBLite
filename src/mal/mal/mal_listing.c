@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
  */
 
 /*
@@ -37,7 +37,7 @@ renderTerm(MalBlkPtr mb, MalStkPtr stk, InstrPtr p, int idx, int flg)
 {
 	char *buf =0;
 	char *nme =0;
-	int nameused= 0;
+	int nameused = 0;
 	size_t len = 0, maxlen = BUFSIZ;
 	ValRecord *val = 0;
 	char *cv =0;
@@ -46,6 +46,9 @@ renderTerm(MalBlkPtr mb, MalStkPtr stk, InstrPtr p, int idx, int flg)
 	int varid = getArg(p,idx);
 
 	buf = GDKzalloc(maxlen);
+	if( buf == NULL) {
+		return NULL;
+	}
 	// show the name when required or is used
 	if ((flg & LIST_MAL_NAME) && !isVarConstant(mb,varid) && !isVarTypedef(mb,varid)) {
 		nme = getVarName(mb,varid);
@@ -60,44 +63,51 @@ renderTerm(MalBlkPtr mb, MalStkPtr stk, InstrPtr p, int idx, int flg)
 		}
 
 		// locate value record
-		if (isVarConstant(mb,varid))
+		if (isVarConstant(mb,varid)){
 			val = &getVarConstant(mb, varid);
-		else if( stk)
+			showtype= getVarType(mb,varid) != TYPE_str && getVarType(mb,varid) != TYPE_bit;
+		} else if( stk)
 			val = &stk->stk[varid];
 
-		VALformat(&cv, val);
-		if (len + strlen(cv) >= maxlen)
-			buf= GDKrealloc(buf, maxlen =len + strlen(cv) + BUFSIZ);
-
-		if( buf == 0){
+		if (VALformat(&cv, val) <= 0) {
+			GDKfree(buf);
 			GDKerror("renderTerm:Failed to allocate");
-			return 0;
+			return NULL;
 		}
+		if (len + strlen(cv) >= maxlen) {
+			char *nbuf = GDKrealloc(buf, maxlen =len + strlen(cv) + BUFSIZ);
+			if (nbuf == NULL) {
+				GDKfree(buf);
+				return NULL;
+			}
+			buf = nbuf;
+		}
+
 		if( strcmp(cv,"nil") == 0){
 			strcat(buf+len,cv);
 			len += strlen(buf+len);
 			GDKfree(cv);
-			showtype =getColumnType(getVarType(mb,varid)) > TYPE_str || 
+			showtype = showtype || getBatType(getVarType(mb,varid)) > TYPE_str || 
 				((isVarUDFtype(mb,varid) || isVarTypedef(mb,varid)) && isVarConstant(mb,varid)) || isaBatType(getVarType(mb,varid)); 
 		} else{
-			if ( !isaBatType(getVarType(mb,varid)) && getColumnType(getVarType(mb,varid)) > TYPE_str ){
+			if ( !isaBatType(getVarType(mb,varid)) && getBatType(getVarType(mb,varid)) > TYPE_str ){
 				closequote = 1;
 				strcat(buf+len,"\"");
 				len++;
 			}
 			strcat(buf+len,cv);
 			len += strlen(buf+len);
-			if( cv) GDKfree(cv);
+			GDKfree(cv);
 
 			if( closequote ){
 				strcat(buf+len,"\"");
 				len++;
 			}
-			showtype =closequote > TYPE_str || ((isVarUDFtype(mb,varid) || isVarTypedef(mb,varid) || (flg & LIST_MAL_REMOTE)) && isVarConstant(mb,varid)) ||
+			showtype = showtype || closequote > TYPE_str || ((isVarUDFtype(mb,varid) || isVarTypedef(mb,varid) || (flg & LIST_MAL_REMOTE)) && isVarConstant(mb,varid)) ||
 				(isaBatType(getVarType(mb,varid)) && idx < p->retc);
 
-			if (stk && isaBatType(getVarType(mb,varid)) && abs(stk->stk[varid].val.ival) ){
-				BAT *d= BBPquickdesc(abs(stk->stk[varid].val.ival),TRUE);
+			if (stk && isaBatType(getVarType(mb,varid)) && stk->stk[varid].val.bval ){
+				BAT *d= BBPquickdesc(stk->stk[varid].val.bval,TRUE);
 				if( d)
 					len += snprintf(buf+len,maxlen-len,"[" BUNFMT "]", BATcount(d));
 			}
@@ -110,6 +120,11 @@ renderTerm(MalBlkPtr mb, MalStkPtr stk, InstrPtr p, int idx, int flg)
 		strcat(buf + len,":");
 		len++;
 		tpe = getTypeName(getVarType(mb, varid));
+		if (tpe == NULL) {
+			GDKfree(buf);
+			GDKerror("renderTerm:Failed to allocate");
+			return NULL;
+		}
 		len += snprintf(buf+len,maxlen-len,"%s",tpe);
 		GDKfree(tpe);
 	}
@@ -142,6 +157,10 @@ fcnDefinition(MalBlkPtr mb, InstrPtr p, str s, int flg, str base, size_t len)
 		snprintf(t,(len-(t-base)), "unsafe ");
 		advance(t, base, len);
 	}
+	if( mb->sealedProp){
+		snprintf(t,(len-(t-base)), "sealed ");
+		advance(t, base, len);
+	}
 	snprintf(t,(len-(t-base)), "%s ",  operatorName(p->token));
 
 	advance(t, base, len);
@@ -151,53 +170,57 @@ fcnDefinition(MalBlkPtr mb, InstrPtr p, str s, int flg, str base, size_t len)
 	advance(t, base, len);
 
 	for (i = p->retc; i < p->argc; i++) {
-		arg = renderTerm(mb, 0, p, i, (LIST_MAL_NAME | LIST_MAL_TYPE | LIST_MAL_PROPS)); 
-		snprintf(t, (len-(t-base)),"%s", arg);
+		arg = renderTerm(mb, 0, p, i, (LIST_MAL_NAME | LIST_MAL_TYPE | LIST_MAL_PROPS));
+		if (arg) {
+			snprintf(t, (len-(t-base)),"%s", arg);
+			GDKfree(arg);
+		}
 		advance(t,  base, len);
-		GDKfree(arg);
 		if( i<p->argc-1) {
-			sprintf(t,",");
+			sprintf(t,", ");
 			advance(t,base,len);
 		}
 	}
 
 	advance(t,base,len);
-	if (p->varargs & VARARGS)
+	if (p->varargs & VARARGS && t < base + len -3)
 		sprintf(t, "...");
 	advance(t,base,len);
 
-	if (p->retc == 1) {
+	if (p->retc == 1 && t < base +len) {
 		*t++ = ')';
 		tpe = getTypeName(getVarType(mb, getArg(p,0)));
 		snprintf(t,(len-(t-base)),":%s", tpe);
 		advance(t,base,len);
 		GDKfree(tpe);
-		if (p->varargs & VARRETS)
+		if (p->varargs & VARRETS && t < base + len -3)
 			sprintf(t, "...");
 		advance(t,base,len);
 	} else {
-		sprintf(t, ") (");
+		if( t < base +len -3) sprintf(t, ") (");
 		t += 3;
 		for (i = 0; i < p->retc; i++) {
 			arg = renderTerm(mb, 0, p, i, (LIST_MAL_NAME | LIST_MAL_TYPE | LIST_MAL_PROPS));
-			snprintf(t,(len-(t-base)),"%s", arg);
+			if (arg) {
+				snprintf(t,(len-(t-base)),"%s", arg);
+				GDKfree(arg);
+			}
 			advance(t,base,len);
-			GDKfree(arg);
-			if( i<p->retc-1) {
-				sprintf(t,",");
+			if( i<p->retc-1 && t < base + len) {
+				sprintf(t,", ");
 				advance(t,base,len);
 			}
 		}
-		if (p->varargs & VARRETS)
+		if (p->varargs & VARRETS && t < base +len -3)
 			sprintf(t, "...");
 		advance(t,base,len);
-		*t++ = ')';
+		if(t < base + len) *t++ = ')';
 	}
 
-	if (mb->binding)
+	if (mb->binding[0])
 		snprintf(t,(len-(t-base))," address %s;", mb->binding);
 	else
-		sprintf(t, ";");
+		if( t <base + len) sprintf(t, ";");
 	return s;
 }
 
@@ -249,7 +272,7 @@ instruction2str(MalBlkPtr mb, MalStkPtr stk,  InstrPtr p, int flg)
 		}
 	}
 	advance(t,base,len);
-	if (p->token == REMsymbol) {
+	if (p->token == REMsymbol && !( getModuleId(p) && strcmp(getModuleId(p),"querylog") == 0  && getFunctionId(p) && strcmp(getFunctionId(p),"define") == 0)) {
 		/* do nothing */
 	} else if (p->barrier) {
 		if (p->barrier == LEAVEsymbol || 
@@ -282,7 +305,7 @@ instruction2str(MalBlkPtr mb, MalStkPtr stk,  InstrPtr p, int flg)
 	case ASSIGNsymbol :
 		// is any variable explicit or used
 		for (i = 0; i < p->retc; i++)
-			if (!getVarTmp(mb, getArg(p, i)) || isVarUsed(mb, getArg(p, i)) || isVarUDFtype(mb,getArg(p,i)))
+			if ( !isTmpVar(mb,getArg(p,i)) || isVarUsed(mb, getArg(p, i)) || isVarUDFtype(mb,getArg(p,i)))
 				break;
 
 		if (i == p->retc)
@@ -290,22 +313,28 @@ instruction2str(MalBlkPtr mb, MalStkPtr stk,  InstrPtr p, int flg)
 
 		/* display multi-assignment list */
 		if (p->retc > 1)
-			*t++ = '(';
+			if( t< base+len) *t++ = '(';
 
 		for (i = 0; i < p->retc; i++) {
 			arg= renderTerm(mb, stk, p, i, flg);
-			snprintf(t,(len-(t-base)), "%s", arg);
-			GDKfree(arg);
+			if (arg) {
+				snprintf(t,(len-(t-base)), "%s", arg);
+				GDKfree(arg);
+			}
 			advance(t,base,len);
-			if (i < p->retc - 1)
+			if ( t < base+len && i < p->retc - 1){
 				*t++ = ',';
+				*t++ = ' ';
+			}
 		}
 		if (p->retc > 1)
-			*t++ = ')';
+			if( t< base+len) *t++ = ')';
 
 		if (p->argc > p->retc || getFunctionId(p)) {
-			sprintf(t, " := ");
-			t += 4;
+			if( t< base+len-4) {
+				sprintf(t, " := ");
+				t += 4;
+			}
 		}
 		*t = 0;
 		break;
@@ -346,12 +375,14 @@ instruction2str(MalBlkPtr mb, MalStkPtr stk,  InstrPtr p, int flg)
 
 	for (i = p->retc; i < p->argc; i++) {
 		arg= renderTerm(mb, stk, p, i, flg);
-		snprintf(t,(len-(t-base)), "%s", arg);
-		GDKfree(arg);
+		if (arg) {
+			snprintf(t,(len-(t-base)), "%s", arg);
+			GDKfree(arg);
+		}
 		advance(t,base,len);
 
-		if (i < p->argc -1){
-			snprintf(t, (len-(t-base)), ",");
+		if (i < p->argc -1 && t < base + len){
+			snprintf(t, (len-(t-base)), ", ");
 			advance(t,base,len);
 		}
 	} 
@@ -394,11 +425,9 @@ shortRenderingTerm(MalBlkPtr mb, MalStkPtr stk, InstrPtr p, int idx)
 	} else {
 		val = &stk->stk[varid];
 		VALformat(&cv, val);
-		nme = getSTC(mb, varid);
-		if( nme == NULL) 
-			nme = getVarName(mb, varid);
+		nme = getVarName(mb, varid);
 		if ( isaBatType(getArgType(mb,p,idx))){
-			b = BBPquickdesc(abs(stk->stk[varid].val.ival),TRUE);
+			b = BBPquickdesc(stk->stk[varid].val.bval,TRUE);
 			snprintf(s,BUFSIZ,"%s["BUNFMT"]" ,nme, b?BATcount(b):0);
 		} else
 		if( cv)
@@ -422,7 +451,7 @@ shortStmtRendering(MalBlkPtr mb, MalStkPtr stk,  InstrPtr p)
 		return s;
 	*s =0;
 	t=s;
-	if (p->token == REMsymbol) 
+	if (p->token == REMsymbol && !( getModuleId(p) && strcmp(getModuleId(p),"querylog") == 0  && getFunctionId(p) && strcmp(getFunctionId(p),"define") == 0)) 
 		return base;
 	if (p->barrier == LEAVEsymbol || 
 		p->barrier == REDOsymbol || 
@@ -443,7 +472,7 @@ shortStmtRendering(MalBlkPtr mb, MalStkPtr stk,  InstrPtr p)
 	}
 	// handle the result variables
 	for (i = 0; i < p->retc; i++)
-		if (!getVarTmp(mb, getArg(p, i)) || isVarUsed(mb, getArg(p, i)) || isVarUDFtype(mb,getArg(p,i)))
+		if ( !isTmpVar(mb,getArg(p,i)) || isVarUsed(mb, getArg(p, i)) || isVarUDFtype(mb,getArg(p,i)))
 			break;
 
 	if (i == p->retc) // no result arguments
@@ -451,22 +480,22 @@ shortStmtRendering(MalBlkPtr mb, MalStkPtr stk,  InstrPtr p)
 
 	/* display optional multi-assignment list */
 	if( getArgType(mb,p,0) != TYPE_void){
-		if (p->retc > 1){
+		if (p->retc > 1 && t < base + len-1){
 			*t++ = '(';
 			*t=0;
 		}
 
 		for (i = 0; i < p->retc; i++) {
 			nme = shortRenderingTerm(mb, stk, p,i);
-			snprintf(t,(len-(t-base)), "%s%s", (i?",":""), nme);
+			snprintf(t,(len-(t-base)), "%s%s", (i?", ":""), nme);
 			GDKfree(nme);
 			advance(t,base,len);
 		}
-		if (p->retc > 1)
+		if (p->retc > 1 && t< base+len)
 			*t++ = ')';
-		*t++ = ':';
-		*t++ = '=';
-		*t++ = ' ';
+		if( t < base +len) *t++ = ':';
+		if( t < base +len) *t++ = '=';
+		if( t < base +len) *t++ = ' ';
 	}
 	*t =0;
 
@@ -479,17 +508,19 @@ shortStmtRendering(MalBlkPtr mb, MalStkPtr stk,  InstrPtr p)
 
 	// handle the arguments, constants should  be shown including their non-default type
 	/* display optional multi-assignment list */
-	*t++ = '(';
+	if( t< base + len) *t++ = '(';
 	for (i = p->retc; i < p->argc; i++) {
 		nme = shortRenderingTerm(mb, stk, p,i);
-		snprintf(t,(len-(t-base)), "%c%s", (i!= p->retc? ',':' '), nme);
+		snprintf(t,(len-(t-base)), "%s%s", (i!= p->retc? ", ":" "), nme);
 		GDKfree(nme);
 		advance(t,base,len);
-		if (i < p->retc - 1)
+		if (i < p->retc - 1 && t < base+len){
 			*t++ = ',';
+			*t++ = ' ';
+		}
 	}
-	*t++ = ' ';
-	*t++ = ')';
+	if( t < base + len) *t++ = ' ';
+	if( t < base + len) *t++ = ')';
 	*t=0;
 
 	if (t >= s + len)
@@ -508,9 +539,8 @@ mal2str(MalBlkPtr mb, int first, int last)
 	len = GDKmalloc(sizeof(int) * mb->stop);
 
 	if( txt == NULL || len == NULL){
-		GDKerror("mal2str: " MAL_MALLOC_FAIL);
-		if( txt ) GDKfree(txt);
-		if( len ) GDKfree(len);
+		GDKfree(txt);
+		GDKfree(len);
 		return NULL;
 	}
 	for (i = first; i < last; i++) {
@@ -519,25 +549,26 @@ mal2str(MalBlkPtr mb, int first, int last)
 		else
 			txt[i] = instruction2str(mb, 0, getInstrPtr(mb, i), LIST_MAL_CALL | LIST_MAL_PROPS | LIST_MAL_REMOTE);
 #ifdef _DEBUG_LISTING_
-		mnstr_printf(GDKout,"%s\n",txt[i]);
+		fprintf(stderr,"%s\n",txt[i]);
 #endif
 
 		if ( txt[i])
 			totlen += len[i] = (int)strlen(txt[i]);
 	}
 	ps = GDKmalloc(totlen + mb->stop + 1);
-	if( ps == NULL)
-		GDKerror("mal2str: " MAL_MALLOC_FAIL);
+	if( ps == NULL){
+		GDKfree(len);
+		GDKfree(txt);
+		return NULL;
+	}
 
 	totlen = 0;
 	for (i = first; i < last; i++) {
 		if( txt[i]){
-			if( ps){
-				strncpy(ps + totlen, txt[i], len[i]);
-				ps[totlen + len[i]] = '\n';
-				ps[totlen + len[i] + 1] = 0;
-				totlen += len[i] + 1;
-			}
+			strncpy(ps + totlen, txt[i], len[i]);
+			ps[totlen + len[i]] = '\n';
+			ps[totlen + len[i] + 1] = 0;
+			totlen += len[i] + 1;
 			GDKfree(txt[i]);
 		}
 	}
@@ -563,6 +594,22 @@ printInstruction(stream *fd, MalBlkPtr mb, MalStkPtr stk, InstrPtr p, int flg)
 }
 
 void
+fprintInstruction(FILE *fd, MalBlkPtr mb, MalStkPtr stk, InstrPtr p, int flg)
+{
+	str ps;
+
+	if (fd == 0)
+		return;
+	ps = instruction2str(mb, stk, p, flg);
+	/* ps[strlen(ps)-1] = 0; remove '\n' */
+	if ( ps ){
+		fprintf(fd, "%s%s", (flg & LIST_MAL_MAPI ? "=" : ""), ps);
+		GDKfree(ps);
+	}
+	fprintf(fd, "\n");
+}
+
+void
 printSignature(stream *fd, Symbol s, int flg)
 {
 	InstrPtr p;
@@ -578,13 +625,9 @@ printSignature(stream *fd, Symbol s, int flg)
 		(void) fcnDefinition(s->def, p, txt, flg, txt, MAXLISTING);
 		mnstr_printf(fd, "%s\n", txt);
 		GDKfree(txt);
-	} else GDKerror("printSignature"MAL_MALLOC_FAIL);
+	}
 }
 
-/*
- * For clarity we show the last optimizer applied
- * also as the last of the list, although it is linked with mb.
-*/
 void showMalBlkHistory(stream *out, MalBlkPtr mb)
 {
 	MalBlkPtr m=mb;
@@ -605,14 +648,5 @@ void showMalBlkHistory(stream *out, MalBlkPtr mb)
 			}
 		} 
 		m= m->history;
-	}
-	p=getInstrPtr(mb,mb->stop-1);
-	if( p->token == REMsymbol){
-		msg= instruction2str(mb, 0, p, FALSE);
-		if (msg) {
-			mnstr_printf(out,"%s.%s[%2d] %s\n", 
-				getModuleId(sig), getFunctionId(sig),j++,msg+3);
-				GDKfree(msg);
-		}
 	}
 }

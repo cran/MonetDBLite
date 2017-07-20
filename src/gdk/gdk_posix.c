@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
  */
 
 /*
@@ -20,7 +20,7 @@
 #include "gdk_private.h"
 #include "mutils.h"
 #include <stdio.h>
-#include <unistd.h>		/* sbrk on Solaris */
+#include <unistd.h>
 #include <string.h>     /* strncpy */
 
 #ifdef HAVE_FCNTL_H
@@ -278,7 +278,7 @@ MT_getrss(void)
 	int fd;
 	psinfo_t psbuff;
 
-	fd = open("/proc/self/psinfo", O_RDONLY);
+	fd = open("/proc/self/psinfo", O_RDONLY | O_CLOEXEC);
 	if (fd >= 0) {
 		if (read(fd, &psbuff, sizeof(psbuff)) == sizeof(psbuff)) {
 			close(fd);
@@ -325,7 +325,7 @@ MT_getrss(void)
 	/* get RSS on Linux */
 	int fd;
 
-	fd = open("/proc/self/stat", O_RDONLY);
+	fd = open("/proc/self/stat", O_RDONLY | O_CLOEXEC);
 	if (fd >= 0) {
 		char buf[1024], *r = buf;
 		ssize_t i, sz = read(fd, buf, 1024);
@@ -349,17 +349,18 @@ MT_getrss(void)
 
 
 void *
-MT_mmap(const char *path, int mode, size_t len)
+MT_mmap_addr(const char *path, int mode, size_t len, void* addr)
 {
-	int fd;
+	int fd = -1;
 	void *ret;
-
-	fd = open(path, O_CREAT | ((mode & MMAP_WRITE) ? O_RDWR : O_RDONLY), MONETDB_MODE);
-	if (fd < 0) {
-		GDKsyserror("MT_mmap: open %s failed\n", path);
-		return MAP_FAILED;
+	if (path != NULL) {
+		fd = open(path, O_CREAT | ((mode & MMAP_WRITE) ? O_RDWR : O_RDONLY) | O_CLOEXEC, MONETDB_MODE);
+		if (fd < 0) {
+			GDKsyserror("MT_mmap: open %s failed\n", path);
+			return MAP_FAILED;
+		}
 	}
-	ret = mmap(NULL,
+	ret = mmap(addr,
 		   len,
 		   ((mode & MMAP_WRITABLE) ? PROT_WRITE : 0) | PROT_READ,
 		   (mode & MMAP_COPY) ? (MAP_PRIVATE | MAP_NORESERVE) : MAP_SHARED,
@@ -372,6 +373,12 @@ MT_mmap(const char *path, int mode, size_t len)
 	close(fd);
 	VALGRIND_MALLOCLIKE_BLOCK(ret, len, 0, 1);
 	return ret;
+}
+
+void *
+MT_mmap(const char *path, int mode, size_t len)
+{
+	return MT_mmap_addr(path, mode, len, NULL);
 }
 
 int
@@ -442,7 +449,7 @@ MT_mremap(const char *path, int mode, void *old_address, size_t old_size, size_t
 	if (!(mode & MMAP_COPY) && path != NULL) {
 		/* "normal" memory map */
 
-		if ((fd = open(path, O_RDWR)) < 0) {
+		if ((fd = open(path, O_RDWR | O_CLOEXEC)) < 0) {
 			GDKsyserror("MT_mremap: open(%s) failed\n", path);
 			fprintf(stderr, "= %s:%d: MT_mremap(%s,"PTRFMT","SZFMT","SZFMT"): open() failed\n", __FILE__, __LINE__, path, PTRFMTCAST old_address, old_size, *new_size);
 			return NULL;
@@ -506,7 +513,7 @@ MT_mremap(const char *path, int mode, void *old_address, size_t old_size, size_t
 #ifdef MAP_ANONYMOUS
 		flags |= MAP_ANONYMOUS;
 #else
-		if ((fd = open("/dev/zero", O_RDWR)) < 0) {
+		if ((fd = open("/dev/zero", O_RDWR | O_CLOEXEC)) < 0) {
 			GDKsyserror("MT_mremap: open(/dev/zero) failed\n");
 			fprintf(stderr, "= %s:%d: MT_mremap(%s,"PTRFMT","SZFMT","SZFMT"): open('/dev/zero') failed\n", __FILE__, __LINE__, path?path:"NULL", PTRFMTCAST old_address, old_size, *new_size);
 			return NULL;
@@ -557,7 +564,7 @@ MT_mremap(const char *path, int mode, void *old_address, size_t old_size, size_t
 #else
 				p = MAP_FAILED;
 				if (path == NULL ||
-				    *new_size <= GDK_mmap_minsize) {
+				    *new_size <= GDK_mmap_minsize_persistent) {
 					/* size not too big yet or
 					 * anonymous, try to make new
 					 * anonymous mmap and copy
@@ -582,8 +589,14 @@ MT_mremap(const char *path, int mode, void *old_address, size_t old_size, size_t
 					if (fd >= 0)
 						close(fd);
 					p = malloc(strlen(path) + 5);
+					if (p == NULL){
+						GDKsyserror("MT_mremap: malloc() failed\n");
+						fprintf(stderr, "= %s:%d: MT_mremap(%s,"PTRFMT","SZFMT","SZFMT"): fd < 0\n", __FILE__, __LINE__, path, PTRFMTCAST old_address, old_size, *new_size);
+						return NULL;
+					}
+
 					strcat(strcpy(p, path), ".tmp");
-					fd = open(p, O_RDWR | O_CREAT,
+					fd = open(p, O_RDWR | O_CREAT | O_CLOEXEC,
 						  MONETDB_MODE);
 					if (fd < 0) {
 						GDKsyserror("MT_mremap: open(%s) failed\n", (char *) p);
@@ -685,31 +698,6 @@ MT_msync(void *p, size_t len)
 	return ret;
 }
 
-struct Mallinfo
-MT_mallinfo(void)
-{
-	struct Mallinfo _ret;
-
-#ifdef HAVE_USEFUL_MALLINFO
-	struct mallinfo m;
-
-	m = mallinfo();
-	_ret.arena = m.arena;
-	_ret.ordblks = m.ordblks;
-	_ret.smblks = m.smblks;
-	_ret.hblks = m.hblks;
-	_ret.hblkhd = m.hblkhd;
-	_ret.usmblks = m.usmblks;
-	_ret.fsmblks = m.fsmblks;
-	_ret.uordblks = m.uordblks;
-	_ret.fordblks = m.fordblks;
-	_ret.keepcost = m.keepcost;
-#else
-	memset(&_ret, 0, sizeof(_ret));
-#endif
-	return _ret;
-}
-
 int
 MT_path_absolute(const char *pathname)
 {
@@ -723,9 +711,17 @@ MT_path_absolute(const char *pathname)
 void *
 mdlopen(const char *library, int mode)
 {
+#ifndef HAVE_EMBEDDED_R
 	(void) library;
 	return dlopen(NULL, mode);
+#else
+	(void) mode;
+	(void) library;
+	return dlopen(monetdb_lib_path, RTLD_NOW | RTLD_LOCAL);
+#endif
+
 }
+
 
 #else /* WIN32 native */
 
@@ -910,51 +906,6 @@ MT_msync(void *p, size_t len)
 	return 0;
 }
 
-#ifndef _HEAPOK			/* MinGW */
-#define _HEAPEMPTY      (-1)
-#define _HEAPOK         (-2)
-#define _HEAPBADBEGIN   (-3)
-#define _HEAPBADNODE    (-4)
-#define _HEAPEND        (-5)
-#define _HEAPBADPTR     (-6)
-#endif
-
-struct Mallinfo
-MT_mallinfo(void)
-{
-	struct Mallinfo _ret;
-	_HEAPINFO hinfo;
-	int heapstatus;
-
-	hinfo._pentry = NULL;
-	memset(&_ret, 0, sizeof(_ret));
-
-	while ((heapstatus = _heapwalk(&hinfo)) == _HEAPOK) {
-		_ret.arena += hinfo._size;
-		if (hinfo._size > MT_SMALLBLOCK) {
-			_ret.smblks++;
-			if (hinfo._useflag == _USEDENTRY) {
-				_ret.usmblks += hinfo._size;
-			} else {
-				_ret.fsmblks += hinfo._size;
-			}
-		} else {
-			_ret.ordblks++;
-			if (hinfo._useflag == _USEDENTRY) {
-				_ret.uordblks += hinfo._size;
-			} else {
-				_ret.fordblks += hinfo._size;
-			}
-		}
-	}
-	if (heapstatus == _HEAPBADPTR || heapstatus == _HEAPBADBEGIN || heapstatus == _HEAPBADNODE) {
-
-		fprintf(stderr, "#mallinfo(): heap is corrupt.");
-	}
-	_heapmin();
-	return _ret;
-}
-
 int
 MT_path_absolute(const char *pathname)
 {
@@ -1048,6 +999,8 @@ reduce_dir_name(const char *src, char *dst, size_t cap)
 
 	if (len >= cap)
 		buf = malloc(len + 1);
+	if (buf == NULL)
+		return NULL;
 	while (--len > 0 && src[len - 1] != ':' && src[len] == DIR_SEP)
 		;
 	for (buf[++len] = 0; len > 0; buf[len] = src[len])
@@ -1176,4 +1129,8 @@ MT_sleep_ms(unsigned int ms)
 	Sleep(ms);
 }
 
+#endif
+
+#ifdef HAVE_EMBEDDED_R
+char* monetdb_lib_path = NULL;
 #endif

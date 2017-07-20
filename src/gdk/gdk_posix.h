@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
  */
 
 #ifndef GDK_POSIX_H
@@ -12,7 +12,7 @@
 #include <sys/types.h>
 
 #ifdef HAVE_MALLOC_H
-# include <malloc.h>		/* mallopt, mallinfo, and  malloc, free etc. */
+# include <malloc.h>
 #endif
 
 #ifdef HAVE_FTIME
@@ -63,22 +63,6 @@
 #define M_KEEP		4	/* retain contents of block after a free */
 				/* until another allocation */
 #endif
-
-/* our version of struct mallinfo */
-struct Mallinfo {
-	size_t arena;		/* total space in arena */
-	size_t ordblks;		/* number of ordinary blocks */
-	size_t smblks;		/* number of small blocks */
-	size_t hblks;		/* number of holding blocks */
-	size_t hblkhd;		/* space in holding block headers */
-	size_t usmblks;		/* space in small blocks in use */
-	size_t fsmblks;		/* space in free small blocks */
-	size_t uordblks;	/* space in ordinary blocks in use */
-	size_t fordblks;	/* space in free ordinary blocks */
-	size_t keepcost;	/* cost of enabling keep option */
-};
-
-gdk_export struct Mallinfo MT_mallinfo(void);
 
 /*
  * @- locking, sleep
@@ -179,6 +163,8 @@ gdk_export void MT_sleep_ms(unsigned int ms);
 gdk_export size_t MT_getrss(void);
 
 gdk_export void *MT_mmap(const char *path, int mode, size_t len);
+gdk_export void *MT_mmap_addr(const char *path, int mode, size_t len, void* addr);
+
 gdk_export int MT_munmap(void *p, size_t len);
 
 gdk_export int MT_path_absolute(const char *path);
@@ -234,5 +220,11 @@ gdk_export int win_mkdir(const char *, const int mode);
 #define unlink		win_unlink
 
 #endif	/* NATIVE_WIN32 */
+
+
+#ifdef HAVE_EMBEDDED_R
+	gdk_export char* monetdb_lib_path;
+#endif
+
 
 #endif /* GDK_POSIX_H */

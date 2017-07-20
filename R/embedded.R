@@ -2,12 +2,6 @@ monetdb_embedded_env <- new.env(parent=emptyenv())
 monetdb_embedded_env$is_started <- FALSE
 monetdb_embedded_env$started_dir <- ""
 
-libfilename <- "libmonetdb5"
-
-.onLoad <- function(libname, pkgname){
-	library.dynam(libfilename, pkgname, lib.loc=libname, now=T, local=F)
-}
-
 classname <- "monetdb_embedded_connection"
 
 monetdb_embedded_startup <- function(dir=tempdir(), quiet=TRUE, sequential=TRUE) {
@@ -24,16 +18,16 @@ monetdb_embedded_startup <- function(dir=tempdir(), quiet=TRUE, sequential=TRUE)
 	}
 	dir <- normalizePath(dir, mustWork=T)
 	if (!monetdb_embedded_env$is_started) {
-		res <- .Call("monetdb_startup_R", dir, quiet, 
-			getOption('monetdb.squential', sequential), PACKAGE=libfilename)
+		res <- .Call(monetdb_startup_R, dir, quiet, 
+			getOption('monetdb.squential', sequential))
 	} else {
 		if (dir != monetdb_embedded_env$started_dir) {
-			stop("MonetDBLite cannot change database directories (already started in ", monetdb_embedded_env$started_dir, ", shutdown first).")
+			stop("MonetDBLite cannot change database directories\n(already started in ", monetdb_embedded_env$started_dir, ",\nshutdown with `DBI::dbDisconnect(con, shutdown=TRUE)` or `MonetDBLite::monetdblite_shutdown()` first).")
 		}
 		return(invisible(TRUE))
 	}
 	if (is.character(res)) {
-		stop("Failed to initialize embedded MonetDB ", res)
+		stop("Failed to initialize embedded MonetDB ", gsub("\n", " ", res, fixed=TRUE))
 	}
 	monetdb_embedded_env$is_started <- TRUE
 	monetdb_embedded_env$started_dir <- dir
@@ -41,9 +35,18 @@ monetdb_embedded_startup <- function(dir=tempdir(), quiet=TRUE, sequential=TRUE)
 }
 
 monetdb_embedded_query <- function(conn, query, execute=TRUE, resultconvert=TRUE) {
+	if (!inherits(conn, classname)) {
+		stop("Invalid connection")
+	}
 	query <- as.character(query)
 	if (length(query) != 1) {
 		stop("Need a single query as parameter.")
+	}
+	if (!monetdb_embedded_env$is_started) {
+		stop("Call monetdb_embedded_startup() first")
+	}
+	if (!dir.exists(file.path(monetdb_embedded_env$started_dir, "bat"))) {
+		stop("Someone killed all the BATs! Call Brigitte Bardot!")
 	}
 	execute <- as.logical(execute)
 	if (length(execute) != 1) {
@@ -53,24 +56,27 @@ monetdb_embedded_query <- function(conn, query, execute=TRUE, resultconvert=TRUE
 	if (length(resultconvert) != 1) {
 		stop("Need a single resultconvert flag as parameter.")
 	}
-	if (!inherits(conn, classname)) {
-		stop("Invalid connection")
-	}
 	# make sure the query is terminated
 	query <- paste(query, "\n;", sep="")
-	res <- .Call("monetdb_query_R", conn, query, execute, resultconvert, PACKAGE=libfilename)
+	res <- .Call(monetdb_query_R, conn, query, execute, resultconvert, interactive() && getOption("monetdb.progress", FALSE))
 
 	resp <- list()
 	if (is.character(res)) { # error
 		resp$type <- "!" # MSG_MESSAGE
-		resp$message <- res
+		resp$message <- gsub("\n", " ", res, fixed=TRUE)
 	}
-	if (is.logical(res)) { # no result set, but successful
+	if (is.numeric(res)) { # no result set, but successful
 		resp$type <- 2 # Q_UPDATE
+		resp$rows <- res
 	}
 	if (is.list(res)) {
 		resp$type <- 1 # Q_TABLE
-		attr(res, "row.names") <- c(NA_integer_, length(res[[1]]))
+		if ("__prepare" %in% names(attributes(res))) {
+			resp$type <- Q_PREPARE
+			resp$prepare = attr(res, "__prepare")
+			attr(res, "__prepare") <- NULL
+		}
+		attr(res, "row.names") <- c(NA_integer_, as.integer(-1 * attr(res, "__rows")))
   		class(res) <- "data.frame"
 		names(res) <- gsub("\\", "", names(res), fixed=T)
 		resp$tuples <- res
@@ -81,7 +87,15 @@ monetdb_embedded_query <- function(conn, query, execute=TRUE, resultconvert=TRUE
 monetdb_embedded_append <- function(conn, table, tdata, schema="sys") {
 	table <- as.character(table)
 	table <- gsub("(^\"|\"$)", "", table)
-	
+	if (!inherits(conn, classname)) {
+		stop("Invalid connection")
+	}
+	if (!monetdb_embedded_env$is_started) {
+		stop("Call monetdb_embedded_startup() first")
+	}
+	if (!dir.exists(file.path(monetdb_embedded_env$started_dir, "bat"))) {
+		stop("Someone killed all the BATs! Call Brigitte Bardot!")
+	}
 	if (length(table) != 1) {
 		stop("Need a single table name as parameter.")
 	}
@@ -92,10 +106,9 @@ monetdb_embedded_append <- function(conn, table, tdata, schema="sys") {
 	if (!is.data.frame(tdata)) {
 		stop("Need a data frame as tdata parameter.")
 	}
-	if (!inherits(conn, classname)) {
-		stop("Invalid connection")
-	}
-	.Call("monetdb_append_R", conn, schema, table, tdata, PACKAGE=libfilename)
+	
+	.Call(monetdb_append_R, conn, schema, table, tdata)
+
 }
 
 
@@ -103,7 +116,8 @@ monetdb_embedded_connect <- function() {
 	if (!monetdb_embedded_env$is_started) {
 		stop("Call monetdb_embedded_startup() first")
 	}
-	conn <- .Call("monetdb_connect_R", PACKAGE=libfilename)
+	conn <- .Call(monetdb_connect_R)
+
 	class(conn) <- classname
 	return(conn)
 }
@@ -112,14 +126,20 @@ monetdb_embedded_disconnect <- function(conn) {
 	if (!inherits(conn, classname)) {
 		stop("Invalid connection")
 	}
-	.Call("monetdb_disconnect_R", conn,  PACKAGE=libfilename)
+	.Call(monetdb_disconnect_R, conn)
+
 	invisible(TRUE)
 }
 
-monetdb_embedded_shutdown <- function() {
-	.Call("monetdb_shutdown_R", PACKAGE=libfilename)
+monetdb_embedded_shutdown <- monetdblite_shutdown <- function() {
+    gc()	
+        
+	if (monetdb_embedded_env$started_dir != "" && !dir.exists(monetdb_embedded_env$started_dir)) {
+		stop("Somehow the database directory went missing ", monetdb_embedded_env$started_dir)
+	}
+	.Call(monetdb_shutdown_R)
+
 	monetdb_embedded_env$is_started <- FALSE
 	monetdb_embedded_env$started_dir <- ""
 	invisible(TRUE)
 }
-

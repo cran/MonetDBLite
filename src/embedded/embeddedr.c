@@ -3,6 +3,14 @@
 #ifdef HAVE_EMBEDDED_R
 #include "embeddedr.h"
 #include "R_ext/Random.h"
+#include "R_ext/Rallocators.h"
+#include <R_ext/Rdynload.h>
+#include <R_ext/Connections.h>
+#include <R_ext/Parse.h>
+
+#include <Rdefines.h>
+#include <Rinternals.h>
+
 #include "monet_options.h"
 #include "mal.h"
 #include "mmath.h"
@@ -11,66 +19,183 @@
 #include "sql_scenario.h"
 #include "gdk_utils.h"
 
+#include "locale.h"
+
+
+/* we need the BAT-SEXP-BAT conversion in two places, here and in RAPI */
+#include "converters.c.h"
+
 int embedded_r_rand(void) {
 	int ret;
 	ret = (int) (unif_rand() * RAND_MAX);
 	return ret;
 }
 
+static SEXP monetdb_error_R(char* err) {
+	SEXP retChr = NULL, retVec = NA_STRING;
+	if (!err) {
+		return retVec;
+	}
+	PROTECT(retChr = RSTR(err));
+	if (retChr) {
+		retVec = ScalarString(retChr);
+	}
+	GDKfree(err);
+	UNPROTECT(1);
+	return retVec;
+}
 
-/* we need the BAT-SEXP-BAT conversion in two places, here and in RAPI */
-#include "converters.c.h"
+static char* monetdb_progress_boxchar = "#";
+static char* monetdb_progress_barchar = "_";
+static size_t monetdb_progress_width = 0;
 
-SEXP monetdb_query_R(SEXP connsexp, SEXP querysexp, SEXP executesexp, SEXP resultconvertsexp) {
+
+static void printf_str_repeat(char* str, size_t n) {
+	size_t plen = strlen(str), i;
+	char *buf = malloc(n * plen + 1);
+	if (!buf) {
+		return;
+	}
+	for (i = 0; i < n; i++) {
+		memcpy(buf + plen * i, str, plen);
+	}
+	buf[n * plen] = '\0';
+	REprintf("%s", buf);
+	free(buf);
+}
+
+static int monetdb_progress_R(void* conn, void* data, size_t num_statements, size_t num_completed_statement, float percentage_done) {
+	size_t barwidth = monetdb_progress_width - 7;
+	size_t bars = (size_t) round(barwidth * percentage_done);
+	long ts = 0;
+
+	(void) conn;
+	(void) data;
+	(void) num_statements;
+	(void) num_completed_statement;
+
+	if (!data) {
+		return 0;
+	}
+	ts = *((long*) data);
+	if (ts <= 0) {
+		*((long*) data) = GDKusec();
+		return 0;
+	}
+	if ((GDKusec() - ts) < 500000) {
+		return 0;
+	}
+	printf_str_repeat("\b", monetdb_progress_width);
+	if (num_completed_statement >= num_statements) {
+		printf_str_repeat(" ", monetdb_progress_width);
+		printf_str_repeat("\b", monetdb_progress_width);
+		return 0;
+	}
+
+	printf_str_repeat(monetdb_progress_boxchar, bars);
+	printf_str_repeat(monetdb_progress_barchar, barwidth - bars);
+	REprintf(" %3i%% ", (int) (percentage_done*100));
+	return 0;
+}
+
+
+
+SEXP monetdb_query_R(SEXP connsexp, SEXP querysexp, SEXP executesexp, SEXP resultconvertsexp, SEXP progressbarsexp) {
 	res_table* output = NULL;
+	long affected_rows = 0, prepare_id = 0;
 	char* err = NULL;
+	void* connptr = R_ExternalPtrAddr(connsexp);
 	GetRNGstate();
-	err = monetdb_query(R_ExternalPtrAddr(connsexp),
-			(char*)CHAR(STRING_ELT(querysexp, 0)), LOGICAL(executesexp)[0], (void**)&output);
+	monetdb_unregister_progress(connptr);
+	if (LOGICAL(progressbarsexp)[0]) {
+		void* tsdata = malloc(sizeof(long));
+		if (!tsdata) {
+			return monetdb_error_R("Memory allocation failed");
+		}
+		monetdb_progress_width = Rf_GetOptionWidth();
+		if (monetdb_progress_width < 20) {
+			monetdb_progress_width = 80;
+		}
+		monetdb_register_progress(connptr, monetdb_progress_R, tsdata);
+	}
+	err = monetdb_query(connptr,
+			(char*)CHAR(STRING_ELT(querysexp, 0)), LOGICAL(executesexp)[0], (void**)&output, &affected_rows, &prepare_id);
 	if (err) { // there was an error
 		PutRNGstate();
-		return ScalarString(mkCharCE(err, CE_UTF8));
+		return monetdb_error_R(err);
 	}
+
 	if (output && output->nr_cols > 0) {
-		int i, ncols = output->nr_cols;
-		SEXP retlist, names, varvalue = R_NilValue;
-		retlist = PROTECT(allocVector(VECSXP, ncols));
-		names = PROTECT(NEW_STRING(ncols));
-		SET_ATTR(retlist, install("__rows"),
-			Rf_ScalarReal(BATcount(BATdescriptor(output->cols[0].b))));
+		int i = 0, ncols = output->nr_cols;
+		ssize_t nrows = -1;
+		SEXP retlist = NULL, names = NULL;
+		PROTECT(retlist = allocVector(VECSXP, ncols));
+		if (!retlist) {
+			UNPROTECT(1);
+			return monetdb_error_R("Memory allocation failed");
+		}
+		PROTECT(names = NEW_STRING(ncols));
+		if (!names) {
+			UNPROTECT(2);
+			return monetdb_error_R("Memory allocation failed");
+		}
+
 		for (i = 0; i < ncols; i++) {
 			BAT* b = BATdescriptor(output->cols[i].b);
+			SEXP varvalue = NULL;
+			SEXP varname = PROTECT(RSTR(output->cols[i].name));
+			int unfix = 1;
+			if (!varname) {
+				UNPROTECT(i * 2 + 3);
+				return monetdb_error_R("Memory allocation failed");
+			}
+			if (nrows < 0) {
+				nrows = BATcount(b);
+			}
 			if (!LOGICAL(resultconvertsexp)[0]) {
 				BATsetcount(b, 0); // hehe
 			}
-			if (!(varvalue = bat_to_sexp(b))) {
-				UNPROTECT(i + 3);
+			if (!(varvalue = bat_to_sexp(b, &output->cols[i].type, &unfix))) {
+				UNPROTECT(i * 2 + 4);
 				PutRNGstate();
-				return ScalarString(mkCharCE("Conversion error", CE_UTF8));
+				return monetdb_error_R("Conversion error");
 			}
-			SET_STRING_ELT(names, i, mkCharCE(output->cols[i].name, CE_UTF8));
 			SET_VECTOR_ELT(retlist, i, varvalue);
+			SET_STRING_ELT(names, i, varname);
+			if (unfix) {
+				BBPunfix(b->batCacheid);
+			}
 		}
+		SET_ATTR(retlist, install("__rows"), Rf_ScalarReal(nrows));
+		if (prepare_id > 0) {
+			SET_ATTR(retlist, install("__prepare"), Rf_ScalarReal(prepare_id));
+		}
+
 		monetdb_cleanup_result(R_ExternalPtrAddr(connsexp), output);
 		SET_NAMES(retlist, names);
-		UNPROTECT(ncols + 2);
+		UNPROTECT(ncols * 2 + 2);
 		PutRNGstate();
 		return retlist;
 	}
 	PutRNGstate();
-	return ScalarLogical(1);
+	return ScalarReal(affected_rows);
 }
 
 SEXP monetdb_startup_R(SEXP dbdirsexp, SEXP silentsexp, SEXP sequentialsexp) {
 	char* res = NULL;
 
-	if (monetdb_embedded_initialized) {
-		return ScalarLogical(0);
+	char* locale = setlocale(LC_ALL, NULL);
+	if (locale && (strstr(locale, "UTF-8") != 0 || strstr(locale, "UTF8") != 0 ||
+			strstr(locale, "utf-8") != 0 || strstr(locale, "utf8") != 0)) {
+
+		monetdb_progress_boxchar = "\xE2\x96\x88";
+		monetdb_progress_barchar = "\xE2\x96\x91";
 	}
 
-#if defined(WIN32) && !defined(_WIN64)
-	Rf_warning("MonetDBLite running in a 32-Bit Windows. This is not recommended.");
-#endif
+	if (monetdb_is_initialized()) {
+		error("MonetDBLite already initialized");
+	}
+
 	GetRNGstate();
 	res = monetdb_startup((char*) CHAR(STRING_ELT(dbdirsexp, 0)),
 		LOGICAL(silentsexp)[0], LOGICAL(sequentialsexp)[0]);
@@ -78,7 +203,7 @@ SEXP monetdb_startup_R(SEXP dbdirsexp, SEXP silentsexp, SEXP sequentialsexp) {
 	if (!res) {
 		return ScalarLogical(1);
 	}  else {
-		return ScalarString(mkCharCE(res, CE_UTF8));
+		return monetdb_error_R(res);
 	}
 }
 
@@ -106,7 +231,7 @@ SEXP monetdb_append_R(SEXP connsexp, SEXP schemasexp, SEXP namesexp, SEXP tabled
 		goto wrapup;
 
 	if (t_column_count != col_ct) {
-		msg = GDKstrdup("Unequal number of columns"); // TODO: add counts here
+		msg = GDKstrdup("Unequal number of columns");
 		goto wrapup;
 	}
 
@@ -114,8 +239,13 @@ SEXP monetdb_append_R(SEXP connsexp, SEXP schemasexp, SEXP namesexp, SEXP tabled
 	assert(ad);
 
 	for (i = 0; i < col_ct; i++) {
+		const char* df_colname = CHAR(STRING_ELT(GET_NAMES(tabledatasexp), i));
 		SEXP ret_col = VECTOR_ELT(tabledatasexp, i);
 		int bat_type = t_column_types[i];
+		if (strcmp(df_colname, t_column_names[i]) != 0) {
+			msg = createException(MAL, "embedded", "Append column name mismatch %s <> %s ", t_column_names[i], df_colname);
+			goto wrapup;
+		}
 		b = sexp_to_bat(ret_col, bat_type);
 		if (b == NULL) {
 			msg = createException(MAL, "embedded", "Could not convert column %i %s to type %i ", i, t_column_names[i], bat_type);
@@ -129,6 +259,9 @@ SEXP monetdb_append_R(SEXP connsexp, SEXP schemasexp, SEXP namesexp, SEXP tabled
 
 	wrapup:
 		PutRNGstate();
+		if (ad) {
+			GDKfree(ad);
+		}
 		if (t_column_names) {
 			GDKfree(t_column_names);
 		}
@@ -138,7 +271,17 @@ SEXP monetdb_append_R(SEXP connsexp, SEXP schemasexp, SEXP namesexp, SEXP tabled
 		if (!msg) {
 			return ScalarLogical(1);
 		}
-		return ScalarString(mkCharCE(msg, CE_UTF8));
+		return monetdb_error_R(msg);
+}
+
+static SEXP monetdb_finalize_R(SEXP connsexp) {
+	void* addr = R_ExternalPtrAddr(connsexp);
+	if (R_ExternalPtrAddr(connsexp)) {
+		warning("Connection is garbage-collected, use dbDisconnect() to avoid this.");
+		monetdb_disconnect(addr);
+		R_ClearExternalPtr(connsexp);
+	}
+	return R_NilValue;
 }
 
 
@@ -148,8 +291,11 @@ SEXP monetdb_connect_R(void) {
 	if (!llconn) {
 		error("Could not create connection.");
 	}
+	monetdb_register_progress(llconn, monetdb_progress_R, NULL);
+
 	conn = PROTECT(R_MakeExternalPtr(llconn, R_NilValue, R_NilValue));
-	R_RegisterCFinalizer(conn, (void (*)(SEXP)) monetdb_disconnect_R);
+	R_RegisterCFinalizer(conn, (void (*)(SEXP)) monetdb_finalize_R);
+
 	UNPROTECT(1);
 	return conn;
 }
@@ -159,6 +305,8 @@ SEXP monetdb_disconnect_R(SEXP connsexp) {
 	if (addr) {
 		monetdb_disconnect(addr);
 		R_ClearExternalPtr(connsexp);
+	} else {
+		warning("Connection was already disconnected.");
 	}
 	return R_NilValue;
 }
@@ -167,4 +315,28 @@ SEXP monetdb_shutdown_R(void) {
 	monetdb_shutdown();
 	return R_NilValue;
 }
+
+// ehem
+#include "mapisplit-r.h"
+
+// R native routine registration
+#define CALLDEF(name, n)  {#name, (DL_FUNC) &name, n}
+static const R_CallMethodDef R_CallDef[] = {
+   CALLDEF(monetdb_startup_R, 3),
+   CALLDEF(monetdb_connect_R, 0),
+   CALLDEF(monetdb_query_R, 5),
+   CALLDEF(monetdb_append_R, 4),
+   CALLDEF(monetdb_disconnect_R, 1),
+   CALLDEF(monetdb_shutdown_R, 0),
+   CALLDEF(mapi_split, 2),
+   {NULL, NULL, 0}
+};
+
+void R_init_libmonetdb5(DllInfo *dll) {
+	monetdb_lib_path = strdup(*((char**) dll)); // not evil at all
+	R_registerRoutines(dll, NULL, R_CallDef, NULL, NULL);
+	R_useDynamicSymbols(dll, FALSE);
+}
+
+
 #endif

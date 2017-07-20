@@ -3,12 +3,12 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
  */
 
 /*
  * (author) M. Kersten
- * For documentation see website
+ * An include file name is also used as library name
  */
 #include "monetdb_config.h"
 #include "mal_module.h"
@@ -32,11 +32,10 @@
 #define close _close
 #endif
 
-static int noDlopen;
-#define MAXMODULES 512
+#define MAXMODULES 128
 
 typedef struct{
-	str filename;
+	str modname;
 	str fullname;
 	void **handle;
 } FileRecord;
@@ -45,26 +44,33 @@ static FileRecord filesLoaded[MAXMODULES];
 static int maxfiles = MAXMODULES;
 static int lastfile = 0;
 
+/*
+ * returns 1 if the file exists
+ */
+#ifndef F_OK
+#define F_OK 0
+#endif
+#ifdef _MSC_VER
+#define access(f, m)	_access(f, m)
+#endif
+static inline int
+fileexists(const char *path)
+{
+	return access(path, F_OK) == 0;
+}
+
 /* Search for occurrence of the function in the library identified by the filename.  */
 MALfcn
-getAddress(stream *out, str filename, str modnme, str fcnname, int silent)
+getAddress(stream *out, str modname, str fcnname, int silent)
 {
 	void *dl;
 	MALfcn adr;
-	static int idx=0;
+	int idx=0;
 	static int prev= -1;
 
-	(void) modnme;
+	/* First try the last module loaded */
 	if( prev >= 0){
-		adr = (MALfcn) dlsym(filesLoaded[prev].handle, fcnname);
-		if( adr != NULL)
-			return adr; /* found it */
-	}
-	if( prev >= 0 && filename &&
-			filesLoaded[prev].filename &&
-			strcmp(filename, filesLoaded[prev].filename) == 0) {
-
-		adr = (MALfcn) dlsym(filesLoaded[prev].handle, fcnname);
+		adr = (MALfcn) (intptr_t) dlsym(filesLoaded[prev].handle, fcnname);
 		if( adr != NULL)
 			return adr; /* found it */
 	}
@@ -75,8 +81,10 @@ getAddress(stream *out, str filename, str modnme, str fcnname, int silent)
 	 * obtained from the source-file MAL script.
 	 */
 	for (idx =0; idx < lastfile; idx++)
-		if (filesLoaded[idx].handle) {
-			adr = (MALfcn) dlsym(filesLoaded[idx].handle, fcnname);
+		if (idx != prev &&		/* skip already searched module */
+			filesLoaded[idx].handle &&
+			(idx == 0 || filesLoaded[idx].handle != filesLoaded[0].handle)) {
+			adr = (MALfcn) (intptr_t) dlsym(filesLoaded[idx].handle, fcnname);
 			if (adr != NULL)  {
 				prev = idx;
 				return adr; /* found it */
@@ -97,13 +105,13 @@ getAddress(stream *out, str filename, str modnme, str fcnname, int silent)
 		if (!silent)
 			showException(out, MAL, "MAL.getAddress",
 						  "address of '%s.%s' not found",
-						  (modnme?modnme:"<unknown>"), fcnname);
+						  (modname?modname:"<unknown>"), fcnname);
 		return NULL;
 	}
 
-	adr = (MALfcn) dlsym(dl, fcnname);
-	filesLoaded[lastfile].filename = GDKstrdup("libmonetdb5");
-	filesLoaded[lastfile].fullname = "libmonetdb5";
+	adr = (MALfcn) (intptr_t) dlsym(dl, fcnname);
+	filesLoaded[lastfile].modname = GDKstrdup("libmonetdb5");
+	filesLoaded[lastfile].fullname = GDKstrdup("libmonetdb5");
 	filesLoaded[lastfile].handle = dl;
 	lastfile ++;
 	if(adr != NULL)
@@ -111,7 +119,7 @@ getAddress(stream *out, str filename, str modnme, str fcnname, int silent)
 
 	if (!silent)
 		showException(out, MAL,"MAL.getAddress", "address of '%s.%s' not found",
-			(modnme?modnme:"<unknown>"), fcnname);
+			(modname?modname:"<unknown>"), fcnname);
 	return NULL;
 }
 /*
@@ -131,19 +139,6 @@ getAddress(stream *out, str filename, str modnme, str fcnname, int silent)
  * already loaded.
  */
 
-int
-isLoaded(str modulename)
-{
-	int idx;
-
-	for (idx = 0; idx < lastfile; idx++)
-		if (filesLoaded[idx].filename &&
-		    strcmp(filesLoaded[idx].filename, modulename) == 0) {
-			return 1;
-		}
-	return 0;
-}
-
 str
 loadLibrary(str filename, int flag)
 {
@@ -161,8 +156,8 @@ loadLibrary(str filename, int flag)
 #endif
 
 	for (idx = 0; idx < lastfile; idx++)
-		if (filesLoaded[idx].filename &&
-		    strcmp(filesLoaded[idx].filename, filename) == 0)
+		if (filesLoaded[idx].modname &&
+		    strcmp(filesLoaded[idx].modname, filename) == 0)
 			/* already loaded */
 			return MAL_SUCCEED;
 
@@ -199,12 +194,18 @@ loadLibrary(str filename, int flag)
 				 mod_path, DIR_SEP, SO_PREFIX, s, SO_EXT);
 #endif
 		handle = dlopen(nme, mode);
+		if (handle == NULL && fileexists(nme)) {
+			throw(LOADER, "loadLibrary", RUNTIME_LOAD_ERROR " failed to open library %s (from within file '%s'): %s", s, nme, dlerror());
+		}
 		if (handle == NULL && strcmp(SO_EXT, ".so") != 0) {
 			/* try .so */
 			snprintf(nme, PATHLENGTH, "%.*s%c%s_%s.so",
 					 (int) (p - mod_path),
 					 mod_path, DIR_SEP, SO_PREFIX, s);
 			handle = dlopen(nme, mode);
+			if (handle == NULL && fileexists(nme)) {
+				throw(LOADER, "loadLibrary", RUNTIME_LOAD_ERROR " failed to open library %s (from within file '%s'): %s", s, nme, dlerror());
+			}
 		}
 #ifdef __APPLE__
 		if (handle == NULL && strcmp(SO_EXT, ".bundle") != 0) {
@@ -213,6 +214,9 @@ loadLibrary(str filename, int flag)
 					 (int) (p - mod_path),
 					 mod_path, DIR_SEP, SO_PREFIX, s);
 			handle = dlopen(nme, mode);
+			if (handle == NULL && fileexists(nme)) {
+				throw(LOADER, "loadLibrary", RUNTIME_LOAD_ERROR " failed to open library %s (from within file '%s'): %s", s, nme, dlerror());
+			}
 		}
 #endif
 
@@ -232,7 +236,7 @@ loadLibrary(str filename, int flag)
 			dlclose(handle);
 		showException(GDKout, MAL,"loadModule", "internal error, too many modules loaded");
 	} else {
-		filesLoaded[lastfile].filename = GDKstrdup(filename);
+		filesLoaded[lastfile].modname = GDKstrdup(filename);
 		filesLoaded[lastfile].fullname = GDKstrdup(handle ? nme : "");
 		filesLoaded[lastfile].handle = handle ? handle : filesLoaded[0].handle;
 		lastfile ++;
@@ -256,57 +260,14 @@ mal_linker_reset(void)
 	for (i = 0; i < lastfile; i++){
 		if (filesLoaded[i].fullname) {
 			/* dlclose(filesLoaded[i].handle);*/
-			if (filesLoaded[i].filename) GDKfree(filesLoaded[i].filename);
+			GDKfree(filesLoaded[i].modname);
+			GDKfree(filesLoaded[i].fullname);
 		}
-		filesLoaded[i].filename = NULL;
+		filesLoaded[i].modname = NULL;
 		filesLoaded[i].fullname = NULL;
 	}
 	lastfile = 0;
 	MT_lock_unset(&mal_contextLock);
-}
-/*
- * To speedup restart and to simplify debugging, the MonetDB server can
- * be statically linked with some (or all) of the modules libraries.
- * A complicating factor is then to avoid users to initiate another load
- * of the module file, because it would lead to a @code{dlopen()} error.
- *
- * The partial way out of this dilema is to administer somewhere
- * the statically bound modules, or to enforce that each module
- * comes with a known routine for which we can search.
- * In the current version we use the former approach.
- *
- * The routine below turns off dynamic loading while parsing the
- * command signature files.
- */
-static str preloaded[] = {
-	"kernel/bat",
-	0
-};
-
-int
-isPreloaded(str nme)
-{
-	int i;
-
-	for (i = 0; preloaded[i]; i++)
-		if (strcmp(preloaded[i], nme) == 0)
-			return 1;
-	return 0;
-}
-
-void
-initLibraries(void)
-{
-	int i;
-	str msg;
-
-	noDlopen = TRUE;
-	if(noDlopen == FALSE)
-	for(i=0;preloaded[i];i++) {
-	    msg = loadLibrary(preloaded[i],FALSE);
-		if ( msg )
-			mnstr_printf(GDKerr,"#%s\n",msg);
-	}
 }
 
 /*
@@ -359,10 +320,14 @@ locate_file(const char *basename, const char *ext, bit recurse)
 			i = strlen(mod_path);
 		}
 		while (i + filelen + 2 > fullnamelen) {
+			char *tmp;
 			fullnamelen += 512;
-			fullname = GDKrealloc(fullname, fullnamelen);
-			if (fullname == NULL)
+			tmp = GDKrealloc(fullname, fullnamelen);
+			if (tmp == NULL) {
+				GDKfree(fullname);
 				return NULL;
+			}
+			fullname = tmp;
 		}
 		/* we are now sure the directory name, file
 		   base name, extension, and separator fit
@@ -397,9 +362,13 @@ locate_file(const char *basename, const char *ext, bit recurse)
 			(void)closedir(rdir);
 		} else {
 			strcat(fullname + i + 1, ext);
-			if ((fd = open(fullname, O_RDONLY)) >= 0) {
+			if ((fd = open(fullname, O_RDONLY | O_CLOEXEC)) >= 0) {
+				char *tmp;
 				close(fd);
-				return GDKrealloc(fullname, strlen(fullname) + 1);
+				tmp = GDKrealloc(fullname, strlen(fullname) + 1);
+				if (tmp == NULL)
+					GDKfree(fullname);
+				return tmp;
 			}
 		}
 		if ((mod_path = p) == NULL)
@@ -410,15 +379,17 @@ locate_file(const char *basename, const char *ext, bit recurse)
 	if (lasts > 0) {
 		size_t i = 0;
 		int c;
+		char *tmp;
 		/* assure that an ordering such as 10_first, 20_second works */
 		qsort(strs, lasts, sizeof(char *), cmpstr);
 		for (c = 0; c < lasts; c++)
 			i += strlen(strs[c]) + 1; /* PATH_SEP or \0 */
-		fullname = GDKrealloc(fullname, i);
-		if( fullname == NULL){
-			GDKerror("locate_file" MAL_MALLOC_FAIL);
+		tmp = GDKrealloc(fullname, i);
+		if( tmp == NULL){
+			GDKfree(fullname);
 			return NULL;
 		}
+		fullname = tmp;
 		i = 0;
 		for (c = 0; c < lasts; c++) {
 			if (strstr(fullname, strs[c]) == NULL) {
@@ -446,4 +417,34 @@ MSP_locate_sqlscript(const char *filename, bit recurse)
 {
 	/* no directory semantics (yet) */
 	return locate_file(filename, SQL_EXT, recurse);
+}
+
+
+int
+malLibraryEnabled(str name) {
+	if (strcmp(name, "pyapi") == 0) {
+		char *val = GDKgetenv("embedded_py");
+		if (val && (strcasecmp(val, "2") == 0 || GDKgetenv_istrue("embedded_py") || GDKgetenv_istrue("embedded_py"))) {
+			return true;
+		}
+		return false;
+	} else if (strcmp(name, "pyapi3") == 0) {
+		char *val = GDKgetenv("embedded_py");
+		if (val && strcasecmp(val, "3") == 0) {
+			return true;
+		}
+		return false;
+	}
+	return true;
+}
+
+char*
+malLibraryHowToEnable(str name) {
+	if (strcmp(name, "pyapi") == 0) {
+		return "Embedded Python 2 has not been enabled. Start server with --set embedded_py=2";
+	}
+	if (strcmp(name, "pyapi3") == 0) {
+		return "Embedded Python 3 has not been enabled. Start server with --set embedded_py=3";
+	}
+	return "";
 }
