@@ -46,7 +46,7 @@ dnl  configure file, whereas comments starting with dnl are elided
 dnl  (including their trailing newline).
 
 AC_PREREQ([2.63])
-AC_INIT([MonetDB], [11.27.2], [https://bugs.monetdb.org/], [MonetDB], [https://www.monetdb.org/])
+AC_INIT([MonetDB], [11.27.4], [https://bugs.monetdb.org/], [MonetDB], [https://www.monetdb.org/])
 AC_CONFIG_AUX_DIR([buildtools/conf])
 AC_CONFIG_MACRO_DIR([buildtools/conf])
 AC_CANONICAL_HOST
@@ -341,7 +341,7 @@ AS_CASE([$host],
 		# it disables, however, the availability of madvise, which is
 		# in use use by GDK, so we cannot just AC_DEFINE this, but
 		# rather have to enable it where it is necessary
-		MSGCONTROL_FLAGS="-D_XOPEN_SOURCE=500"
+		MSGCONTROL_FLAGS="-D_XPG4_2"
 		AC_SUBST([MSGCONTROL_FLAGS])])
 
 # (try to) determine compiler type (gcc, icc, clang) (and version)
@@ -1229,6 +1229,7 @@ AM_CONDITIONAL([HAVE_LIBZ], [test x"$have_zlib" != xno])
 
 
 
+
 PKG_CHECK_MODULES([atomic_ops], [atomic_ops], [have_atomic_ops="yes"],
 	[have_atomic_ops="no"; why_have_atomic_ops="(atomic_ops library not found)"])
 AS_VAR_IF([have_atomic_ops], [yes], [
@@ -1970,7 +1971,7 @@ echo "* Available features/extensions:"
 for comp in \
 	'atomic_ops   ' \
 	'pthread      ' \
-	'zlib         ' \
+	'zlib         '
 
 ; do
 	eval "org=\$org_have_$comp"
