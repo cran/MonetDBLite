@@ -1,11 +1,11 @@
-# MonetDBLite
+# MonetDBLite for R
 
-[![Build Status](https://travis-ci.org/hannesmuehleisen/MonetDBLite.svg?branch=master)](https://travis-ci.org/hannesmuehleisen/MonetDBLite)
-[![Build Status](https://ci.appveyor.com/api/projects/status/github/hannesmuehleisen/MonetDBLite?branch=master&svg=true)](https://ci.appveyor.com/project/hannesmuehleisen/MonetDBLite)
+[![Build Status](https://travis-ci.org/hannesmuehleisen/MonetDBLite-R.svg?branch=master)](https://travis-ci.org/hannesmuehleisen/MonetDBLite-R)
+[![Build Status](https://ci.appveyor.com/api/projects/status/github/hannesmuehleisen/MonetDBLite-R?branch=master&svg=true)](https://ci.appveyor.com/project/hannesmuehleisen/MonetDBLite-R)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/MonetDBLite)](https://CRAN.R-project.org/package=MonetDBLite) 
 [![](http://cranlogs.r-pkg.org/badges/MonetDBLite)](https://dgrtwo.shinyapps.io/cranview/)
 
-[MonetDBLite](https://www.monetdb.org/blog/monetdblite-r) is a SQL database that runs inside the [R environment for statistical computing](https://www.r-project.org/) and does not require the installation of any external software. MonetDBLite is based on free and open-source [MonetDB](https://www.monetdb.org/Home), a product of the [Centrum Wiskunde & Informatica](http://www.cwi.nl).
+[MonetDBLite](https://www.monetdb.org/blog/monetdblite-r) for R is a SQL database that runs inside the [R environment for statistical computing](https://www.r-project.org/) and does not require the installation of any external software. MonetDBLite is based on free and open-source [MonetDB](https://www.monetdb.org/Home), a product of the [Centrum Wiskunde & Informatica](http://www.cwi.nl).
 
 MonetDBLite is similar in functionality to [RSQLite](https://CRAN.R-project.org/package=RSQLite), but typically completes queries blazingly fast due to its *columnar* storage architecture and bulk query processing model.  Since both of these embedded SQL options rely on the the R [DBI](https://CRAN.R-project.org/package=DBI) interface, the conversion of legacy `RSQLite` project syntax over to `MonetDBLite` code should be a cinch.
 
@@ -20,10 +20,11 @@ MonetDBLite works seamlessly with [the dplyr grammar of data manipulation](https
     install.packages("MonetDBLite")
     ````
 
-* the latest development version from github with
+* the latest development version from github on the command line
 
-    ```R
-    devtools::install_github("hannesmuehleisen/MonetDBLite")
+    ```
+    git clone https://github.com/hannesmuehleisen/MonetDBLite-R.git --depth 1 --recursive
+    R CMD INSTALL MonetDBLite-R
     ```
 
 If you encounter a bug, please file a minimal reproducible example on [github](https://github.com/hannesmuehleisen/MonetDBLite/issues). For questions and other discussion, please use [stack overflow](http://stackoverflow.com/questions/tagged/monetdblite) with the tag `monetdblite`.  The development version of MonetDBLite endures [sisyphean perpetual testing](https://sisyphus.project.cwi.nl/) on both unix and windows machines.
@@ -32,7 +33,7 @@ If you encounter a bug, please file a minimal reproducible example on [github](h
 
 MonetDBLite outperforms all other SQL databases currently accessible by the R language and ranks competitively among other [High Performace Computing](https://CRAN.R-project.org/view=HighPerformanceComputing) options available to R users.  For more detail, see [Szilard Pafka's benchmarks](https://github.com/szilard/benchm-databases).
 
-<p align="center"><img src="https://raw.githubusercontent.com/hannesmuehleisen/MonetDBLite/master/speed_comparisons.png" width="500"></p>
+<p align="center"><img src="https://github.com/hannesmuehleisen/MonetDBLite/raw/68e422f0b2ec43758aa9e0864ef1251984ce7cfa/speed_comparisons.png" width="500"></p>
 
 
 ## Painless Startup

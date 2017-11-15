@@ -3,7 +3,13 @@ library(DBI)
 
 con <- FALSE
 tname <- "monetdbtest"
-dbfolder <- file.path(tempdir(), "dbidir")
+
+if (Sys.getenv("MONETDBLITE_INMEMORY", unset="no") == "yes") {
+	dbfolder <- ":memory:"
+} else {
+	dbfolder <- file.path(tempdir(), "dbidir")
+}
+message("test_02: using ", dbfolder)
 
 data(iris)
 
@@ -36,7 +42,6 @@ test_that("raw table creation and inserts work", {
 	expect_equal(dbReadTable(con, tname)[[1]], c("one", "two"))
 	expect_equal(dbReadTable(con, tname)[[2]], c(1, 2))
 
- # TODO: blob/date/time/decimal handling
 	dbRemoveTable(con, tname)
 	expect_false(dbExistsTable(con, tname))
 	expect_equal(length(dbListTables(con)), 0L)
@@ -117,6 +122,18 @@ test_that("csv import works", {
 	expect_false(dbExistsTable(con, tname3))
 })
 
+test_that("dbwritetable takes file connections too", {
+	tf <- tempfile()
+	write.table(iris, tf, sep=",", row.names=FALSE)
+	fc <- file(tf)
+	dbWriteTable(con, tname, fc)
+	expect_true(dbExistsTable(con, tname))
+	close(fc)
+	dbRemoveTable(con, tname)
+	expect_false(dbExistsTable(con, tname))
+})
+
+
 test_that("fwf import works", {
 	tf <- tempfile()
 	gdata::write.fwf(mtcars, tf, colnames = FALSE)
@@ -174,6 +191,25 @@ test_that("various parameters to dbWriteTable work as expected", {
 
 
 
+test_that("select * from table never uses parallelization", {
+	expect_true(dbIsValid(con))
+	dbBegin(con)
+	dbWriteTable(con, tname, data.frame(a=1:10^7))
+	expect_true(dbExistsTable(con, tname))
+	ex <- dbGetQuery(con, "explain select * from monetdbtest")
+	expect_false(grepl("packIncrement", ex$explain))
+
+	ex <- dbGetQuery(con, "explain select * from monetdbtest")
+	expect_false(grepl("packIncrement", ex$explain))
+	
+	ex <- dbGetQuery(con, "explain select * from monetdbtest")
+	expect_false(grepl("packIncrement", ex$explain))
+	dbRollback(con)
+	expect_false(dbExistsTable(con, tname))
+})
+
+
+
 like_match <- function(pattern, data, case_insensitive) {
 	dbBegin(con)
 	dbWriteTable(con, "borat", data.frame(a=data))
@@ -186,7 +222,8 @@ like_match <- function(pattern, data, case_insensitive) {
 }
 
 test_that("LIKE queries work", {
-	
+	expect_true(dbIsValid(con))
+
 	expect_true(like_match("%", "", 0))
 	expect_true(like_match("%", "asdf", 0))
 	expect_true(like_match("a%f", "asdf", 0))
@@ -297,6 +334,12 @@ test_that("we can have empty result sets", {
 })
 
 
+
+test_that("CASE and LIMIT work together correctly", {
+	res <- dbGetQuery(con, "select name, CASE WHEN (id > 1000) THEN ('A') WHEN (id > 100) THEN ('B') WHEN (TRUE) THEN ('C') END AS category  from _tables limit 10")
+	expect_true(all(vapply(res, length, integer(1)) == 10))
+})
+
 test_that("NA's survive bulk appends", {
 	dbBegin(con)
 	tdata <- as.logical(c(NA, TRUE, FALSE))
@@ -338,6 +381,8 @@ test_that("we can read sql-specific types", {
 	# TIMESTAMP
 	res <- dbGetQuery(con, "select cast(d as string) as s, d from (select cast('0050-05-24 00:00:00' as timestamp) as d union all select cast('1960-10-20 23:59:00+01:00' as timestamptz) union all select cast('1984-04-24 14:42:10' as timestamp)  union all select cast('2020-01-15 12:01' as timestamp) union all select cast('1997-07-21 09:45' as timestamp)  union all select cast(NULL as timestamp)) as ds")
 	res$d1 <- as.POSIXct(res$s, tz="UTC")
+	gc()
+	expect_equal(class(res$d), c("POSIXct", "POSIXt"))
 	expect_equal(as.character(res$d), as.character(res$d1))
 
 	# BLOB
@@ -541,6 +586,8 @@ test_that("we can disconnect", {
 	con <<- NULL
 	gc()
 })
+
+
 
 MonetDBLite:::monetdb_embedded_shutdown()
 

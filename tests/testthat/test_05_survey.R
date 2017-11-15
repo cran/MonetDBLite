@@ -3,7 +3,14 @@ library(DBI)
 library(MonetDBLite)
 library(survey)
 
-dbfolder <- file.path(tempdir(), "svydir")
+
+if (Sys.getenv("MONETDBLITE_INMEMORY", unset="no") == "yes") {
+	dbfolder <- ":memory:"
+} else {
+	dbfolder <- file.path(tempdir(), "svydir")
+}
+message("test_05: using ", dbfolder)
+
 
 test_that("db allows database-backed survey designs", {
 
@@ -42,10 +49,7 @@ test_that("db allows svyby commands", {
 
 	data(api)
 	dclus1 <- svydesign(id = ~dnum, weight=~pw,data = 'apiclus1',fpc = ~fpc, dbtype="MonetDBLite", dbname = dbfolder)
-	rclus1<-svrepdesign(data='rclus1', type="BRR", repweights="x[1-4]", combined.weights=FALSE,dbtype="MonetDBLite",dbname = dbfolder)
-
-	open(dclus1)
-	open(rclus1)
+	rclus1 <- svrepdesign(data='rclus1', type="BRR", repweights="x[1-4]", combined.weights=FALSE, dbtype="MonetDBLite",dbname = dbfolder)
 
 	expect_equal( round(SE( svyby(~api99, ~stype, dclus1, svymean) )[2],2) , 41.76 )
 	expect_equal( round( svyby(~api99, ~stype, dclus1, svyquantile, quantiles=0.5,ci=TRUE,vartype="ci")[2,3] , 3 ) , 428.481 )
@@ -72,7 +76,9 @@ test_that("db allows svyby commands", {
 	expect_true(is.na(svyby(~api00,~comp_imp+sch_wide,design=dclus1,svymean,drop.empty.groups=FALSE)[2,3]) )
 	expect_equal(round(svyby(~api00,~comp_imp+sch_wide,design=dclus1,svymean)[2,3],3),654.074)
 
-	expect_true( dbDisconnect(dclus1$db$connection) )
+	close(dclus1)
+	close(rclus1)
+
 })
 
 

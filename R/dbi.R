@@ -498,6 +498,12 @@ setMethod("dbWriteTable", signature(conn="MonetDBConnection", name = "character"
     .Deprecated("Setting parameter transaction to dbWriteTable is deprecated.")
   }
 
+  if (inherits(value, "file")) {
+    fname <- summary(value)$description
+    if (file.exists(fname)) {
+      value <- as.character(fname)
+    }
+  }
 
   if (is.character(value)) {
     monetdb.read.csv(conn=conn, files=value, tablename=name, ...)
@@ -865,7 +871,7 @@ setMethod("dbBind", "MonetDBEmbeddedResult", def = function(res, params, ...) {
     }
     , "character")
     
-    exec_str <- sprintf("EXEC %d(%s)", res@env$resp$prepare, paste0(quoted_params, collapse=","))
+    exec_str <- sprintf("EXECUTE %d(%s)", res@env$resp$prepare, paste0(quoted_params, collapse=","))
     invisible(dbSendQuery(res@env$conn, exec_str))
 })
 

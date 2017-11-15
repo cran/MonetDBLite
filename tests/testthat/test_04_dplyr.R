@@ -1,14 +1,21 @@
 library(testthat)
 library(dplyr)
 
-dbdir <- file.path(tempdir(), "dplyrdir")
+
+if (Sys.getenv("MONETDBLITE_INMEMORY", unset="no") == "yes") {
+	dbdir <- ":memory:"
+} else {
+	dbdir <- file.path(tempdir(), "dplyrdir")
+}
+message("test_04: using ", dbdir)
+
 my_db_sqlite <- FALSE
 my_db_monetdb <- FALSE
 flights_sqlite <- FALSE
 flights_monetdb <- FALSE
 
 test_that("we can connect", {
-	my_db_sqlite <<- src_sqlite(tempfile(), create = T)
+	my_db_sqlite <<- src_sqlite(":memory:", create = T)
 	my_db_monetdb <<- MonetDBLite::src_monetdblite(dbdir)
 })
 
@@ -17,13 +24,11 @@ flights$time_hour <- as.numeric( flights$time_hour )
 
 
 test_that("dplyr copy_to()", {
-
 	flights_sqlite <<- copy_to(my_db_sqlite, flights, temporary = FALSE, indexes = list(
 	  c("year", "month", "day"), "carrier", "tailnum"))
 
 	flights_monetdb <<- copy_to(my_db_monetdb, flights, temporary = FALSE, indexes = list(
 	  c("year", "month", "day"), "carrier", "tailnum"))
-
 })
 
 
@@ -169,6 +174,16 @@ test_that("dplyr summarise 2", {
 
 })
 
+
+test_that("limit and case work", {
+	data(iris)
+	names(iris) <- tolower(sub("\\.", "_", names(iris)))
+	copy_to(my_db_monetdb, iris, "iris_table")
+	copy_to(my_db_sqlite, iris, "iris_table")
+	res1 <- tbl(my_db_monetdb, "iris_table") %>% mutate(sepal_category = case_when(sepal_length>5.5~"long", sepal_length>5~"medium", TRUE~"short")) %>% collect()
+	res2 <- tbl(my_db_sqlite, "iris_table") %>% mutate(sepal_category = case_when(sepal_length>5.5~"long", sepal_length>5~"medium", TRUE~"short")) %>% collect()
+	expect_equal(res1, res2)
+})
 
 
 test_that("shutdown", {
