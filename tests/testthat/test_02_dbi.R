@@ -209,6 +209,11 @@ test_that("select * from table never uses parallelization", {
 })
 
 
+test_that("PLAN works", {
+	res <- dbGetQuery(con, "PLAN SELECT * FROM tables")
+	expect_true(length(res$plan) > 0)
+})
+
 
 like_match <- function(pattern, data, case_insensitive) {
 	dbBegin(con)
@@ -456,6 +461,13 @@ test_that("pk violations throw errors", {
 	dbRollback(con)
 	expect_false(dbExistsTable(con, tname))
 })
+
+test_that("unions of various NULL works", {
+	dbBegin(con)
+	dbGetQuery(con, "SELECT NULL AS j UNION ALL SELECT NULL AS j UNION ALL SELECT FALSE AS j")
+	dbRollback(con)
+})
+
 
 test_that("sql errrors get cleaned after borked appends", {
 	tf <- tempfile()

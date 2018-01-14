@@ -1,7 +1,7 @@
 Package: MonetDBLite
-Version: 0.5.0
+Version: 0.5.1
 Title: In-Process Version of 'MonetDB'
-Author: Hannes Muehleisen [aut, cre], Anthony Damico [ctb], Mark Raasveldt [ctb], Thomas Lumley [ctb], MonetDB B.V. [cph], CWI [cph], The Regents of the University of California [cph], Kungliga Tekniska Hogskolan [cph], Free Software Foundation, Inc. [cph]
+Author: Hannes Muehleisen [aut, cre], Mark Raasveldt [ctb], Thomas Lumley [ctb], MonetDB B.V. [cph], CWI [cph], The Regents of the University of California [cph], Kungliga Tekniska Hogskolan [cph], Free Software Foundation, Inc. [cph]
 Maintainer: Hannes Muehleisen <hannes@cwi.nl>
 Description: An in-process version of 'MonetDB', a SQL database designed for analytical tasks. Similar to 'SQLite', the database runs entirely inside the 'R' shell.
 License: MPL (== 2.0)
@@ -14,6 +14,6 @@ Suggests: assertthat, testthat, survey, nycflights13, RSQLite, dbplyr,
         dplyr, gdata, callr, devtools, DBItest
 Collate: mapi.R dbi.R dbapply.R dplyr.R control.R embedded.R zzz.R
 NeedsCompilation: yes
-Packaged: 2017-11-14 16:46:19 UTC; hannes
+Packaged: 2018-01-12 08:13:14 UTC; hannes
 Repository: CRAN
-Date/Publication: 2017-11-15 09:31:42 UTC
+Date/Publication: 2018-01-14 18:19:15 UTC

@@ -9,7 +9,7 @@
 #include "monetdb_config.h"
 #include "opt_mitosis.h"
 #include "mal_interpreter.h"
-#include <gdk_utils.h>
+#include "gdk_utils.h"
 
 static int
 eligible(MalBlkPtr mb)
@@ -72,6 +72,19 @@ OPTmitosisImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr p)
 		    	getFunctionId(p) != avgRef &&
 		    	getFunctionId(p) != sumRef &&
 		    	getFunctionId(p) != prodRef)
+			return 0;
+
+		/* do not split up floating point bat that is being summed */
+		if (p->retc == 1 &&
+			(((p->argc == 6 || p->argc == 7) &&
+			  getModuleId(p) == aggrRef &&
+			  getFunctionId(p) == subsumRef) ||
+			 (p->argc == 4 &&
+			  getModuleId(p) == aggrRef &&
+			  getFunctionId(p) == sumRef)) &&
+			isaBatType(getArgType(mb, p, p->retc)) &&
+			(getBatType(getArgType(mb, p, p->retc)) == TYPE_flt ||
+			 getBatType(getArgType(mb, p, p->retc)) == TYPE_dbl))
 			return 0;
 
 		if (p->argc > 2 && (getModuleId(p) == rapiRef || getModuleId(p) == pyapiRef || getModuleId(p) == pyapi3Ref) && 
@@ -157,7 +170,9 @@ OPTmitosisImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr p)
 	mito_size = GDKgetenv_int("mito_size", 0);
 	if (mito_size > 0) 
 		pieces = (int) ((rowcnt * row_size) / (mito_size * 1024));
-
+	if (pieces > threads) {
+		pieces = threads;
+	}
 #ifdef DEBUG_OPT_MITOSIS
 	fprintf(stderr, "#opt_mitosis: target is %s.%s "
 							   " with " BUNFMT " rows of size %d into " SZFMT

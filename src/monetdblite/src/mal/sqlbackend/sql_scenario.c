@@ -32,7 +32,8 @@
 #include "mal_builder.h"
 #include "mal_namespace.h"
 #include "mal_linker.h"
-#include <mtime.h>
+#include "bat5.h"
+#include "mtime.h"
 #include "optimizer.h"
 #include "opt_prelude.h"
 #include "opt_pipes.h"
@@ -521,6 +522,7 @@ SQLinitClient(Client c)
 			if (m->sa)
 				sa_destroy(m->sa);
 			m->sa = NULL;
+			m->sqs = NULL;
 		}
 
 #else
@@ -565,6 +567,7 @@ SQLinitClient(Client c)
 					if (m->sa)
 						sa_destroy(m->sa);
 					m->sa = NULL;
+					m->sqs = NULL;
 					if (msg)
 						p = NULL;
 				}
@@ -574,6 +577,7 @@ SQLinitClient(Client c)
 			fprintf(stderr, "!could not read createdb.sql\n");
 #endif
 	} else {		/* handle upgrades */
+		m->sqs = NULL;
 		if (!m->sa)
 			m->sa = sa_create();
 		if (!m->sa) {
@@ -731,6 +735,7 @@ SQLinclude(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	if (m->sa)
 		sa_destroy(m->sa);
 	m->sa = NULL;
+	m->sqs = NULL;
 	(void) mb;
 	return msg;
 }
@@ -960,7 +965,8 @@ SQLparser(Client c)
 
 	/* sqlparse needs sql allocator to be available.  It can be NULL at
 	 * this point if this is a recursive call. */
-	if (!m->sa)
+	m->sqs = NULL;
+	if (!m->sa) 
 		m->sa = sa_create();
 	if (!m->sa) {
 		mnstr_printf(out, "!Could not create SQL allocator\n");
@@ -1094,6 +1100,7 @@ SQLparser(Client c)
 	} else if (caching(m) && cachable(m, NULL) && m->emode != m_prepare && (be->q = qc_match(m->qc, m->sym, m->args, m->argc, m->scanner.key ^ m->session->schema->base.id)) != NULL) {
 		/* query template was found in the query cache */
 		scanner_query_processed(&(m->scanner));
+		m->no_mitosis = be->q->no_mitosis;
 	} else {
 		sql_rel *r;
 
@@ -1142,7 +1149,8 @@ SQLparser(Client c)
 						  m->args,	/* the argument list */
 						  m->argc, m->scanner.key ^ m->session->schema->base.id,	/* the statement hash key */
 						  m->emode == m_prepare ? Q_PREPARE : m->type,	/* the type of the statement */
-						  escaped_q);
+						  escaped_q,
+						  m->no_mitosis);
 			}
 			if(!be->q) {
 				err = 1;
@@ -1232,5 +1240,31 @@ SQLCacheRemove(Client c, str nme)
 	if (s == NULL)
 		throw(MAL, "cache.remove", "internal error, symbol missing\n");
 	deleteSymbol(c->nspace, s);
+	return MAL_SUCCEED;
+}
+
+str
+SYSupdate_tables(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
+{
+	mvc *m = ((backend *) cntxt->sqlcontext)->mvc;
+
+	(void) mb;
+	(void) stk;
+	(void) pci;
+
+	sql_trans_update_tables(m->session->tr, mvc_bind_schema(m, "sys"));
+	return MAL_SUCCEED;
+}
+
+str
+SYSupdate_schemas(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
+{
+	mvc *m = ((backend *) cntxt->sqlcontext)->mvc;
+
+	(void) mb;
+	(void) stk;
+	(void) pci;
+
+	sql_trans_update_schemas(m->session->tr);
 	return MAL_SUCCEED;
 }
