@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2018 MonetDB B.V.
  */
 
 #ifndef _REL_SELECT_H_
@@ -30,5 +30,8 @@ extern sql_exp *rel_nop_(mvc *sql, sql_exp *l, sql_exp *r, sql_exp *r2, sql_exp 
 
 extern sql_rel *rel_with_query(mvc *sql, symbol *q);
 extern sql_rel *table_ref(mvc *sql, sql_rel *rel, symbol *tableref, int lateral);
+
+
+extern sql_rel *rel_loader_function(mvc* sql, symbol* s, list *fexps, sql_subfunc **loader_function);
 
 #endif /*_REL_SELECT_H_*/

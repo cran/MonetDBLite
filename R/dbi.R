@@ -47,8 +47,7 @@ check_flag <- function(x) {
 
 
 setMethod("dbConnect", "MonetDBDriver", def=function(drv, dbname="demo", user="monetdb", 
-                                                     password="monetdb", host="localhost", port=50000L, timeout=60L, wait=FALSE, language="sql", embedded=FALSE,
-                                                     ..., url="") {
+                                                     password="monetdb", host="localhost", port=50000L, timeout=60L, wait=FALSE, language="sql", embedded=FALSE, bigint=ifelse(getOption("monetdb.int64", FALSE), "integer64", "numeric"), ..., url="") {
   
 
   if (substring(url, 1, 10) == "monetdb://" || substring(url, 1, 12) == "monetdblite:") {
@@ -101,6 +100,19 @@ setMethod("dbConnect", "MonetDBDriver", def=function(drv, dbname="demo", user="m
     else embedded <- dbname
   }
 
+  bigint <- tolower(bigint)
+  int64 <- FALSE
+  if (!(bigint %in% c("numeric", "integer64"))) {
+    stop("Only numeric and integer64 supported for bigint parameter.")
+  }
+  if (bigint == "integer64" && embedded == FALSE) {
+    stop("integer64 support only supported in embedded mode.")
+  }
+  if (bigint == "integer64") {
+    int64 <- TRUE
+  }
+
+
   if (embedded != FALSE) {
     monetdb_embedded_startup(embedded, !getOption("monetdb.debug.embedded", FALSE), 
       getOption("monetdb.sequential", FALSE))
@@ -108,7 +120,9 @@ setMethod("dbConnect", "MonetDBDriver", def=function(drv, dbname="demo", user="m
     connenv$conn <- monetdb_embedded_connect()
     connenv$open <- TRUE
     connenv$autocommit <- TRUE
-    connenv$resultsets = 0
+    connenv$resultsets <- 0
+    connenv$int64 <- int64
+
     conn <- new("MonetDBEmbeddedConnection", connenv=connenv)
     attr(conn, "dbPreExists") <- TRUE
     return(conn)
@@ -146,7 +160,8 @@ setMethod("dbConnect", "MonetDBDriver", def=function(drv, dbname="demo", user="m
   connenv$deferred <- list()
   connenv$exception <- list()
   connenv$autocommit <- TRUE
-  connenv$params <- list(drv=drv, host=host, port=port, timeout=timeout, dbname=dbname, user=user, password=password, language=language)
+  connenv$int64 <- 0
+  connenv$params <- list(drv=drv, host=host, port=port, timeout=timeout, dbname=dbname, user=user, password=password, language=language, bigint=bigint)
   connenv$socket <- .mapiConnect(host, port, timeout) 
   .mapiAuthenticate(connenv$socket, dbname, user, password, language=language)
   
@@ -351,8 +366,10 @@ setMethod("dbSendQuery", signature(conn="MonetDBConnection", statement="characte
 # This one does all the work in this class
 setMethod("dbSendQuery", signature(conn="MonetDBEmbeddedConnection", statement="character"),  
           def=function(conn, statement, ..., list=NULL, execute = TRUE, resultconvert = TRUE) {   
+
   check_flag(execute)
   check_flag(resultconvert)
+
   if (!conn@connenv$open) {
     stop("This connection was closed.")
   }
@@ -367,7 +384,7 @@ setMethod("dbSendQuery", signature(conn="MonetDBEmbeddedConnection", statement="
   if(!is.null(log_file <- getOption("monetdb.log.query", NULL)))
     cat(c(statement, ";\n"), file = log_file, sep="", append = TRUE)
   startt <- Sys.time()
-  resp <- monetdb_embedded_query(conn@connenv$conn, statement, execute, resultconvert)
+  resp <- monetdb_embedded_query(conn@connenv$conn, statement, execute, resultconvert, conn@connenv$int64)
   takent <- round(as.numeric(Sys.time() - startt), 2)
   env <- new.env(parent=emptyenv())
   env$open <- TRUE
@@ -542,9 +559,9 @@ setMethod("dbWriteTable", signature(conn="MonetDBConnection", name = "character"
   }
 
   value <- sqlRownamesToColumn(value, row.names)
-  
+  int64 <- conn@connenv$int64
   if (!dbExistsTable(conn, qname)) {
-    fts <- sapply(value, dbDataType, dbObj=conn)
+    fts <- sapply(value, dbDataType, dbObj=conn, int64=int64)
     if (!is.null(field.types)) {
       if (!is.character(field.types) || length(field.types) != length(fts)) {
         stop("invalid field types argument")
@@ -576,6 +593,13 @@ setMethod("dbWriteTable", signature(conn="MonetDBConnection", name = "character"
     for (c in names(classes[classes=="factor"])) {
       levels(value[[c]]) <- enc2utf8(levels(value[[c]]))
     }
+    for (c in names(classes[classes=="integer64"])) {
+      if (!int64) {
+        value[[c]] <- as.numeric(value[[c]])
+       }
+    }
+
+
     if (inherits(conn, "MonetDBEmbeddedConnection")) {
       for (c in names(classes[classes=="POSIXlt"])) {
         value[[c]] <- as.POSIXct(value[[c]])
@@ -626,11 +650,12 @@ setMethod("dbWriteTable", signature(conn="MonetDBConnection", name = "character"
   return(invisible(TRUE))
 })
 
-datatype <- function(dbObj, obj, ...) {
+datatype <- function(dbObj, obj, int64=FALSE, ...) {
   if (is.null(obj)) stop("NULL parameter")
   if (is.data.frame(obj)) {
     return (vapply(obj, function(x) datatype(dbObj, x), FUN.VALUE = "character"))
   }
+  else if (int64 && inherits(obj, "integer64")) "BIGINT"
   else if (inherits(obj, "Date")) "DATE"
   else if (inherits(obj, "difftime")) "TIME"
   else if (is.logical(obj)) "BOOLEAN"

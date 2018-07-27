@@ -3,46 +3,13 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2018 MonetDB B.V.
  */
 
 #ifndef __MMATH_H__
 #define __MMATH_H__
 #include "mal.h"
 #include "mal_exception.h"
-#include <math.h>
-
-
-#if defined(HAVE_FPCLASSIFY) || defined(fpclassify)
-/* C99 interface: fpclassify */
-# define MNisinf(x)		(fpclassify(x) == FP_INFINITE)
-# define MNisnan(x)		(fpclassify(x) == FP_NAN)
-# define MNfinite(x)	(!MNisinf(x) && !MNisnan(x))
-#else
-# define MNisnan(x)		isnan(x)
-# define MNfinite(x)	finite(x)
-# ifdef HAVE_ISINF
-#  define MNisinf(x)	isinf(x)
-# else
-static inline int
-MNisinf(double x)
-{
-#ifdef HAVE_FPCLASS
-	int cl = fpclass(x);
-
-	return ((cl == FP_NINF) || (cl == FP_PINF));
-#else
-	(void)x;
-	return 0;		/* XXX not correct if infinite */
-#endif
-}
-# endif
-#endif /* HAVE_FPCLASSIFY */
-
-extern double sqrt(double x);
-extern double sin(double x);
-extern double cos(double x);
-extern double fabs(double x);
 
 #define unopbaseM5_export(X1,X2)\
 mal_export str MATHunary##X1##X2(X2 *res, const X2 *a);

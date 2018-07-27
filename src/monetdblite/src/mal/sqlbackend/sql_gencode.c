@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2018 MonetDB B.V.
  */
 
 /*
@@ -59,7 +59,8 @@ constantAtom(backend *sql, MalBlkPtr mb, atom *a)
 
 	(void) sql;
 	cst.vtype = 0;
-	VALcopy(&cst, vr);
+	if(VALcopy(&cst, vr) == NULL)
+		return -1;
 	idx = defConstant(mb, vr->vtype, &cst);
 	return idx;
 }
@@ -71,7 +72,7 @@ constantAtom(backend *sql, MalBlkPtr mb, atom *a)
 void
 initSQLreferences(void)
 {
-	if (algebraRef == NULL)
+	if (zero_or_oneRef == NULL)
 		GDKfatal("error initSQLreferences");
 }
 
@@ -192,7 +193,7 @@ _create_relational_function(mvc *m, const char *mod, const char *name, sql_rel *
 			int varid = 0;
 			char buf[64];
 
-			if (e->type == e_atom) 
+			if (e->type == e_atom)
 				snprintf(buf,64,"A%d",e->flag);
 			else
 				snprintf(buf,64,"A%s",e->name);
@@ -218,11 +219,12 @@ _create_relational_function(mvc *m, const char *mod, const char *name, sql_rel *
 		curBlk->inlineProp = 1;
 	/* optimize the code */
 	SQLaddQueryToCache(c);
-	if( curBlk->inlineProp == 0)
-		SQLoptimizeQuery(c, c->curprg->def);
-	else{
-		chkProgram(c->fdout, c->nspace, c->curprg->def);
-		SQLoptimizeFunction(c,c->curprg->def);
+	if (curBlk->inlineProp == 0 && !c->curprg->def->errors) {
+		c->curprg->def->errors = SQLoptimizeQuery(c, c->curprg->def);
+	} else if(curBlk->inlineProp != 0) {
+		chkProgram(c->usermodule, c->curprg->def);
+		if(!c->curprg->def->errors)
+			c->curprg->def->errors = SQLoptimizeFunction(c,c->curprg->def);
 	}
 	if (backup)
 		c->curprg = backup;
@@ -481,6 +483,16 @@ _create_relational_remote(mvc *m, const char *mod, const char *name, sql_rel *re
 	for (i = 0; i < curInstr->retc; i++)
 		p = pushArgument(curBlk, p, lret[i]);
 	pushInstruction(curBlk, p);
+
+	/* catch exceptions */
+	p = newCatchStmt(curBlk,"MALexception");
+        p = newExitStmt(curBlk,"MALexception");
+        p = newCatchStmt(curBlk,"SQLexception");
+        p = newExitStmt(curBlk,"SQLexception");
+	/* remote.disconnect(q); */
+	p = newStmt(curBlk, remoteRef, disconnectRef);
+	p = pushArgument(curBlk, p, q);
+
 	pushEndInstruction(curBlk);
 
 	/* SQL function definitions meant for inlineing should not be optimized before */
@@ -488,8 +500,9 @@ _create_relational_remote(mvc *m, const char *mod, const char *name, sql_rel *re
 	//curBlk->inlineProp = 1;
 
 	SQLaddQueryToCache(c);
-	//chkProgram(c->fdout, c->nspace, c->curprg->def);
-	SQLoptimizeFunction(c, c->curprg->def);
+	//chkProgram(c->usermodule, c->curprg->def);
+	if(!c->curprg->def->errors)
+		c->curprg->def->errors = SQLoptimizeFunction(c, c->curprg->def);
 	if (backup)
 		c->curprg = backup;
 	GDKfree(lname);		/* make sure stub is called */
@@ -639,6 +652,7 @@ backend_callinline(backend *be, Client c)
 	InstrPtr curInstr = 0;
 	MalBlkPtr curBlk = c->curprg->def;
 
+	setVarType(curBlk, 0, 0);
 	if (m->argc) {	
 		int argc = 0;
 
@@ -658,7 +672,9 @@ backend_callinline(backend *be, Client c)
 				sql_subtype *t = atom_type(a);
 				(void) pushNil(curBlk, curInstr, t->type->localtype);
 			} else {
-				int _t = constantAtom(be, curBlk, a);
+				int _t;
+				if((_t = constantAtom(be, curBlk, a)) == -1)
+					return -1;
 				(void) pushArgument(curBlk, curInstr, _t);
 			}
 		}
@@ -735,8 +751,8 @@ backend_dumpproc(backend *be, Client c, cq *cq, sql_rel *r)
 	if (cq){
 		SQLaddQueryToCache(c);
 		// optimize this code the 'old' way
-		if ( m->emode == m_prepare || !qc_isaquerytemplate(getFunctionId(getInstrPtr(c->curprg->def,0))) )
-			SQLoptimizeFunction(c,c->curprg->def);
+		if ( (m->emode == m_prepare || !qc_isaquerytemplate(getFunctionId(getInstrPtr(c->curprg->def,0)))) && !c->curprg->def->errors )
+			c->curprg->def->errors = SQLoptimizeFunction(c,c->curprg->def);
 	}
 
 	// restore the context for the wrapper code
@@ -788,7 +804,11 @@ backend_call(backend *be, Client c, cq *cq)
 				/* need type from the prepared argument */
 				q = pushNil(mb, q, t->type->localtype);
 			} else {
-				int _t = constantAtom(be, mb, a);
+				int _t;
+				if((_t = constantAtom(be, mb, a)) == -1) {
+					(void) sql_error(m, 02, SQLSTATE(HY001) "Allocation failure during function call: %s\n", atom_type(a)->type->sqlname);
+					break;
+				}
 				q = pushArgument(mb, q, _t);
 			}
 		}
@@ -805,11 +825,11 @@ monet5_resolve_function(ptr M, sql_func *f)
 
 	/*
 	   fails to search outer modules!
-	   if (!findSymbol(c->nspace, f->mod, f->imp))
+	   if (!findSymbol(c->usermodule, f->mod, f->imp))
 	   return 0;
 	 */
 
-	for (m = findModule(c->nspace, f->mod); m; m = m->link) {
+	for (m = findModule(c->usermodule, f->mod); m; m = m->link) {
 		if (strcmp(m->name, f->mod) == 0) {
 			Symbol s = m->space[(int) (getSymbolIndex(f->imp))];
 			for (; s; s = s->peer) {
@@ -946,6 +966,27 @@ backend_create_map_py3_func(backend *be, sql_func *f)
 	return 0;
 }
 
+/* Create the MAL block for a registered function and optimize it */
+static int
+backend_create_c_func(backend *be, sql_func *f)
+{
+	(void)be;
+	switch(f->type) {
+	case  F_AGGR:
+		f->mod = "capi";
+		f->imp = "eval_aggr";
+		break;
+	case F_LOADER:
+	case F_PROC: /* no output */
+	case F_FUNC:
+	default: /* ie also F_FILT and F_UNION for now */
+		f->mod = "capi";
+		f->imp = "eval";
+		break;
+	}
+	return 0;
+}
+
 static int
 backend_create_sql_func(backend *be, sql_func *f, list *restypes, list *ops)
 {
@@ -964,7 +1005,7 @@ backend_create_sql_func(backend *be, sql_func *f, list *restypes, list *ops)
 		f->sql++;
 	r = rel_parse(m, f->s, f->query, m_instantiate);
 	if (r) {
-		r = rel_optimizer(m, r);
+		r = rel_optimizer(m, r, 0);
 		r = rel_distribute(m, r);
 		r = rel_partition(m, r);
 	}
@@ -1059,11 +1100,12 @@ backend_create_sql_func(backend *be, sql_func *f, list *restypes, list *ops)
 		curBlk->unsafeProp = 1;
 	/* optimize the code */
 	SQLaddQueryToCache(c);
-	if( curBlk->inlineProp == 0)
-		SQLoptimizeFunction(c, c->curprg->def);
-	else{
-		chkProgram(c->fdout, c->nspace, c->curprg->def);
-		SQLoptimizeFunction(c,c->curprg->def);
+	if( curBlk->inlineProp == 0 && !c->curprg->def->errors) {
+		c->curprg->def->errors = SQLoptimizeFunction(c, c->curprg->def);
+	} else if(curBlk->inlineProp != 0){
+		chkProgram(c->usermodule, c->curprg->def);
+		if(!c->curprg->def->errors)
+			c->curprg->def->errors = SQLoptimizeFunction(c,c->curprg->def);
 	}
 	if (backup)
 		c->curprg = backup;
@@ -1099,6 +1141,8 @@ backend_create_func(backend *be, sql_func *f, list *restypes, list *ops)
 	case FUNC_LANG_MAP_PY3:
 		return backend_create_map_py3_func(be, f);
 	case FUNC_LANG_C:
+	case FUNC_LANG_CPP:
+		return backend_create_c_func(be, f);
 	case FUNC_LANG_J:
 	default:
 		return -1;
@@ -1138,52 +1182,4 @@ _rel_print(mvc *sql, sql_rel *rel)
 	mnstr_printf(GDKstdout, "\n");
 }
 
-void
-rel_print(mvc *sql, sql_rel *rel, int depth) 
-{
-	list *refs = sa_list(sql->sa);
-	size_t pos;
-	size_t nl = 0;
-	size_t len = 0, lastpos = 0;
-	stream *fd = sql->scanner.ws;
-	stream *s;
-	buffer *b = buffer_create(16364); /* hopefully enough */
-	if (!b)
-		return; /* signal somehow? */
-	s = buffer_wastream(b, "SQL Plan");
-	if (!s) {
-		buffer_destroy(b);
-		return; /* signal somehow? */
-	}
-
-	rel_print_refs(sql, s, rel, depth, refs, 1);
-	rel_print_(sql, s, rel, depth, refs, 1);
-	mnstr_printf(s, "\n");
-
-	/* count the number of lines in the output, skip the leading \n */
-	for (pos = 1; pos < b->pos; pos++) {
-		if (b->buf[pos] == '\n') {
-			nl++;
-			if (len < pos - lastpos)
-				len = pos - lastpos;
-			lastpos = pos + 1;
-		}
-	}
-	b->buf[b->pos - 1] = '\0';  /* should always end with a \n, can overwrite */
-
-	/* craft a semi-professional header */
-	mnstr_printf(fd, "&1 0 " SZFMT " 1 " SZFMT "\n", /* type id rows columns tuples */
-			nl, nl);
-	mnstr_printf(fd, "%% .plan # table_name\n");
-	mnstr_printf(fd, "%% rel # name\n");
-	mnstr_printf(fd, "%% clob # type\n");
-	mnstr_printf(fd, "%% " SZFMT " # length\n", len - 1 /* remove = */);
-
-	/* output the data */
-	mnstr_printf(fd, "%s\n", b->buf + 1 /* omit starting \n */);
-
-	mnstr_close(s);
-	mnstr_destroy(s);
-	buffer_destroy(b);
-}
 

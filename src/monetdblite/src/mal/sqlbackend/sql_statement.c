@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2018 MonetDB B.V.
  */
 
 #include "monetdb_config.h"
@@ -13,6 +13,7 @@
 #include "sql_gencode.h"
 #include "rel_rel.h"
 #include "rel_exp.h"
+#include "rel_prop.h"
 #include "rel_optimizer.h"
 
 #include "mal_namespace.h"
@@ -1189,7 +1190,11 @@ stmt_atom(backend *be, atom *a)
 	if (atom_null(a)) {
 		q = pushNil(mb, q, atom_type(a)->type->localtype);
 	} else {
-		int k = constantAtom(be, mb, a);
+		int k;
+		if((k = constantAtom(be, mb, a)) == -1) {
+			freeInstruction(q);
+			return NULL;
+		}
 
 		q = pushArgument(mb, q, k);
 	}
@@ -2243,7 +2248,6 @@ stmt_catalog(backend *be, int type, stmt *args)
 	MalBlkPtr mb = be->mb;
 	InstrPtr q = NULL;
 	node *n;
-	int if_exists =0;
 
 	if (args->nr < 0)
 		return NULL;
@@ -2254,16 +2258,10 @@ stmt_catalog(backend *be, int type, stmt *args)
 	case DDL_ALTER_SEQ:	q = newStmt(mb, sqlcatalogRef, alter_seqRef); break;
 	case DDL_DROP_SEQ:	q = newStmt(mb, sqlcatalogRef, drop_seqRef); break;
 	case DDL_CREATE_SCHEMA:	q = newStmt(mb, sqlcatalogRef, create_schemaRef); break;
-	case DDL_DROP_SCHEMA_IF_EXISTS: if_exists =1;
-		/* fall through */
 	case DDL_DROP_SCHEMA:	q = newStmt(mb, sqlcatalogRef, drop_schemaRef); break;
 	case DDL_CREATE_TABLE:	q = newStmt(mb, sqlcatalogRef, create_tableRef); break;
 	case DDL_CREATE_VIEW:	q = newStmt(mb, sqlcatalogRef, create_viewRef); break;
-	case DDL_DROP_TABLE_IF_EXISTS: if_exists =1;
-		/* fall through */
 	case DDL_DROP_TABLE:	q = newStmt(mb, sqlcatalogRef, drop_tableRef); break;
-	case DDL_DROP_VIEW_IF_EXISTS: if_exists = 1;
-		/* fall through */
 	case DDL_DROP_VIEW:	q = newStmt(mb, sqlcatalogRef, drop_viewRef); break;
 	case DDL_DROP_CONSTRAINT:	q = newStmt(mb, sqlcatalogRef, drop_constraintRef); break;
 	case DDL_ALTER_TABLE:	q = newStmt(mb, sqlcatalogRef, alter_tableRef); break;
@@ -2289,6 +2287,7 @@ stmt_catalog(backend *be, int type, stmt *args)
 	case DDL_ALTER_TABLE_ADD_TABLE:	q = newStmt(mb, sqlcatalogRef, alter_add_tableRef); break;
 	case DDL_ALTER_TABLE_DEL_TABLE:	q = newStmt(mb, sqlcatalogRef, alter_del_tableRef); break;
 	case DDL_ALTER_TABLE_SET_ACCESS:q = newStmt(mb, sqlcatalogRef, alter_set_tableRef); break;
+	case DDL_COMMENT_ON:	q = newStmt(mb, sqlcatalogRef, comment_onRef); break;
 	default:
 		showException(GDKout, SQL, "sql", "catalog operation unknown\n");
 	}
@@ -2304,8 +2303,6 @@ stmt_catalog(backend *be, int type, stmt *args)
 			freeInstruction(q);
 			return NULL;
 		}
-		if( if_exists)
-			pushInt(mb,q,1);
 		s->op1 = args;
 		s->flag = type;
 		s->q = q;
@@ -2747,7 +2744,7 @@ stmt_Nop(backend *be, stmt *ops, sql_subfunc *f)
 		return NULL;
 	mod = sql_func_mod(f->func);
 	fimp = sql_func_imp(f->func);
-	if (o && o->nrcols > 0) {
+	if (o && o->nrcols > 0 && f->func->type != F_LOADER) {
 		sql_subtype *res = f->res->h->data;
 		fimp = convertMultiplexFcn(fimp);
 		q = NULL;
@@ -2783,8 +2780,15 @@ stmt_Nop(backend *be, stmt *ops, sql_subfunc *f)
 	}
 	if (LANG_EXT(f->func->lang))
 		q = pushPtr(mb, q, f);
-	if (f->func->lang == FUNC_LANG_R || f->func->lang >= FUNC_LANG_PY)
-		q = pushStr(mb, q, f->func->query);
+	if (f->func->lang == FUNC_LANG_C) {
+		q = pushBit(mb, q, 0);
+	} else if (f->func->lang == FUNC_LANG_CPP) {
+		q = pushBit(mb, q, 1);
+	}
+	if (f->func->lang == FUNC_LANG_R || f->func->lang >= FUNC_LANG_PY ||
+		f->func->lang == FUNC_LANG_C || f->func->lang == FUNC_LANG_CPP) {
+		q = pushStr(mb, q, f->func->query);	
+	}
 	/* first dynamic output of copy* functions */
 	if (f->func->type == F_UNION || (f->func->type == F_LOADER && f->res != NULL))
 		q = table_func_create_result(mb, q, f->func, f->res);
@@ -2836,12 +2840,20 @@ stmt_func(backend *be, stmt *ops, const char *name, sql_rel *rel, int f_union)
 	InstrPtr q = NULL;
 	const char *mod = "user";
 	node *n;
+	prop *p = NULL;
 
 	/* dump args */
 	if (ops && ops->nr < 0)
 		return NULL;
 
-	rel = rel_optimizer(be->mvc, rel);
+	p = find_prop(rel->p, PROP_REMOTE);
+	if (p) 
+		rel->p = prop_remove(rel->p, p);
+	rel = rel_optimizer(be->mvc, rel, 0);
+	if (p) {
+		p->p = rel->p;
+		rel->p = p;
+	}
 
 	if (monet5_create_relational_function(be->mvc, mod, name, rel, ops, NULL, 1) < 0)
 		 return NULL;
@@ -2900,7 +2912,7 @@ stmt_func(backend *be, stmt *ops, const char *name, sql_rel *rel, int f_union)
 }
 
 stmt *
-stmt_aggr(backend *be, stmt *op1, stmt *grp, stmt *ext, sql_subaggr *op, int reduce, int no_nil)
+stmt_aggr(backend *be, stmt *op1, stmt *grp, stmt *ext, sql_subaggr *op, int reduce, int no_nil, int nil_if_empty)
 {
 	MalBlkPtr mb = be->mb;
 	InstrPtr q = NULL;
@@ -2947,12 +2959,19 @@ stmt_aggr(backend *be, stmt *op1, stmt *grp, stmt *ext, sql_subaggr *op, int red
 	if (LANG_EXT(op->aggr->lang))
 		q = pushPtr(mb, q, op->aggr);
 	if (op->aggr->lang == FUNC_LANG_R ||
-		op->aggr->lang >= FUNC_LANG_PY) {
+		op->aggr->lang >= FUNC_LANG_PY || 
+		op->aggr->lang == FUNC_LANG_C ||
+		op->aggr->lang == FUNC_LANG_CPP) {
 		if (!grp) {
 			setVarType(mb, getArg(q, 0), restype);
 			setVarUDFtype(mb, getArg(q, 0));
 		}
-		q = pushStr(mb, q, op->aggr->query);
+		if (op->aggr->lang == FUNC_LANG_C) {
+			q = pushBit(mb, q, 0);
+		} else if (op->aggr->lang == FUNC_LANG_CPP) {
+			q = pushBit(mb, q, 1);
+		}
+ 		q = pushStr(mb, q, op->aggr->query);
 	}
 
 	if (op1->type != st_list) {
@@ -2980,6 +2999,8 @@ stmt_aggr(backend *be, stmt *op1, stmt *grp, stmt *ext, sql_subaggr *op, int red
 			q = pushBit(mb, q, TRUE);
 	} else if (no_nil && strncmp(aggrfunc, "count", 5) == 0) {
 		q = pushBit(mb, q, no_nil);
+	} else if (!nil_if_empty && strncmp(aggrfunc, "sum", 3) == 0) {
+		q = pushBit(mb, q, FALSE);
 	}
 	if (q) {
 		stmt *s = stmt_create(be->mvc->sa, st_aggr);

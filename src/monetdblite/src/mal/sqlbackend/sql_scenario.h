@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2018 MonetDB B.V.
  */
 
 #ifndef _SQL_SCENARIO_H_
@@ -20,7 +20,7 @@ sql5_export str SQLsession2(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr 
 sql5_export str SQLprelude(void *ret);
 sql5_export str SQLepilogue(void *ret);
 
-sql5_export int SQLautocommit(Client c, mvc *m);
+sql5_export str SQLautocommit(mvc *m);
 sql5_export void SQLtrans(mvc *m);
 
 sql5_export str SQLexit(Client c);
@@ -30,10 +30,11 @@ sql5_export str SQLinitClient(Client c);
 sql5_export str SQLreader(Client c);
 sql5_export str SQLparser(Client c);
 sql5_export str SQLengine(Client c);
+sql5_export str SQLcallback(Client c, str msg);
 sql5_export str SQLassert(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
 sql5_export str SQLassertInt(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
 sql5_export str SQLassertLng(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
-sql5_export int handle_error(mvc *m, stream *out, int pstatus);
+sql5_export str handle_error(mvc *m, int pstatus, str msg);
 #ifdef HAVE_HGE
 sql5_export str SQLassertHge(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
 #endif

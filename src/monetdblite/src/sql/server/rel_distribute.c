@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2018 MonetDB B.V.
  */
 
 /*#define DEBUG*/
@@ -62,6 +62,7 @@ has_remote_or_replica( sql_rel *rel )
 	case op_insert:
 	case op_update:
 	case op_delete:
+	case op_truncate:
 		if (rel->r && has_remote_or_replica( rel->r )) 
 			return 1;
 		break;
@@ -213,6 +214,7 @@ replica(mvc *sql, sql_rel *rel, char *uri)
 	case op_insert:
 	case op_update:
 	case op_delete:
+	case op_truncate:
 		rel->r = replica(sql, rel->r, uri);
 		break;
 	}
@@ -346,6 +348,7 @@ distribute(mvc *sql, sql_rel *rel)
 	case op_insert:
 	case op_update:
 	case op_delete:
+	case op_truncate:
 		rel->r = distribute(sql, rel->r);
 		break;
 	}
@@ -430,6 +433,7 @@ rel_remote_func(mvc *sql, sql_rel *rel)
 	case op_insert:
 	case op_update:
 	case op_delete:
+	case op_truncate:
 		rel->r = rel_remote_func(sql, rel->r);
 		break;
 	}

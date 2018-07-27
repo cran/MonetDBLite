@@ -3,14 +3,12 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2018 MonetDB B.V.
  */
 
 #ifndef _SQL_SEMANTIC_H_
 #define _SQL_SEMANTIC_H_
 
-#include <stdio.h>
-#include <stdarg.h>
 #include "sql_list.h"
 #include "sql_symbol.h"
 #include "sql_parser.h"
@@ -41,8 +39,8 @@ typedef enum {
 /* literals in the parser are kept outside of the abstract syntax tree
    in the arg array, this to allow for more reuse of cached queries */
 
-extern void sql_add_arg(mvc *sql, atom *v);
-extern void sql_set_arg(mvc *sql, int nr, atom *v);
+extern atom *sql_add_arg(mvc *sql, atom *v);
+extern atom *sql_set_arg(mvc *sql, int nr, atom *v);
 extern atom *sql_bind_arg(mvc *sql, int nr);
 extern void sql_destroy_args(mvc *sql);		/* used in backend */
 

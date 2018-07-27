@@ -20,11 +20,10 @@ MonetDBLite works seamlessly with [the dplyr grammar of data manipulation](https
     install.packages("MonetDBLite")
     ````
 
-* the latest development version from github on the command line
+* the latest development version from github using `devtools`
 
     ```
-    git clone https://github.com/hannesmuehleisen/MonetDBLite-R.git --depth 1 --recursive
-    R CMD INSTALL MonetDBLite-R
+    devtools::install_github("hannesmuehleisen/MonetDBLite-R")
     ```
 
 If you encounter a bug, please file a minimal reproducible example on [github](https://github.com/hannesmuehleisen/MonetDBLite-R/issues). For questions and other discussion, please use [stack overflow](http://stackoverflow.com/questions/tagged/monetdblite) with the tag `monetdblite`.  The development version of MonetDBLite endures [sisyphean perpetual testing](https://sisyphus.project.cwi.nl/) on both unix and windows machines.
@@ -66,7 +65,7 @@ Note that MonetDB may hiccup when using network drives, use servers stored on th
 
 ## Versatile Data Importation
 
-To efficiently copy a `data.frame` object into a table within the MonetDBLite database, use [`dbWriteTable`](http://www.inside-r.org/packages/cran/DBI/docs/dbWriteTable):
+To efficiently copy a `data.frame` object into a table within the MonetDBLite database, use [`dbWriteTable`](https://CRAN.R-project.org/package=DBI):
 
 ```R
 # directly copy a data.frame object to a table within the database
@@ -151,7 +150,7 @@ dbSendQuery(con, "UPDATE mtcars SET kpl = mpg * 0.425144" )
 
 ## Glamorous Data Export
 
-The contents of an entire table within the database can be transferred to an R `data.frame` object with [`dbReadTable`](http://www.inside-r.org/packages/cran/DBI/docs/dbReadTable).  Since MonetDBLite is most useful for the storage and analysis of large datasets, there might be limited utility to copying an entire table into working RAM in R.  The `dbReadTable` function and a SQL `SELECT * FROM tablename` command are equivalent:
+The contents of an entire table within the database can be transferred to an R `data.frame` object with [`dbReadTable`](https://CRAN.R-project.org/package=DBI).  Since MonetDBLite is most useful for the storage and analysis of large datasets, there might be limited utility to copying an entire table into working RAM in R.  The `dbReadTable` function and a SQL `SELECT * FROM tablename` command are equivalent:
 
 ```R
 # directly copy a table within the database to an R data.frame object

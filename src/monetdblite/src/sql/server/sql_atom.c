@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2018 MonetDB B.V.
  */
 
 #include "monetdb_config.h"
@@ -206,7 +206,7 @@ atom_string(sql_allocator *sa, sql_subtype *tpe, const char *val)
 	if (val) {
 		a->isnull = 0;
 		a->data.val.sval = (char*)val;
-		a->data.len = (int)strlen(a->data.val.sval);
+		a->data.len = strlen(a->data.val.sval);
 	}
 
 	if (atom_debug)
@@ -263,10 +263,10 @@ atom_general(sql_allocator *sa, sql_subtype *tpe, const char *val)
 		a->isnull = 0;
 		if (ATOMstorage(type) == TYPE_str) {
 			a->isnull = 0;
-			a->data.val.sval = (char*)sql2str(sa_strdup(sa, val));
-			a->data.len = (int)strlen(a->data.val.sval);
-		} else { 
-			int res = ATOMfromstr(type, &p, &a->data.len, val);
+			a->data.val.sval = sql2str(sa_strdup(sa, val));
+			a->data.len = strlen(a->data.val.sval);
+		} else {
+			ssize_t res = ATOMfromstr(type, &p, &a->data.len, val);
 
 			/* no result or nil means error (SQL has NULL not nil) */
 			if (res < 0 || !p || ATOMcmp(type, p, ATOMnilptr(type)) == 0) {
@@ -314,7 +314,7 @@ atom2string(sql_allocator *sa, atom *a)
 #ifdef HAVE_HGE
 	case TYPE_hge:
 	{	char *_buf = buf;
-		int _bufsiz = BUFSIZ;
+		size_t _bufsiz = BUFSIZ;
 		hgeToStr(&_buf, &_bufsiz, &a->data.val.hval);
 		break;
 	}
@@ -354,7 +354,7 @@ atom2string(sql_allocator *sa, atom *a)
 		v = &a->data.val.ival;
 		if (ATOMvarsized(a->data.vtype))
 			v = a->data.val.pval;
-		if (ATOMformat(a->data.vtype, v, &p) < 0) {
+		if ((p = ATOMformat(a->data.vtype, v)) == NULL) {
                 	snprintf(buf, BUFSIZ, "atom2string(TYPE_%d) not implemented", a->data.vtype);
 		} else {
 			 char *r = sa_strdup(sa, p);
@@ -450,7 +450,7 @@ atom2sql(atom *a)
 #ifdef HAVE_HGE
 		case TYPE_hge:
 		{	char *_buf = buf;
-			int _bufsiz = BUFSIZ;
+			size_t _bufsiz = BUFSIZ;
 			hgeToStr(&_buf, &_bufsiz, &a->data.val.hval);
 			break;
 		}
@@ -500,14 +500,14 @@ atom2sql(atom *a)
 	case EC_TIMESTAMP:
 		if (a->data.vtype == TYPE_str) {
 			if (a->data.val.sval)
-				sprintf(buf, "%s '%s'", a->tpe.type->sqlname, 
+				sprintf(buf, "%s '%s'", a->tpe.type->sqlname,
 					a->data.val.sval);
 			else
 				sprintf(buf, "NULL");
 		}
 		break;
-        default:
-                snprintf(buf, BUFSIZ, "atom2sql(TYPE_%d) not implemented", a->data.vtype);
+	default:
+		snprintf(buf, BUFSIZ, "atom2sql(TYPE_%d) not implemented", a->data.vtype);
 	}
 	return _STRDUP(buf);
 }
@@ -1085,7 +1085,7 @@ atom_cast(sql_allocator *sa, atom *a, sql_subtype *tp)
 		if ((at->type->eclass == EC_DEC || 
 		     at->type->eclass == EC_NUM) && 
 		    tp->type->eclass == EC_FLT) {
-			if (a->d == dbl_nil) {
+			if (is_dbl_nil(a->d)) {
 				ptr p = &a->d;
 				char *s;
 #ifdef HAVE_HGE
@@ -1093,7 +1093,8 @@ atom_cast(sql_allocator *sa, atom *a, sql_subtype *tp)
 #else
 				lng dec = 0;
 #endif
-				int len = 0, res = 0;
+				size_t len = 0;
+				ssize_t res = 0;
 				/* cast decimals to doubles */
 				switch( at->type->localtype) {
 				case TYPE_bte:
@@ -1120,7 +1121,7 @@ atom_cast(sql_allocator *sa, atom *a, sql_subtype *tp)
 				len = sizeof(double);
 				res = ATOMfromstr(TYPE_dbl, &p, &len, s);
 				GDKfree(s);
-				if (res <= 0)
+				if (res < 0)
 					return 0;
 			}
 			if (tp->type->localtype == TYPE_dbl)
@@ -1135,16 +1136,17 @@ atom_cast(sql_allocator *sa, atom *a, sql_subtype *tp)
 			return 1;
 		}
 		if (at->type->eclass == EC_CHAR && tp->type->eclass == EC_DATE){
-			int type = tp->type->localtype, res = 0, len = (int) strlen(a->data.val.sval);
+			int type = tp->type->localtype;
+			ssize_t res = 0;
 			ptr p = NULL;
-				
+
 			a->data.len = 0;
 			res = ATOMfromstr(type, &p, &a->data.len, a->data.val.sval);
 			/* no result or nil means error (SQL has NULL not nil) */
-			if (res < len || !p || ATOMcmp(type, p, ATOMnilptr(type)) == 0) {
-				if (p)
-					GDKfree(p);
-				a->data.len = (int) strlen(a->data.val.sval);
+			if (res < (ssize_t) strlen(a->data.val.sval) || !p ||
+			    ATOMcmp(type, p, ATOMnilptr(type)) == 0) {
+				GDKfree(p);
+				a->data.len = strlen(a->data.val.sval);
 				return 0;
 			}
 			a->tpe = *tp;
@@ -1273,6 +1275,7 @@ atom_mul(atom *a1, atom *a2)
 	dst.vtype = TYPE_dbl;
 	if (VARconvert(&dst, &a1->data, 1) == GDK_SUCCEED)
 		a1->d = dst.val.dval;
+	a1->tpe.digits += a2->tpe.digits;
 	return a1;
 }
 

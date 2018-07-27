@@ -1,6 +1,8 @@
 #define RSTR(somestr) mkCharCE(somestr, CE_UTF8)
 
-#define BAT_TO_SXP(bat,n,tpe,retsxp,newfun,ptrfun,ctype,naval,memcopy)\
+#define INT64_PTR(X) ((int64_t*) NUMERIC_POINTER(X))
+
+#define BAT_TO_SXP(bat,n,tpe,retsxp,newfun,ptrfun,ctype,naval,memcopy,nacheck)\
 	do {													\
 		tpe v; BUN j;     								\
 		ctype *valptr = NULL;                               \
@@ -20,7 +22,7 @@
 		} else {                                            \
 		for (j = 0; j < n; j++) {		                    \
 			v = p[j];                                       \
-			if (v == tpe##_nil)							\
+			if (nacheck)							\
 				valptr[j] = naval;	                        \
 			else											\
 				valptr[j] = (ctype) v;	                    \
@@ -28,10 +30,10 @@
 	} while (0)
 
 #define BAT_TO_INTSXP(bat,n,tpe,retsxp,memcopy)						\
-	BAT_TO_SXP(bat,n,tpe,retsxp,NEW_INTEGER,INTEGER_POINTER,int,NA_INTEGER,memcopy)\
+	BAT_TO_SXP(bat,n,tpe,retsxp,NEW_INTEGER,INTEGER_POINTER,int,NA_INTEGER,memcopy,v == tpe##_nil)\
 
 #define BAT_TO_REALSXP(bat,n,tpe,retsxp,memcopy)						\
-	BAT_TO_SXP(bat,n,tpe,retsxp,NEW_NUMERIC,NUMERIC_POINTER,double,NA_REAL,memcopy)\
+	BAT_TO_SXP(bat,n,tpe,retsxp,NEW_NUMERIC,NUMERIC_POINTER,double,NA_REAL,memcopy,isnan(v))\
 
 #define SXP_TO_BAT(tpe,access_fun,na_check)								\
 	do {																\
@@ -152,7 +154,7 @@ static SEXP monetdb_r_dressup(BAT *b, size_t n, SEXPTYPE target_type) {
 #endif
 
 
-static SEXP bat_to_sexp(BAT* b, size_t n, sql_subtype *subtype, int *unfix) {
+static SEXP bat_to_sexp(BAT* b, size_t n, sql_subtype *subtype, int *unfix, char int64) {
 	SEXP varvalue = NULL;
 	int battype = getBatType(b->ttype);
 	// TODO: deal with more esoteric SQL types (TIME)
@@ -202,7 +204,7 @@ static SEXP bat_to_sexp(BAT* b, size_t n, sql_subtype *subtype, int *unfix) {
 			LOGICAL_POINTER(varvalue)[i] = NA_LOGICAL;
 		}
 	} else if (battype == TYPE_bit) {
-		BAT_TO_SXP(b, n, bte, varvalue, NEW_LOGICAL, LOGICAL_POINTER, int, NA_LOGICAL, 0);
+		BAT_TO_SXP(b, n, bte, varvalue, NEW_LOGICAL, LOGICAL_POINTER, int, NA_LOGICAL, 0, v == bit_nil);
 	} else if (battype == TYPE_sht) {
 		BAT_TO_INTSXP(b, n, sht, varvalue, 0);
 	} else if (battype == TYPE_int) {
@@ -240,7 +242,26 @@ static SEXP bat_to_sexp(BAT* b, size_t n, sql_subtype *subtype, int *unfix) {
 			BAT_TO_REALSXP(b, n, dbl, varvalue, 1);
 #endif
 	} else if (battype == TYPE_lng) {
-		BAT_TO_REALSXP(b, n, lng, varvalue, 0);
+		if (!int64){
+			BAT_TO_SXP(b,n,lng,varvalue,NEW_NUMERIC,NUMERIC_POINTER,double,NA_REAL,0,v == lng_nil);
+		}
+		else {
+#ifndef NATIVE_WIN32
+			if (!b->tnonil || b->tnil || b->T.heap.storage != STORE_MMAP ||
+						n < 1000000) {
+				BAT_TO_REALSXP(b, n, dbl, varvalue, 1);
+			} else {
+				varvalue = monetdb_r_dressup(b, n, REALSXP);
+				*unfix = 0;
+			}
+#else
+			BAT_TO_REALSXP(b, n, dbl, varvalue, 1);
+#endif
+			SET_CLASS(varvalue, PROTECT(mkString("integer64")));
+			UNPROTECT(1);
+		}
+
+
 	} else if (battype == TYPE_str) {
 		BUN j = 0;
 		BATiter li = bat_iterator(b);
@@ -302,7 +323,7 @@ static SEXP bat_to_sexp(BAT* b, size_t n, sql_subtype *subtype, int *unfix) {
 		if(!b2) {
 			return NULL;
 		}
-		varvalue = bat_to_sexp(b2, n, NULL, unfix);
+		varvalue = bat_to_sexp(b2, n, NULL, unfix, int64);
 		if (!varvalue) {
 			return NULL;
 		}
@@ -416,10 +437,17 @@ static BAT* sexp_to_bat(SEXP s, int type) {
 		break;
 	}
 	case TYPE_lng: {
-		if (!IS_INTEGER(s)) {
-			return NULL;
+		if (strcmp("integer64", CHAR(STRING_ELT(GET_CLASS(s), 0))) == 0) {
+			if (!IS_NUMERIC(s)) {
+				return NULL;
+			}
+			SXP_TO_BAT(lng, INT64_PTR, *p==NA_INTEGER);
+		} else {
+			if (!IS_INTEGER(s)) {
+				return NULL;
+			}
+			SXP_TO_BAT(lng, INTEGER_POINTER, *p==NA_INTEGER);
 		}
-		SXP_TO_BAT(lng, INTEGER_POINTER, *p==NA_INTEGER);
 		break;
 	}
 #ifdef HAVE_HGE
@@ -444,7 +472,7 @@ static BAT* sexp_to_bat(SEXP s, int type) {
 		if (!IS_NUMERIC(s)) {
 			return NULL;
 		}
-		SXP_TO_BAT(dbl, NUMERIC_POINTER, (ISNA(*p) || MNisnan(*p) || MNisinf(*p)));
+		SXP_TO_BAT(dbl, NUMERIC_POINTER, (ISNA(*p) || isnan(*p) || isinf(*p)));
 		break;
 	}
 	case TYPE_str: {
@@ -513,7 +541,7 @@ static BAT* sexp_to_bat(SEXP s, int type) {
 			} else {
 				b->tnil = 1;
 				b->tnonil = 0;
-				ele_blob = BLOBnull();
+				ele_blob = (blob*) BLOBnull();
 			}
 			BLOBput(b->tvheap, &bun_offset, ele_blob);
 			if (BUNappend(b, ele_blob, FALSE) != GDK_SUCCEED) {

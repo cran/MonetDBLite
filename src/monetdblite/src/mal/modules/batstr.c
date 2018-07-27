@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2018 MonetDB B.V.
  */
 
 /*
@@ -69,33 +69,33 @@ mal_export str STRbatsubstringcst(bat *ret, const bat *bid, const int *start, co
 mal_export str STRbatsubstring(bat *ret, const bat *l, const bat *r, const bat *t);
 
 
-#define prepareOperand(X,Y,Z)					\
-	if( (X= BATdescriptor(*Y)) == NULL )		\
-		throw(MAL, Z, RUNTIME_OBJECT_MISSING);
-#define prepareOperand2(X,Y,A,B,Z)				\
-	if( (X= BATdescriptor(*Y)) == NULL )		\
-		throw(MAL, Z, RUNTIME_OBJECT_MISSING);	\
-	if( (A= BATdescriptor(*B)) == NULL ){		\
-		BBPunfix(X->batCacheid);				\
-		throw(MAL, Z, RUNTIME_OBJECT_MISSING);	\
+#define prepareOperand(X,Y,Z)									\
+	if( (X= BATdescriptor(*Y)) == NULL )						\
+		throw(MAL, Z, SQLSTATE(HY002) RUNTIME_OBJECT_MISSING);
+#define prepareOperand2(X,Y,A,B,Z)								\
+	if( (X= BATdescriptor(*Y)) == NULL )						\
+		throw(MAL, Z, SQLSTATE(HY002) RUNTIME_OBJECT_MISSING);	\
+	if( (A= BATdescriptor(*B)) == NULL ){						\
+		BBPunfix(X->batCacheid);								\
+		throw(MAL, Z, SQLSTATE(HY002) RUNTIME_OBJECT_MISSING);	\
 	}
-#define prepareOperand3(X,Y,A,B,I,J,Z)			\
-	if( (X= BATdescriptor(*Y)) == NULL )		\
-		throw(MAL, Z, RUNTIME_OBJECT_MISSING);	\
-	if( (A= BATdescriptor(*B)) == NULL ){		\
-		BBPunfix(X->batCacheid);				\
-		throw(MAL, Z, RUNTIME_OBJECT_MISSING);	\
-	}											\
-	if( (I= BATdescriptor(*J)) == NULL ){		\
-		BBPunfix(X->batCacheid);				\
-		BBPunfix(A->batCacheid);				\
-		throw(MAL, Z, RUNTIME_OBJECT_MISSING);	\
+#define prepareOperand3(X,Y,A,B,I,J,Z)							\
+	if( (X= BATdescriptor(*Y)) == NULL )						\
+		throw(MAL, Z, SQLSTATE(HY002) RUNTIME_OBJECT_MISSING);	\
+	if( (A= BATdescriptor(*B)) == NULL ){						\
+		BBPunfix(X->batCacheid);								\
+		throw(MAL, Z, SQLSTATE(HY002) RUNTIME_OBJECT_MISSING);	\
+	}															\
+	if( (I= BATdescriptor(*J)) == NULL ){						\
+		BBPunfix(X->batCacheid);								\
+		BBPunfix(A->batCacheid);								\
+		throw(MAL, Z, SQLSTATE(HY002) RUNTIME_OBJECT_MISSING);	\
 	}
 #define prepareResult(X,Y,T,Z)							\
 	X= COLnew((Y)->hseqbase,T,BATcount(Y), TRANSIENT);	\
 	if( X == NULL){										\
 		BBPunfix(Y->batCacheid);						\
-		throw(MAL, Z, MAL_MALLOC_FAIL);					\
+		throw(MAL, Z, SQLSTATE(HY001) MAL_MALLOC_FAIL);	\
 	}													\
 	X->tsorted=0;										\
 	X->trevsorted=0;
@@ -104,7 +104,7 @@ mal_export str STRbatsubstring(bat *ret, const bat *l, const bat *r, const bat *
 	if( X == NULL){										\
 		BBPunfix(Y->batCacheid);						\
 		BBPunfix(A->batCacheid);						\
-		throw(MAL, Z, MAL_MALLOC_FAIL);					\
+		throw(MAL, Z, SQLSTATE(HY001) MAL_MALLOC_FAIL);	\
 	}													\
 	X->tsorted=0;										\
 	X->trevsorted=0;
@@ -580,7 +580,7 @@ do_batstr_batint_batstr_str(bat *ret, const bat *l, const bat *n, const bat *l2,
 		BBPunfix(b->batCacheid);
 		BBPunfix(b2->batCacheid);
 		BBPunfix(b3->batCacheid);
-		throw(MAL, name, MAL_MALLOC_FAIL);
+		throw(MAL, name, SQLSTATE(HY001) MAL_MALLOC_FAIL);
 	}
 	bn->tsorted=0;
 	bn->trevsorted=0;
@@ -773,13 +773,13 @@ str STRbatPrefix(bat *ret, const bat *l, const bat *r)
 	BUN p,q;
 	bit v, *vp= &v;
 
-	prepareOperand2(left,l,right,r,"batstr.prefix");
+	prepareOperand2(left,l,right,r,"batstr.startsWith");
 	if(BATcount(left) != BATcount(right)) {
 		BBPunfix(left->batCacheid);
 		BBPunfix(right->batCacheid);
 		throw(MAL, "batstr.startsWith", ILLEGAL_ARGUMENT " Requires bats of identical size");
 	}
-	prepareResult2(bn,left,right,TYPE_bit,"batstr.prefix");
+	prepareResult2(bn,left,right,TYPE_bit,"batstr.startsWith");
 
 	lefti = bat_iterator(left);
 	righti = bat_iterator(right);
@@ -799,7 +799,7 @@ bunins_failed:
 	BBPunfix(left->batCacheid);
 	BBPunfix(right->batCacheid);
 	BBPunfix(*ret);
-	throw(MAL, "batstr." "prefix", OPERATION_FAILED " During bulk operation");
+	throw(MAL, "batstr.startsWith", OPERATION_FAILED " During bulk operation");
 }
 
 str STRbatPrefixcst(bat *ret, const bat *l, const str *cst)
@@ -809,8 +809,8 @@ str STRbatPrefixcst(bat *ret, const bat *l, const str *cst)
 	BUN p,q;
 	bit v, *vp= &v;
 
-	prepareOperand(left,l,"batstr.prefix");
-	prepareResult(bn,left,TYPE_bit,"batstr.prefix");
+	prepareOperand(left,l,"batstr.startsWith");
+	prepareResult(bn,left,TYPE_bit,"batstr.startsWith");
 
 	lefti = bat_iterator(left);
 
@@ -826,7 +826,7 @@ str STRbatPrefixcst(bat *ret, const bat *l, const str *cst)
 bunins_failed:
 	BBPunfix(left->batCacheid);
 	BBPunfix(*ret);
-	throw(MAL, "batstr""prefix", OPERATION_FAILED " During bulk operation");
+	throw(MAL, "batstr.startsWith", OPERATION_FAILED " During bulk operation");
 }
 
 str STRbatSuffix(bat *ret, const bat *l, const bat *r)
@@ -836,13 +836,13 @@ str STRbatSuffix(bat *ret, const bat *l, const bat *r)
 	BUN p,q;
 	bit v, *vp= &v;
 
-	prepareOperand2(left,l,right,r,"batstr.suffix");
+	prepareOperand2(left,l,right,r,"batstr.endsWith");
 	if(BATcount(left) != BATcount(right)) {
 		BBPunfix(left->batCacheid);
 		BBPunfix(right->batCacheid);
 		throw(MAL, "batstr.endsWith", ILLEGAL_ARGUMENT " Requires bats of identical size");
 	}
-	prepareResult2(bn,left,right,TYPE_bit,"batstr.suffix");
+	prepareResult2(bn,left,right,TYPE_bit,"batstr.endsWith");
 
 	lefti = bat_iterator(left);
 	righti = bat_iterator(right);
@@ -862,7 +862,7 @@ bunins_failed:
 	BBPunfix(left->batCacheid);
 	BBPunfix(right->batCacheid);
 	BBPunfix(*ret);
-	throw(MAL, "batstr." "suffix", OPERATION_FAILED " During bulk operation");
+	throw(MAL, "batstr.endsWith", OPERATION_FAILED " During bulk operation");
 }
 
 str STRbatSuffixcst(bat *ret, const bat *l, const str *cst)
@@ -872,8 +872,8 @@ str STRbatSuffixcst(bat *ret, const bat *l, const str *cst)
 	BUN p,q;
 	bit v, *vp= &v;
 
-	prepareOperand(left,l,"batstr.suffix");
-	prepareResult(bn,left,TYPE_bit,"batstr.suffix");
+	prepareOperand(left,l,"batstr.endsWith");
+	prepareResult(bn,left,TYPE_bit,"batstr.endsWith");
 
 	lefti = bat_iterator(left);
 
@@ -889,7 +889,7 @@ str STRbatSuffixcst(bat *ret, const bat *l, const str *cst)
 bunins_failed:
 	BBPunfix(left->batCacheid);
 	BBPunfix(*ret);
-	throw(MAL, "batstr""suffix", OPERATION_FAILED " During bulk operation");
+	throw(MAL, "batstr.endsWith", OPERATION_FAILED " During bulk operation");
 }
 
 str STRbatstrSearch(bat *ret, const bat *l, const bat *r)
@@ -925,7 +925,7 @@ bunins_failed:
 	BBPunfix(left->batCacheid);
 	BBPunfix(right->batCacheid);
 	BBPunfix(*ret);
-	throw(MAL, "batstr." "search", OPERATION_FAILED " During bulk operation");
+	throw(MAL, "batstr.search", OPERATION_FAILED " During bulk operation");
 }
 
 str STRbatstrSearchcst(bat *ret, const bat *l, const str *cst)
@@ -952,7 +952,7 @@ str STRbatstrSearchcst(bat *ret, const bat *l, const str *cst)
 bunins_failed:
 	BBPunfix(left->batCacheid);
 	BBPunfix(*ret);
-	throw(MAL, "batstr""search", OPERATION_FAILED " During bulk operation");
+	throw(MAL, "batstr.search", OPERATION_FAILED " During bulk operation");
 }
 
 str STRbatRstrSearch(bat *ret, const bat *l, const bat *r)
@@ -968,7 +968,7 @@ str STRbatRstrSearch(bat *ret, const bat *l, const bat *r)
 		BBPunfix(right->batCacheid);
 		throw(MAL, "batstr.r_search", ILLEGAL_ARGUMENT " Requires bats of identical size");
 	}
-	prepareResult2(bn,left,right,TYPE_bit,"batstr.r_search");
+	prepareResult2(bn,left,right,TYPE_int,"batstr.r_search");
 
 	lefti = bat_iterator(left);
 	righti = bat_iterator(right);
@@ -988,7 +988,7 @@ bunins_failed:
 	BBPunfix(left->batCacheid);
 	BBPunfix(right->batCacheid);
 	BBPunfix(*ret);
-	throw(MAL, "batstr." "r_search", OPERATION_FAILED " During bulk operation");
+	throw(MAL, "batstr.r_search", OPERATION_FAILED " During bulk operation");
 }
 
 str STRbatRstrSearchcst(bat *ret, const bat *l, const str *cst)
@@ -999,7 +999,7 @@ str STRbatRstrSearchcst(bat *ret, const bat *l, const str *cst)
 	int v, *vp= &v;
 
 	prepareOperand(left,l,"batstr.r_search");
-	prepareResult(bn,left,TYPE_bit,"batstr.r_search");
+	prepareResult(bn,left,TYPE_int,"batstr.r_search");
 
 	lefti = bat_iterator(left);
 
@@ -1015,7 +1015,7 @@ str STRbatRstrSearchcst(bat *ret, const bat *l, const str *cst)
 bunins_failed:
 	BBPunfix(left->batCacheid);
 	BBPunfix(*ret);
-	throw(MAL, "batstr""r_search", OPERATION_FAILED " During bulk operation");
+	throw(MAL, "batstr.r_search", OPERATION_FAILED " During bulk operation");
 }
 
 str STRbatTail(bat *ret, const bat *l, const bat *r)
@@ -1100,13 +1100,13 @@ str STRbatWChrAt(bat *ret, const bat *l, const bat *r)
 	BUN p,q;
 	int v, *vp= &v;
 
-	prepareOperand2(left,l,right,r,"batstr.+");
+	prepareOperand2(left,l,right,r,"batstr.unicodeAt");
 	if(BATcount(left) != BATcount(right)) {
 		BBPunfix(left->batCacheid);
 		BBPunfix(right->batCacheid);
 		throw(MAL, "batstr.unicodeAt", ILLEGAL_ARGUMENT " Requires bats of identical size");
 	}
-	prepareResult2(bn,left,right,TYPE_bit,"batstr.+");
+	prepareResult2(bn,left,right,TYPE_int,"batstr.unicodeAt");
 
 	lefti = bat_iterator(left);
 	righti = bat_iterator(right);
@@ -1126,7 +1126,7 @@ bunins_failed:
 	BBPunfix(left->batCacheid);
 	BBPunfix(right->batCacheid);
 	BBPunfix(*ret);
-	throw(MAL, "batstr." "+", OPERATION_FAILED " During bulk operation");
+	throw(MAL, "batstr.unicodeAt", OPERATION_FAILED " During bulk operation");
 }
 
 str STRbatWChrAtcst(bat *ret, const bat *l, const int *cst)
@@ -1136,8 +1136,8 @@ str STRbatWChrAtcst(bat *ret, const bat *l, const int *cst)
 	BUN p,q;
 	int v, *vp= &v;
 
-	prepareOperand(left,l,"batstr.+");
-	prepareResult(bn,left,TYPE_bit,"batstr.+");
+	prepareOperand(left,l,"batstr.unicodeAt");
+	prepareResult(bn,left,TYPE_int,"batstr.unicodeAt");
 
 	lefti = bat_iterator(left);
 
@@ -1153,7 +1153,7 @@ str STRbatWChrAtcst(bat *ret, const bat *l, const int *cst)
 bunins_failed:
 	BBPunfix(left->batCacheid);
 	BBPunfix(*ret);
-	throw(MAL, "batstr""+", OPERATION_FAILED " During bulk operation");
+	throw(MAL, "batstr.unicodeAt", OPERATION_FAILED " During bulk operation");
 }
 
 str
@@ -1207,11 +1207,11 @@ STRbatsubstringcst(bat *ret, const bat *bid, const int *start, const int *length
 	char *msg = MAL_SUCCEED;
 
 	if( (b= BATdescriptor(*bid)) == NULL)
-		throw(MAL, "batstr.substring",RUNTIME_OBJECT_MISSING);
+		throw(MAL, "batstr.substring", SQLSTATE(HY002) RUNTIME_OBJECT_MISSING);
 	bn= COLnew(b->hseqbase, TYPE_str, BATcount(b)/10+5, TRANSIENT);
 	if (bn == NULL) {
 		BBPunfix(b->batCacheid);
-		throw(MAL, "batstr.substring", MAL_MALLOC_FAIL);
+		throw(MAL, "batstr.substring", SQLSTATE(HY001) MAL_MALLOC_FAIL);
 	}
 	bn->tsorted = b->tsorted;
 	bn->trevsorted = b->trevsorted;
@@ -1227,7 +1227,7 @@ STRbatsubstringcst(bat *ret, const bat *bid, const int *start, const int *length
 			if (msg != MAL_SUCCEED)
 				return msg;
 			GDKfree(res);
-			throw(MAL, "batstr.substring", MAL_MALLOC_FAIL);
+			throw(MAL, "batstr.substring", SQLSTATE(HY001) MAL_MALLOC_FAIL);
 		}
 		GDKfree(res);
 	}
@@ -1247,15 +1247,15 @@ str STRbatsubstring(bat *ret, const bat *l, const bat *r, const bat *t)
 	str v;
 
 	if( (left= BATdescriptor(*l)) == NULL )
-		throw(MAL, "batstr.substring" , RUNTIME_OBJECT_MISSING);
+		throw(MAL, "batstr.substring", SQLSTATE(HY002) RUNTIME_OBJECT_MISSING);
 	if( (start= BATdescriptor(*r)) == NULL ){
 		BBPunfix(left->batCacheid);
-		throw(MAL, "batstr.substring", RUNTIME_OBJECT_MISSING);
+		throw(MAL, "batstr.substring", SQLSTATE(HY002) RUNTIME_OBJECT_MISSING);
 	}
 	if( (length= BATdescriptor(*t)) == NULL ){
 		BBPunfix(left->batCacheid);
 		BBPunfix(start->batCacheid);
-		throw(MAL, "batstr.substring", RUNTIME_OBJECT_MISSING);
+		throw(MAL, "batstr.substring", SQLSTATE(HY002) RUNTIME_OBJECT_MISSING);
 	}
 	if (BATcount(left) != BATcount(start) ||
 		BATcount(left) != BATcount(length)) {
@@ -1270,7 +1270,7 @@ str STRbatsubstring(bat *ret, const bat *l, const bat *r, const bat *t)
 		BBPunfix(left->batCacheid);
 		BBPunfix(start->batCacheid);
 		BBPunfix(length->batCacheid);
-		throw(MAL, "batstr.substring", MAL_MALLOC_FAIL);
+		throw(MAL, "batstr.substring", SQLSTATE(HY001) MAL_MALLOC_FAIL);
 	}
 
 	bn->tsorted=0;
@@ -1292,7 +1292,7 @@ str STRbatsubstring(bat *ret, const bat *l, const bat *r, const bat *t)
 			if (msg)
 				return msg;
 			GDKfree(v);
-			throw(MAL, "batstr.substring", MAL_MALLOC_FAIL);
+			throw(MAL, "batstr.substring", SQLSTATE(HY001) MAL_MALLOC_FAIL);
 		}
 		GDKfree(v);
 	}

@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2018 MonetDB B.V.
  */
 
 /*
@@ -71,12 +71,12 @@ CMDBATsingle(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 
 	b = COLnew(0,getArgType(mb,pci,1),0, TRANSIENT);
 	if( b == 0)
-		throw(MAL,"bat.single",MAL_MALLOC_FAIL);
+		throw(MAL,"bat.single", SQLSTATE(HY001) MAL_MALLOC_FAIL);
 	if (ATOMextern(b->ttype))
 		u = (ptr) *(str *)u;
 	if (BUNappend(b, u, FALSE) != GDK_SUCCEED) {
 		BBPreclaim(b);
-		throw(MAL, "bat.single", MAL_MALLOC_FAIL);
+		throw(MAL, "bat.single", SQLSTATE(HY001) MAL_MALLOC_FAIL);
 	}
 	BBPkeepref(*ret = b->batCacheid);
 	return MAL_SUCCEED;
@@ -110,7 +110,7 @@ CMDBATpartition(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 		bn =  BATslice(b, lval,hval);
 		if (bn== NULL){
 			BBPunfix(b->batCacheid);
-			throw(MAL, "bat.partition", MAL_MALLOC_FAIL);
+			throw(MAL, "bat.partition", SQLSTATE(HY001) MAL_MALLOC_FAIL);
 		}
 		BAThseqbase(bn, lval);
 		stk->stk[getArg(pci,i)].val.bval = bn->batCacheid;

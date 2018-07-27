@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2018 MonetDB B.V.
  */
 
 #ifndef _GDK_SYSTEM_H_
@@ -24,17 +24,6 @@
 #endif
 #include <sched.h>
 #include <pthread.h>
-#ifndef WIN32
-/* Linux gprof messes up on multithreaded programs */
-#ifdef PROFILE
-/* Linux gprof messes up on multithreaded programs */
-gdk_export int gprof_pthread_create(pthread_t * __restrict,
-				    __const pthread_attr_t * __restrict,
-				    void *(*fcn) (void *),
-				    void *__restrict);
-#define pthread_create gprof_pthread_create
-#endif
-#endif
 #endif
 
 #ifdef HAVE_SEMAPHORE_H
@@ -317,14 +306,5 @@ typedef struct {
 	} while (0)
 
 gdk_export int MT_check_nr_cores(void);
-
-/*
- * @- Timers
- * The following relative timers are available for inspection.
- * Note that they may consume recognizable overhead.
- *
- */
-gdk_export lng GDKusec(void);
-gdk_export int GDKms(void);
 
 #endif /*_GDK_SYSTEM_H_*/
